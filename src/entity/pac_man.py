@@ -27,7 +27,7 @@ class Pac_man(Entity):
             self.direction = (-1, 0)
         else:
             # invalid key
-            pass
+            self.input = None
 
     class Input():
         @staticmethod
