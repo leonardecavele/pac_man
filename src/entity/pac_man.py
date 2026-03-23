@@ -3,7 +3,7 @@ from src.maze import Tile
 from src.type import vec2, maze
 
 
-class Pacman(Entity):
+class Pac_man(Entity):
     def __init__(
         self, screen_pos: vec2, maze_pos: vec2, sprite: str, maze: maze
     ) -> None:
