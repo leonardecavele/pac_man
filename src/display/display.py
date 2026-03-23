@@ -1,12 +1,13 @@
-from mazegenerator import MazeGenerator
 import pyray as rl
+
+from mazegenerator import MazeGenerator
 
 
 class Display:
-    def __init__(self):
+    def __init__(self, maze: list[list[int]]):
         self.generator = MazeGenerator()
         self.generator.generate(42)
-        self.maze = self.generator.maze
+        self.maze = maze
         print(self.maze)
         rl.init_window(1080, 720, "Pac-Man")
         rl.set_target_fps(60)
