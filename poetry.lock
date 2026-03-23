@@ -294,7 +294,6 @@ files = [
 librt = {version = ">=0.6.2", markers = "platform_python_implementation != \"PyPy\""}
 mypy_extensions = ">=1.0.0"
 pathspec = ">=0.9.0"
-tomli = {version = ">=1.1.0", markers = "python_version < \"3.11\""}
 typing_extensions = ">=4.6.0"
 
 [package.extras]
@@ -373,106 +372,72 @@ files = [
 
 [[package]]
 name = "raylib"
-version = "5.5.0.3"
+version = "5.5.0.4"
 description = "Python CFFI bindings for Raylib"
 optional = false
 python-versions = "*"
 groups = ["main"]
 files = [
-    {file = "raylib-5.5.0.3-cp310-cp310-macosx_13_0_x86_64.whl", hash = "sha256:4d3ac03385c643c1f557d9338489dc872e6168874df1106a937c19c42fc810c7"},
-    {file = "raylib-5.5.0.3-cp310-cp310-macosx_15_0_arm64.whl", hash = "sha256:be3efd69e1ab7422ae4ddd505ef4642f684a1db38c329aa53832c183333047fa"},
-    {file = "raylib-5.5.0.3-cp310-cp310-manylinux2014_aarch64.whl", hash = "sha256:f5e984d5a86521e56ef65719a75cd09426140924549cd8bbadfe7317ba9977ea"},
-    {file = "raylib-5.5.0.3-cp310-cp310-manylinux2014_x86_64.manylinux_2_17_x86_64.whl", hash = "sha256:359e422ed762cd4c7be478a9c4e147456573d69b142621bac99d663cd2b1bca5"},
-    {file = "raylib-5.5.0.3-cp310-cp310-win_amd64.whl", hash = "sha256:fcfb931427196450e10cc9ab707aae706f5480cc4df9a3cb7126bb7edc912627"},
-    {file = "raylib-5.5.0.3-cp311-cp311-macosx_10_13_x86_64.whl", hash = "sha256:07e43f2130017da557957dded9fd53abd81d7c0bc4d8f274f2f77027012026f7"},
-    {file = "raylib-5.5.0.3-cp311-cp311-macosx_15_0_arm64.whl", hash = "sha256:299a0eb585255ff301c5625a139fceeb051bdd0610adcf573079e28c1b4573b1"},
-    {file = "raylib-5.5.0.3-cp311-cp311-manylinux2014_aarch64.whl", hash = "sha256:02ed5e8aceea781a9b1ef7d2cbef5e972e471ac094da2d9d2ee0d659b6f8a3d3"},
-    {file = "raylib-5.5.0.3-cp311-cp311-manylinux2014_x86_64.manylinux_2_17_x86_64.whl", hash = "sha256:ee9c6d5c1c10fd2a5969f3bbffa959ffa350d2ba4ff09e9aa46abc1bc0e610df"},
-    {file = "raylib-5.5.0.3-cp311-cp311-win_amd64.whl", hash = "sha256:995661b7987cac76e4b06f2561d465416c0232210aa3a13e721f018ad8be35df"},
-    {file = "raylib-5.5.0.3-cp312-cp312-macosx_10_13_x86_64.whl", hash = "sha256:0efb1feac28512fc1097a360ef9b7f17625088bcbeeeb5275913f93358d41241"},
-    {file = "raylib-5.5.0.3-cp312-cp312-macosx_15_0_arm64.whl", hash = "sha256:d620275ffaa279e4f6bb88be4fa1a50a5ebc6a94c74e411cf15c7474dfb06027"},
-    {file = "raylib-5.5.0.3-cp312-cp312-manylinux2014_aarch64.whl", hash = "sha256:7b1a7b2f5739407889bc38a68c9bcc91a30591f6d2f0837caad708e4113d9e0f"},
-    {file = "raylib-5.5.0.3-cp312-cp312-manylinux2014_x86_64.manylinux_2_17_x86_64.whl", hash = "sha256:791beba74c173ea856cbefaa9e7c5ad94948b81c532c68eaea32ad225285cff6"},
-    {file = "raylib-5.5.0.3-cp312-cp312-win_amd64.whl", hash = "sha256:cf2f89735591c5f1a983e35ff0018b6a11c32b9a7e088d529e562e81ff52dd3c"},
-    {file = "raylib-5.5.0.3-cp313-cp313-macosx_10_13_x86_64.whl", hash = "sha256:c6bc7563fbe0b53aba8d79b9437921bd63e2b1a706434d56ec18c4e7dd59d431"},
-    {file = "raylib-5.5.0.3-cp313-cp313-macosx_15_0_arm64.whl", hash = "sha256:0866d065ae99de7ad90f6fb5511b00cae1dc93aea8d0045bd3564d60774a3a79"},
-    {file = "raylib-5.5.0.3-cp313-cp313-manylinux2014_aarch64.whl", hash = "sha256:30fce3d12ac14647ef88ce3300244b03e9a30cb0c88f5406565b5ff791b9e315"},
-    {file = "raylib-5.5.0.3-cp313-cp313-manylinux2014_x86_64.manylinux_2_17_x86_64.whl", hash = "sha256:bcdd119fd87618ce3c1f1ae29345061bc2c3d97ec3063d2f575f26586b1e4fd7"},
-    {file = "raylib-5.5.0.3-cp313-cp313-win_amd64.whl", hash = "sha256:afdafe2316dd2c2fd734968475a19211420c44353eda3a35b7b688bb38e3a9bf"},
-    {file = "raylib-5.5.0.3-cp314-cp314-macosx_10_15_x86_64.whl", hash = "sha256:176f3d8a2e448ff1a486ac1ac10c831dde488c97c0063ba8226f7c3c1b507127"},
-    {file = "raylib-5.5.0.3-cp314-cp314-macosx_11_0_arm64.whl", hash = "sha256:3bd382a6ee56f253b9d1a228612158f3c95417c7e9bdb53c5508b06420967a18"},
-    {file = "raylib-5.5.0.3-cp314-cp314-manylinux2014_aarch64.whl", hash = "sha256:0d2cbe2c8b3503836935281205218f17ef2c1769da23c210c3bf3259b02fe20d"},
-    {file = "raylib-5.5.0.3-cp314-cp314-manylinux2014_x86_64.manylinux_2_17_x86_64.whl", hash = "sha256:3cf42d877279aba309ae2b0f81843f106f91baa04afa66f2902ac28caab28cb9"},
-    {file = "raylib-5.5.0.3-cp314-cp314-win_amd64.whl", hash = "sha256:ffe8c02f2c206d5f75bd87a7920a182bbb4cf4957d1ce0fb92900a51cdc58f73"},
-    {file = "raylib-5.5.0.3-pp310-pypy310_pp73-macosx_10_15_x86_64.whl", hash = "sha256:caa335abb2e64c2472ffac9ab07bbe27d652a88646d2c1883434a1f5ffd4abb8"},
-    {file = "raylib-5.5.0.3-pp310-pypy310_pp73-manylinux2014_x86_64.manylinux_2_17_x86_64.whl", hash = "sha256:f95a4ff5c265f878c3aea804df06799cde0ffea5a59451f23898aef6974ca9ea"},
-    {file = "raylib-5.5.0.3-pp310-pypy310_pp73-win_amd64.whl", hash = "sha256:1b89a064fc70cca7eaada19320824df00d852bb5c23c48aa6fd2d1106873b840"},
-    {file = "raylib-5.5.0.3-pp311-pypy311_pp73-macosx_10_15_x86_64.whl", hash = "sha256:8778876dcc5895d5f360ad95c15231c8d0a0af43baf436c052f2a50cb4fb9788"},
-    {file = "raylib-5.5.0.3-pp311-pypy311_pp73-manylinux2014_x86_64.manylinux_2_17_x86_64.whl", hash = "sha256:d9eeedc8e6d7ad94f62ec33b89dd95e6873c4c0ed61173cb12e68938e66e68ae"},
-    {file = "raylib-5.5.0.3-pp311-pypy311_pp73-win_amd64.whl", hash = "sha256:415f5f0a0105ba32d3e433b7c1be8181bc4eec1a9af7ecead1af133bf9436af0"},
-    {file = "raylib-5.5.0.3.tar.gz", hash = "sha256:f7cfabe7400bf334fc953df6ab99c7435cd4b2251c495040a48d22d44544080a"},
+    {file = "raylib-5.5.0.4-cp310-cp310-macosx_11_0_arm64.whl", hash = "sha256:97a184c783d651398c6951dfb8bfea95252de7da0cc4c4f0a3675df059eee4a7"},
+    {file = "raylib-5.5.0.4-cp310-cp310-macosx_13_0_x86_64.whl", hash = "sha256:68396c00ed100e5105483fc728b418ad70dee6b7dda9e1b61fed0c39201415a4"},
+    {file = "raylib-5.5.0.4-cp310-cp310-manylinux2010_i686.manylinux_2_12_i686.whl", hash = "sha256:ba72f0e3b47ef847d9d16c447e6c65e5f24957dfdbd901302f47ef98a36bb79d"},
+    {file = "raylib-5.5.0.4-cp310-cp310-manylinux2014_aarch64.whl", hash = "sha256:aaaac8d75e89083d69199427f5ab6a36904d876deee3921f667f6fe4a420eeab"},
+    {file = "raylib-5.5.0.4-cp310-cp310-manylinux2014_x86_64.manylinux_2_17_x86_64.whl", hash = "sha256:9be401154b2fe2b4dc6679488ad2857f31051462f7146c085a1b39599a806af0"},
+    {file = "raylib-5.5.0.4-cp310-cp310-win32.whl", hash = "sha256:57a98f273aef5b1cc1bfa442e5c347855997cd21ba098649baeaa4f326b935d7"},
+    {file = "raylib-5.5.0.4-cp310-cp310-win_amd64.whl", hash = "sha256:33ebd0831210061a6b7bea4d0638d5e173cdce67f39b691b8da47449718c9afe"},
+    {file = "raylib-5.5.0.4-cp311-cp311-macosx_10_13_x86_64.whl", hash = "sha256:09717ed32c9ec1c574370e2e2d30e9bc13876f7e2f2dd6e04dc366dae23e0994"},
+    {file = "raylib-5.5.0.4-cp311-cp311-macosx_11_0_arm64.whl", hash = "sha256:cef7b0e238eafc80a3be7e3c656a3ddc94cc523790758b7130df1957ba4ad4ad"},
+    {file = "raylib-5.5.0.4-cp311-cp311-manylinux2010_i686.manylinux_2_12_i686.whl", hash = "sha256:bdaa119b767f380caf6dd4f9d42ab3bf8596d8fb98737d2951b36924a5a83ac0"},
+    {file = "raylib-5.5.0.4-cp311-cp311-manylinux2014_aarch64.whl", hash = "sha256:6a5cdeeb803d081342961eb1f7c4161af27e951d9ecf2b56d469d5730fcc6213"},
+    {file = "raylib-5.5.0.4-cp311-cp311-manylinux2014_x86_64.manylinux_2_17_x86_64.whl", hash = "sha256:4067fa8a6ed3eb78a1162fc2d40ce8c26c26c5ee544019d1902accf21ec22add"},
+    {file = "raylib-5.5.0.4-cp311-cp311-win32.whl", hash = "sha256:f01a769bb0797ab4f6e1efc950d5d8aca53548e97da7f527190a1ca5f671c389"},
+    {file = "raylib-5.5.0.4-cp311-cp311-win_amd64.whl", hash = "sha256:34771dea34a30fa4657f35b344d5ebf9eb11d9b62b23d9349742db5c5f3992bd"},
+    {file = "raylib-5.5.0.4-cp312-cp312-macosx_10_13_x86_64.whl", hash = "sha256:31f64f71e42fed10e8f3629028c9f5700906e0e573b915cfc2244d7a3f3b2ed9"},
+    {file = "raylib-5.5.0.4-cp312-cp312-macosx_11_0_arm64.whl", hash = "sha256:80bfa053e765d47a9f58d59e321a999184b5a5190e369dd015c12fcfd08d6217"},
+    {file = "raylib-5.5.0.4-cp312-cp312-manylinux2010_i686.manylinux_2_12_i686.whl", hash = "sha256:033240c61c1a1fc06fecff747a183671431a4ce63a0c8aafec59217845f86888"},
+    {file = "raylib-5.5.0.4-cp312-cp312-manylinux2014_aarch64.whl", hash = "sha256:ba87ca50c5748cab75de37a991b7f3f836ce500efbb2d737a923a5f464169088"},
+    {file = "raylib-5.5.0.4-cp312-cp312-manylinux2014_x86_64.manylinux_2_17_x86_64.whl", hash = "sha256:788830bc371ce067c4930ff46a1b6eca0c9cf27bac88f81b035e4b73cc6bf197"},
+    {file = "raylib-5.5.0.4-cp312-cp312-win32.whl", hash = "sha256:e09f395035484337776c90e6c9955c5876b988db7e13168dcadb6ed11974f8ee"},
+    {file = "raylib-5.5.0.4-cp312-cp312-win_amd64.whl", hash = "sha256:553043a050a31f2ef072f26d3a70373f838a04733f7c5b26a4e9ee3f8caf06ec"},
+    {file = "raylib-5.5.0.4-cp313-cp313-macosx_10_13_x86_64.whl", hash = "sha256:24581f487952386926d5ebde7e2fefc29c5fcd9b3721b65494ef535ac984f867"},
+    {file = "raylib-5.5.0.4-cp313-cp313-macosx_11_0_arm64.whl", hash = "sha256:31234b890dc5b4502cc8d31a5598d587a6d52a34c24c13a89a6f6a7e97bb3666"},
+    {file = "raylib-5.5.0.4-cp313-cp313-manylinux2010_i686.manylinux_2_12_i686.whl", hash = "sha256:be5f32d4b0a4c5b771d47e14571ae8a9107327b425b17e22a65a3e22a85d6505"},
+    {file = "raylib-5.5.0.4-cp313-cp313-manylinux2014_aarch64.whl", hash = "sha256:a4c59f50ea4ac41d4a8ba7a85b573dcf2423b7ad276804a000ff4380c3c94ac9"},
+    {file = "raylib-5.5.0.4-cp313-cp313-manylinux2014_x86_64.manylinux_2_17_x86_64.whl", hash = "sha256:42c14158f48bf926eaacbc98c3742a9f156a3b52380eeb81fabc2525b2525659"},
+    {file = "raylib-5.5.0.4-cp313-cp313-win32.whl", hash = "sha256:70e2b792375db2df628c5fcee40221a0af920ef0460ad3d058196c85327a9c70"},
+    {file = "raylib-5.5.0.4-cp313-cp313-win_amd64.whl", hash = "sha256:2115a548fcdd72ad5cf2b4a40e5a551b34e7cacb782779a88eaab624efbd00f2"},
+    {file = "raylib-5.5.0.4-cp314-cp314-macosx_10_15_x86_64.whl", hash = "sha256:d1cce93ad4af5fb297c21f20b39a03aef431f70a44acc1da96dda249c248d5b5"},
+    {file = "raylib-5.5.0.4-cp314-cp314-macosx_11_0_arm64.whl", hash = "sha256:b00d2f4df5d8978781ae806dc709086fdeddbfb4981cc8634bdb0064bc57865a"},
+    {file = "raylib-5.5.0.4-cp314-cp314-manylinux2010_i686.manylinux_2_12_i686.whl", hash = "sha256:ba4c85d0688266074c31dd956bb87419d2caf86a518e7d3b04a4305b9c9ed4d5"},
+    {file = "raylib-5.5.0.4-cp314-cp314-manylinux2014_aarch64.whl", hash = "sha256:d229d94e35e1575c82e47a0fc16e7c3059a2cd3692f82da116afdcf7f162fc08"},
+    {file = "raylib-5.5.0.4-cp314-cp314-manylinux2014_x86_64.manylinux_2_17_x86_64.whl", hash = "sha256:9784976d71ef1e95ed4e652c410052c22dcc3f59fee752784fdb6e1d702b2e97"},
+    {file = "raylib-5.5.0.4-cp314-cp314-win32.whl", hash = "sha256:ca0a19c251cc1f3574e1f9fe33a4b0a6a661479b3d5d593487072485e8b14eee"},
+    {file = "raylib-5.5.0.4-cp314-cp314-win_amd64.whl", hash = "sha256:cb1453fc68ee2ad5848ee41123ec1aab97d5a553e55aeb1071a332e1c8626a48"},
+    {file = "raylib-5.5.0.4-cp37-cp37m-macosx_11_0_x86_64.whl", hash = "sha256:a840e8a739db332601107f1db810e1a4737780cb2cdaaf015fd906876312fc4f"},
+    {file = "raylib-5.5.0.4-cp37-cp37m-manylinux2010_i686.manylinux_2_12_i686.whl", hash = "sha256:512fa7565c51bf0697ac03c15e8c42799773364beddf842f17ab3d791c2e193d"},
+    {file = "raylib-5.5.0.4-cp37-cp37m-manylinux2014_x86_64.manylinux_2_17_x86_64.whl", hash = "sha256:22e12caaeaeaaf9349e8783e180521417556785d880391beb4406bdfef9d23a2"},
+    {file = "raylib-5.5.0.4-cp37-cp37m-win32.whl", hash = "sha256:671fb66d66f18255b045f14893d80b09fd72405245062c33c6e529a5d2f640ce"},
+    {file = "raylib-5.5.0.4-cp37-cp37m-win_amd64.whl", hash = "sha256:9b0ae5c3b1c0ab8a294323d4049c02441cd99af831ffa2e6e0189fcd16769097"},
+    {file = "raylib-5.5.0.4-cp38-cp38-macosx_13_0_x86_64.whl", hash = "sha256:42e66c7700034ec45ffdc5d8026e5701564d3e347ae31f749b9c91e258b5e7b0"},
+    {file = "raylib-5.5.0.4-cp38-cp38-manylinux2010_i686.manylinux_2_12_i686.whl", hash = "sha256:63cded49fa4b91524dc53fcc96f063e14fb36d9f82789e5ded30d4e6c64fecb4"},
+    {file = "raylib-5.5.0.4-cp38-cp38-manylinux2014_x86_64.manylinux_2_17_x86_64.whl", hash = "sha256:d61405a7c8032da24b39aa7a8a2aae1a30b8e59d27b0f3362ffb3c404a7588aa"},
+    {file = "raylib-5.5.0.4-cp38-cp38-win32.whl", hash = "sha256:ffbd5d9ad9d3bea9eae9f119bd3e3c4f02880f28baa7db1b0dd3cf9bea052483"},
+    {file = "raylib-5.5.0.4-cp38-cp38-win_amd64.whl", hash = "sha256:34410e2a0b3e53b0b2b8613cd2a8246fc14c0e7c92cb9eba95ab5ea505aa460e"},
+    {file = "raylib-5.5.0.4-cp39-cp39-macosx_13_0_x86_64.whl", hash = "sha256:7e5eea6dd113a270024c6732364c8e4270d850ace269e15d307072334fab4dfc"},
+    {file = "raylib-5.5.0.4-cp39-cp39-manylinux2010_i686.manylinux_2_12_i686.whl", hash = "sha256:63a9d17fdc840481cb33fe50e00177062451a9d997859ad5c0fb07baa66613e5"},
+    {file = "raylib-5.5.0.4-cp39-cp39-manylinux2014_x86_64.manylinux_2_17_x86_64.whl", hash = "sha256:43bf0979bf9cfbb285e0d45371c53d989b709fd19d8601bafaada71d797f917a"},
+    {file = "raylib-5.5.0.4-cp39-cp39-win32.whl", hash = "sha256:240998e263bef329345893023929ee99fe3cd50d1a89de40a38ad3f9eba6cf3e"},
+    {file = "raylib-5.5.0.4-cp39-cp39-win_amd64.whl", hash = "sha256:90c16f55e80b1d18fe7ed4de84fa62bbc94df928365e4cbf7d0815d65e1f0028"},
+    {file = "raylib-5.5.0.4-pp310-pypy310_pp73-macosx_10_15_x86_64.whl", hash = "sha256:a205dbbdacdbad838a5dbb6886463e1bccd505c76d9318cde11b3b3fe864375a"},
+    {file = "raylib-5.5.0.4-pp310-pypy310_pp73-win_amd64.whl", hash = "sha256:f8f331c70ee1cdf8082d5fd6445fa2b405d7159df9820f885d1c7816eed84921"},
+    {file = "raylib-5.5.0.4-pp311-pypy311_pp73-macosx_10_15_x86_64.whl", hash = "sha256:c318357ce721c62a6848b6d84b26574cd77267e5758cfa2dbc01d4deb2a2b0b8"},
+    {file = "raylib-5.5.0.4-pp311-pypy311_pp73-manylinux2014_x86_64.manylinux_2_17_x86_64.whl", hash = "sha256:82a0ea2859d04f3b5b441910881ec48789484463856168fa8f35c7165e11d44c"},
+    {file = "raylib-5.5.0.4-pp311-pypy311_pp73-win_amd64.whl", hash = "sha256:871e77547cd3f78d98a47bef491821cd25c879b3b3b79f1973d8fb3f8841cdfb"},
+    {file = "raylib-5.5.0.4.tar.gz", hash = "sha256:996506e8a533cd7a6a3ef6c44ec11f9d6936698f2c394a991af8022be33079a0"},
 ]
 
 [package.dependencies]
-cffi = ">=1.17.1"
-
-[[package]]
-name = "tomli"
-version = "2.4.0"
-description = "A lil' TOML parser"
-optional = false
-python-versions = ">=3.8"
-groups = ["dev"]
-markers = "python_version == \"3.10\""
-files = [
-    {file = "tomli-2.4.0-cp311-cp311-macosx_10_9_x86_64.whl", hash = "sha256:b5ef256a3fd497d4973c11bf142e9ed78b150d36f5773f1ca6088c230ffc5867"},
-    {file = "tomli-2.4.0-cp311-cp311-macosx_11_0_arm64.whl", hash = "sha256:5572e41282d5268eb09a697c89a7bee84fae66511f87533a6f88bd2f7b652da9"},
-    {file = "tomli-2.4.0-cp311-cp311-manylinux2014_aarch64.manylinux_2_17_aarch64.manylinux_2_28_aarch64.whl", hash = "sha256:551e321c6ba03b55676970b47cb1b73f14a0a4dce6a3e1a9458fd6d921d72e95"},
-    {file = "tomli-2.4.0-cp311-cp311-manylinux2014_x86_64.manylinux_2_17_x86_64.manylinux_2_28_x86_64.whl", hash = "sha256:5e3f639a7a8f10069d0e15408c0b96a2a828cfdec6fca05296ebcdcc28ca7c76"},
-    {file = "tomli-2.4.0-cp311-cp311-musllinux_1_2_aarch64.whl", hash = "sha256:1b168f2731796b045128c45982d3a4874057626da0e2ef1fdd722848b741361d"},
-    {file = "tomli-2.4.0-cp311-cp311-musllinux_1_2_x86_64.whl", hash = "sha256:133e93646ec4300d651839d382d63edff11d8978be23da4cc106f5a18b7d0576"},
-    {file = "tomli-2.4.0-cp311-cp311-win32.whl", hash = "sha256:b6c78bdf37764092d369722d9946cb65b8767bfa4110f902a1b2542d8d173c8a"},
-    {file = "tomli-2.4.0-cp311-cp311-win_amd64.whl", hash = "sha256:d3d1654e11d724760cdb37a3d7691f0be9db5fbdaef59c9f532aabf87006dbaa"},
-    {file = "tomli-2.4.0-cp311-cp311-win_arm64.whl", hash = "sha256:cae9c19ed12d4e8f3ebf46d1a75090e4c0dc16271c5bce1c833ac168f08fb614"},
-    {file = "tomli-2.4.0-cp312-cp312-macosx_10_13_x86_64.whl", hash = "sha256:920b1de295e72887bafa3ad9f7a792f811847d57ea6b1215154030cf131f16b1"},
-    {file = "tomli-2.4.0-cp312-cp312-macosx_11_0_arm64.whl", hash = "sha256:7d6d9a4aee98fac3eab4952ad1d73aee87359452d1c086b5ceb43ed02ddb16b8"},
-    {file = "tomli-2.4.0-cp312-cp312-manylinux2014_aarch64.manylinux_2_17_aarch64.manylinux_2_28_aarch64.whl", hash = "sha256:36b9d05b51e65b254ea6c2585b59d2c4cb91c8a3d91d0ed0f17591a29aaea54a"},
-    {file = "tomli-2.4.0-cp312-cp312-manylinux2014_x86_64.manylinux_2_17_x86_64.manylinux_2_28_x86_64.whl", hash = "sha256:1c8a885b370751837c029ef9bc014f27d80840e48bac415f3412e6593bbc18c1"},
-    {file = "tomli-2.4.0-cp312-cp312-musllinux_1_2_aarch64.whl", hash = "sha256:8768715ffc41f0008abe25d808c20c3d990f42b6e2e58305d5da280ae7d1fa3b"},
-    {file = "tomli-2.4.0-cp312-cp312-musllinux_1_2_x86_64.whl", hash = "sha256:7b438885858efd5be02a9a133caf5812b8776ee0c969fea02c45e8e3f296ba51"},
-    {file = "tomli-2.4.0-cp312-cp312-win32.whl", hash = "sha256:0408e3de5ec77cc7f81960c362543cbbd91ef883e3138e81b729fc3eea5b9729"},
-    {file = "tomli-2.4.0-cp312-cp312-win_amd64.whl", hash = "sha256:685306e2cc7da35be4ee914fd34ab801a6acacb061b6a7abca922aaf9ad368da"},
-    {file = "tomli-2.4.0-cp312-cp312-win_arm64.whl", hash = "sha256:5aa48d7c2356055feef06a43611fc401a07337d5b006be13a30f6c58f869e3c3"},
-    {file = "tomli-2.4.0-cp313-cp313-macosx_10_13_x86_64.whl", hash = "sha256:84d081fbc252d1b6a982e1870660e7330fb8f90f676f6e78b052ad4e64714bf0"},
-    {file = "tomli-2.4.0-cp313-cp313-macosx_11_0_arm64.whl", hash = "sha256:9a08144fa4cba33db5255f9b74f0b89888622109bd2776148f2597447f92a94e"},
-    {file = "tomli-2.4.0-cp313-cp313-manylinux2014_aarch64.manylinux_2_17_aarch64.manylinux_2_28_aarch64.whl", hash = "sha256:c73add4bb52a206fd0c0723432db123c0c75c280cbd67174dd9d2db228ebb1b4"},
-    {file = "tomli-2.4.0-cp313-cp313-manylinux2014_x86_64.manylinux_2_17_x86_64.manylinux_2_28_x86_64.whl", hash = "sha256:1fb2945cbe303b1419e2706e711b7113da57b7db31ee378d08712d678a34e51e"},
-    {file = "tomli-2.4.0-cp313-cp313-musllinux_1_2_aarch64.whl", hash = "sha256:bbb1b10aa643d973366dc2cb1ad94f99c1726a02343d43cbc011edbfac579e7c"},
-    {file = "tomli-2.4.0-cp313-cp313-musllinux_1_2_x86_64.whl", hash = "sha256:4cbcb367d44a1f0c2be408758b43e1ffb5308abe0ea222897d6bfc8e8281ef2f"},
-    {file = "tomli-2.4.0-cp313-cp313-win32.whl", hash = "sha256:7d49c66a7d5e56ac959cb6fc583aff0651094ec071ba9ad43df785abc2320d86"},
-    {file = "tomli-2.4.0-cp313-cp313-win_amd64.whl", hash = "sha256:3cf226acb51d8f1c394c1b310e0e0e61fecdd7adcb78d01e294ac297dd2e7f87"},
-    {file = "tomli-2.4.0-cp313-cp313-win_arm64.whl", hash = "sha256:d20b797a5c1ad80c516e41bc1fb0443ddb5006e9aaa7bda2d71978346aeb9132"},
-    {file = "tomli-2.4.0-cp314-cp314-macosx_10_15_x86_64.whl", hash = "sha256:26ab906a1eb794cd4e103691daa23d95c6919cc2fa9160000ac02370cc9dd3f6"},
-    {file = "tomli-2.4.0-cp314-cp314-macosx_11_0_arm64.whl", hash = "sha256:20cedb4ee43278bc4f2fee6cb50daec836959aadaf948db5172e776dd3d993fc"},
-    {file = "tomli-2.4.0-cp314-cp314-manylinux2014_aarch64.manylinux_2_17_aarch64.manylinux_2_28_aarch64.whl", hash = "sha256:39b0b5d1b6dd03684b3fb276407ebed7090bbec989fa55838c98560c01113b66"},
-    {file = "tomli-2.4.0-cp314-cp314-manylinux2014_x86_64.manylinux_2_17_x86_64.manylinux_2_28_x86_64.whl", hash = "sha256:a26d7ff68dfdb9f87a016ecfd1e1c2bacbe3108f4e0f8bcd2228ef9a766c787d"},
-    {file = "tomli-2.4.0-cp314-cp314-musllinux_1_2_aarch64.whl", hash = "sha256:20ffd184fb1df76a66e34bd1b36b4a4641bd2b82954befa32fe8163e79f1a702"},
-    {file = "tomli-2.4.0-cp314-cp314-musllinux_1_2_x86_64.whl", hash = "sha256:75c2f8bbddf170e8effc98f5e9084a8751f8174ea6ccf4fca5398436e0320bc8"},
-    {file = "tomli-2.4.0-cp314-cp314-win32.whl", hash = "sha256:31d556d079d72db7c584c0627ff3a24c5d3fb4f730221d3444f3efb1b2514776"},
-    {file = "tomli-2.4.0-cp314-cp314-win_amd64.whl", hash = "sha256:43e685b9b2341681907759cf3a04e14d7104b3580f808cfde1dfdb60ada85475"},
-    {file = "tomli-2.4.0-cp314-cp314-win_arm64.whl", hash = "sha256:3d895d56bd3f82ddd6faaff993c275efc2ff38e52322ea264122d72729dca2b2"},
-    {file = "tomli-2.4.0-cp314-cp314t-macosx_10_15_x86_64.whl", hash = "sha256:5b5807f3999fb66776dbce568cc9a828544244a8eb84b84b9bafc080c99597b9"},
-    {file = "tomli-2.4.0-cp314-cp314t-macosx_11_0_arm64.whl", hash = "sha256:c084ad935abe686bd9c898e62a02a19abfc9760b5a79bc29644463eaf2840cb0"},
-    {file = "tomli-2.4.0-cp314-cp314t-manylinux2014_aarch64.manylinux_2_17_aarch64.manylinux_2_28_aarch64.whl", hash = "sha256:0f2e3955efea4d1cfbcb87bc321e00dc08d2bcb737fd1d5e398af111d86db5df"},
-    {file = "tomli-2.4.0-cp314-cp314t-manylinux2014_x86_64.manylinux_2_17_x86_64.manylinux_2_28_x86_64.whl", hash = "sha256:0e0fe8a0b8312acf3a88077a0802565cb09ee34107813bba1c7cd591fa6cfc8d"},
-    {file = "tomli-2.4.0-cp314-cp314t-musllinux_1_2_aarch64.whl", hash = "sha256:413540dce94673591859c4c6f794dfeaa845e98bf35d72ed59636f869ef9f86f"},
-    {file = "tomli-2.4.0-cp314-cp314t-musllinux_1_2_x86_64.whl", hash = "sha256:0dc56fef0e2c1c470aeac5b6ca8cc7b640bb93e92d9803ddaf9ea03e198f5b0b"},
-    {file = "tomli-2.4.0-cp314-cp314t-win32.whl", hash = "sha256:d878f2a6707cc9d53a1be1414bbb419e629c3d6e67f69230217bb663e76b5087"},
-    {file = "tomli-2.4.0-cp314-cp314t-win_amd64.whl", hash = "sha256:2add28aacc7425117ff6364fe9e06a183bb0251b03f986df0e78e974047571fd"},
-    {file = "tomli-2.4.0-cp314-cp314t-win_arm64.whl", hash = "sha256:2b1e3b80e1d5e52e40e9b924ec43d81570f0e7d09d11081b797bc4692765a3d4"},
-    {file = "tomli-2.4.0-py3-none-any.whl", hash = "sha256:1f776e7d669ebceb01dee46484485f43a4048746235e683bcdffacdf1fb4785a"},
-    {file = "tomli-2.4.0.tar.gz", hash = "sha256:aa89c3f6c277dd275d8e243ad24f3b5e701491a860d5121f2cdd399fbb31fc9c"},
-]
+cffi = ">=1.15.1"
 
 [[package]]
 name = "typing-extensions"
@@ -488,5 +453,5 @@ files = [
 
 [metadata]
 lock-version = "2.1"
-python-versions = ">=3.10"
-content-hash = "0752269c3c9b8348564ea5420600f02c3754cd2e1df5805b68c930cdadf7340f"
+python-versions = ">=3.13"
+content-hash = "875ee3b1a1c9c565ab58a369f930ac421105034b41ae8ee06e07aa1e0c0884b8"

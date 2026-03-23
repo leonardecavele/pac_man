@@ -70,4 +70,4 @@ $(VENV_STAMP): $(PYPROJECT_TOML)
 	@rm -rf $(VENV)
 
 # miscellaneous
-.PHONY: install run debug lint lint-strict clean
+.PHONY: install run debug lint clean
