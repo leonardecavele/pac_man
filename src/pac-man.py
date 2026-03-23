@@ -1,11 +1,4 @@
-import sys
+from display.display import Display
 
-from .error import ErrorCode
-
-
-def main() -> int:
-    return ErrorCode.NO_ERROR
-
-
-if __name__ == "__main__":
-    sys.exit(main())
+if (__name__ == "__main__"):
+    display = Display()
