@@ -1,12 +1,18 @@
 import sys
 
-from .error import ErrorCode
+from mazegenerator import MazeGenerator
 
-from display.display import Display
+from src.error import ErrorCode
+
+from src.display import Display
 
 
 def main() -> int:
-    display = Display()
+    maze_generator: MazeGenerator = MazeGenerator()
+    maze: list[list[int]] = maze_generator.generate(42)
+    display: Display = Display()
+    print(maze)
+    print(display)
     return ErrorCode.NO_ERROR
 
 
