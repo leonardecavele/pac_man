@@ -8,7 +8,7 @@ FLAKE8_SUCCESS := printf '%b\n' "$(GREEN)Success: flake8$(RESET)"
 # structure
 SRC_DIRECTORIES := display parsing logic
 DIRS := . src $(addprefix src/,$(SRC_DIRECTORIES))
-MAIN := src.pac-man
+MAIN := src.main
 ARGS ?= config.json
 VENV := .venv
 VENV_STAMP := $(VENV)/stamp
