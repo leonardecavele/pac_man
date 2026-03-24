@@ -47,7 +47,7 @@ class Clyde(Ghost):
     def update(self) -> None:
         direction: vec2
         if self.pos_distance(self.maze_pos, self.pac_man.maze_pos) <= 8:
-            direction = self.a_star((self.maze.size, 0))
+            direction = self.a_star((self.maze.height, 0))
         else:
             direction = self.a_star(self.pac_man.maze_pos)
         self.direction = direction

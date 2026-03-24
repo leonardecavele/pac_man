@@ -7,7 +7,7 @@ from src.error import ErrorCode
 
 
 def main() -> int:
-    maze: Maze = Maze(MazeGenerator(), 42)
+    maze: Maze = Maze(42, 42, 42)
     return ErrorCode.NO_ERROR
 
 

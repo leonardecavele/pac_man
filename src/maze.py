@@ -6,10 +6,14 @@ from src.type import brd
 
 
 class Maze():
-    def __init__(self, maze_generator: MazeGenerator, size: int) -> None:
-        maze_generator.generate(size)
+    def __init__(
+        self, height: int, width: int, seed: int
+    ) -> None:
+        maze_generator: MazeGenerator = MazeGenerator((height, width))
+        maze_generator.generate(seed)
         self.maze: brd = maze_generator.maze
-        self.size: int = size
+        self.height = height
+        self.width = width
 
     class Tile(IntEnum):
         UP = 1 << 0
