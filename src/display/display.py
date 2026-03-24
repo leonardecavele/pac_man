@@ -3,6 +3,8 @@ from mazegenerator import MazeGenerator
 from pydantic import BaseModel, Field
 from src.type import vec2
 
+WALL_COLOR = rl.Color(25, 25, 166, 255)
+
 
 class EnhancedCell(BaseModel):
     value: int = Field(..., ge=0, le=15)
@@ -27,7 +29,7 @@ class EnhancedCell(BaseModel):
 
 class Display:
     def __init__(self, maze: list[list[int]]):
-        self.generator = MazeGenerator(seed=12121)
+        self.generator = MazeGenerator()
         self.generator.generate()
         self.maze: list[list[EnhancedCell]] = self._enhanced_maze(maze)
         self.width = 720
@@ -111,14 +113,14 @@ class Display:
                 rl.image_draw_line(self.maze_image, x + self.cell_size,
                                    y + self.cell_size,
                                    x + self.cell_size + self.gap,
-                                   y + self.cell_size, rl.WHITE)
+                                   y + self.cell_size, WALL_COLOR)
             # right hemicircle
             if (c_bot and c_right and not c.right and not c_right.bot
                     and not c_bot.right):
                 rl.image_draw_circle_lines(self.maze_image,
                                            x + self.cell_size,
                                            y + self.cell_size + self.gap // 2,
-                                           self.gap // 2, rl.WHITE
+                                           self.gap // 2, WALL_COLOR
                                            )
                 rl.image_draw_rectangle(self.maze_image,
                                         x + self.cell_size - self.gap,
@@ -130,12 +132,12 @@ class Display:
                 rl.image_draw_line(self.maze_image, x + self.cell_size,
                                    y,
                                    x + self.cell_size + self.gap,
-                                   y, rl.WHITE)
+                                   y, WALL_COLOR)
             # left hemicircle
             if (c_top and c_left and not c.left and not c_left.top and not c_top.left):
                 rl.image_draw_circle_lines(self.maze_image,
                                            x, y - self.gap // 2,
-                                           self.gap // 2, rl.WHITE
+                                           self.gap // 2, WALL_COLOR
                                            )
                 rl.image_draw_rectangle(self.maze_image,
                                         x,
@@ -147,7 +149,7 @@ class Display:
                 rl.image_draw_line(self.maze_image, x,
                                    y + self.cell_size,
                                    x,
-                                   y + self.cell_size + self.gap, rl.WHITE)
+                                   y + self.cell_size + self.gap, WALL_COLOR)
             # bot hemicircle
             if (c_left and c_bot and not c.bot and not c_bot.left
                     and not c_left.bot):
@@ -155,7 +157,7 @@ class Display:
                                            x - self.gap // 2,
                                            y + self.cell_size,
                                            self.gap // 2,
-                                           rl.WHITE)
+                                           WALL_COLOR)
                 rl.image_draw_rectangle(self.maze_image, x - self.gap + 1,
                                         y + self.cell_size - self.gap,
                                         self.gap - 1,
@@ -165,7 +167,7 @@ class Display:
                 rl.image_draw_line(self.maze_image, x + self.cell_size,
                                    y + self.cell_size,
                                    x + self.cell_size,
-                                   y + self.cell_size + self.gap, rl.WHITE)
+                                   y + self.cell_size + self.gap, WALL_COLOR)
             # top hemicircle
             if (c_right and c_top and not c.top and not c_top.right
                     and not c_right.top):
@@ -173,7 +175,7 @@ class Display:
                                            x + self.cell_size
                                            + (self.gap // 2), y,
                                            self.gap // 2,
-                                           rl.WHITE)
+                                           WALL_COLOR)
                 rl.image_draw_rectangle(self.maze_image, x + self.cell_size + 1,
                                         y,
                                         self.gap,
@@ -185,7 +187,7 @@ class Display:
             rl.image_draw_circle_lines(self.maze_image,
                                        x + self.cell_size,
                                        y + self.cell_size,
-                                       self.gap, rl.WHITE)
+                                       self.gap, WALL_COLOR)
             rl.image_draw_rectangle(self.maze_image,
                                     x + self.cell_size + 1,
                                     y,
@@ -210,7 +212,7 @@ class Display:
             rl.image_draw_circle_lines(self.maze_image,
                                        x,
                                        y,
-                                       self.gap, rl.WHITE)
+                                       self.gap, WALL_COLOR)
             rl.image_draw_rectangle(self.maze_image,
                                     x,
                                     y - self.gap + 1,
@@ -236,7 +238,7 @@ class Display:
             rl.image_draw_circle_lines(self.maze_image,
                                        x,
                                        y + self.cell_size,
-                                       self.gap, rl.WHITE)
+                                       self.gap, WALL_COLOR)
             rl.image_draw_rectangle(self.maze_image,
                                     x,
                                     y + self.cell_size + 1,
@@ -262,7 +264,7 @@ class Display:
             rl.image_draw_circle_lines(self.maze_image,
                                        x + self.cell_size,
                                        y,
-                                       self.gap, rl.WHITE)
+                                       self.gap, WALL_COLOR)
             rl.image_draw_rectangle(self.maze_image,
                                     x,
                                     y - self.gap + 1,
@@ -296,13 +298,13 @@ class Display:
             return
         if (c.top):
             rl.image_draw_line(self.maze_image, cell_x, cell_y, cell_x +
-                               self.cell_size, cell_y, rl.WHITE)
+                               self.cell_size, cell_y, WALL_COLOR)
         if (c.right):
             rl.image_draw_line(self.maze_image, cell_x + self.cell_size, cell_y,
-                               cell_x + self.cell_size, cell_y + self.cell_size, rl.WHITE)
+                               cell_x + self.cell_size, cell_y + self.cell_size, WALL_COLOR)
         if (c.bot):
             rl.image_draw_line(self.maze_image, cell_x, cell_y + self.cell_size,
-                               cell_x + self.cell_size, cell_y + self.cell_size, rl.WHITE)
+                               cell_x + self.cell_size, cell_y + self.cell_size, WALL_COLOR)
         if (c.left):
             rl.image_draw_line(self.maze_image, cell_x, cell_y,
-                               cell_x, cell_y + self.cell_size, rl.WHITE)
+                               cell_x, cell_y + self.cell_size, WALL_COLOR)
