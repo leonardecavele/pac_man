@@ -2,7 +2,7 @@ from math import sqrt
 import heapq
 
 from .pac_man import Pac_man
-from .entity import Entity
+from .entity import DEFAULT_VELOCITY, Entity
 
 from src.type import vec2
 from src.maze import Maze
@@ -15,8 +15,10 @@ class Ghost(Entity):
     ) -> None:
         super().__init__(screen_pos, maze_pos, sprite, m)
         self.scatter: bool = False
-        self.directions: list[vec2]
+        self.pending_directions: list[vec2] = []
         self.pac_man: Pac_man = pac_man
+        self.corner: vec2 = (0, 0)
+        self.scatter_target: vec2 = (0, 0)
 
     def a_star(self, target: vec2) -> list[vec2]:
         counter: int = 0
@@ -29,7 +31,7 @@ class Ghost(Entity):
             heapq.heappush(queue, (score, counter, new_cell))
             counter += 1
 
-        back = Maze.Direction((-self.direction[0], -self.direction[1]))
+        back = self.get_back_direction()
 
         visited: set[vec2] = set()
         parent: dict[vec2, vec2] = {}
@@ -62,8 +64,6 @@ class Ghost(Entity):
                     dy = current.pos[1] - parent_y
                     path.append((dx, dy))
                     current = self.maze.maze[parent_y][parent_x]
-
-                path.reverse()
                 break
 
             if (x, y) in visited:
@@ -73,7 +73,11 @@ class Ghost(Entity):
 
             for direction in Maze.Direction:
                 # cannot go back
-                if (x, y) == (start_x, start_y) and direction == back:
+                if (
+                    (x, y) == (start_x, start_y)
+                    and back is not None
+                    and direction == back
+                ):
                     continue
 
                 # blocked by wall
@@ -97,15 +101,29 @@ class Ghost(Entity):
                     )
         return path
 
+    def get_new_directions(self, target: vec2) -> None:
+        if self.scatter:
+            self.pending_directions = self.a_star(self.scatter_target)
+        else:
+            self.pending_directions = self.a_star(target)
+
+    def get_back_direction(self) -> Maze.Direction | None:
+        if self.direction == (0, 0):
+            return None
+        return Maze.Direction((-self.direction[0], -self.direction[1]))
+
     def on_intersection(self) -> bool:
         x, y = self.maze_pos
         cell = self.maze.maze[y][x]
-        back = Maze.Direction((-self.direction[0], -self.direction[1]))
+        back = self.get_back_direction()
 
         count = 0
         for wall in Maze.Cell.Walls:
-            if not (cell.value & wall.value) and Maze.convert(wall) != back:
-                count += 1
+            if cell.value & wall.value:
+                continue
+            if back is not None and Maze.convert(wall) == back:
+                continue
+            count += 1
 
         return count >= 2
 
@@ -126,38 +144,70 @@ class Blinky(Ghost):
         sprite: str, m: Maze, pac_man: Pac_man
     ) -> None:
         super().__init__(screen_pos, maze_pos, sprite, m, pac_man)
+        self.corner: vec2 = (self.maze.width, 0)
+        self.scatter_target: vec2 = self.corner
         self.angry: bool = False
 
     def update(self) -> None:
-        if not self.on_intersection():
-            return
+        if self.angry:
+            self.scatter_target = self.pac_man.maze_pos
+            self.velocity = DEFAULT_VELOCITY * 2 # find a better way
+            # temporarily stop when pacman just respawned
+
+        if self.on_intersection() or not self.pending_directions:
+            self.get_new_directions(self.pac_man.maze_pos)
+
+        if self.pending_directions:
+            self.direction = self.pending_directions.pop()
+        else:
+            self.direction = (0, 0)
 
 
 class Inky(Ghost):
+    def __init__(
+        self, screen_pos: vec2, maze_pos: vec2,
+        sprite: str, m: Maze, pac_man: Pac_man
+    ) -> None:
+        super().__init__(screen_pos, maze_pos, sprite, m, pac_man)
+        self.corner: vec2 = (self.maze.width, self.maze.height)
+        self.scatter_target: vec2 = self.corner
+
     def update(self) -> None:
         if not self.on_intersection():
             return
 
 
 class Pinky(Ghost):
+    def __init__(
+        self, screen_pos: vec2, maze_pos: vec2,
+        sprite: str, m: Maze, pac_man: Pac_man
+    ) -> None:
+        super().__init__(screen_pos, maze_pos, sprite, m, pac_man)
+        self.corner: vec2 = (0, 0)
+        self.scatter_target: vec2 = self.corner
+
     def update(self) -> None:
         if not self.on_intersection():
             return
 
 
 class Clyde(Ghost):
-    def update(self) -> None:
-        if not self.on_intersection():
-            return
-        direction: vec2
-        # DIRECTION CANNOT BE BACK
-        # choisir a partir de intersec + 1
+    def __init__(
+        self, screen_pos: vec2, maze_pos: vec2,
+        sprite: str, m: Maze, pac_man: Pac_man
+    ) -> None:
+        super().__init__(screen_pos, maze_pos, sprite, m, pac_man)
+        self.corner: vec2 = (0, self.maze.height)
+        self.scatter_target: vec2 = self.corner
 
-        # on update flush direction list with pops and every intersection clear
-        # it and recompute new path, if empty recompute one
-        # list is directions
-        if self.euclidean(self.maze_pos, self.pac_man.maze_pos) <= 8:
-            direction = self.a_star((self.maze.height, 0))
+    def update(self) -> None:
+        if self.on_intersection() or not self.pending_directions:
+            if self.euclidean(self.maze_pos, self.pac_man.maze_pos) <= 8:
+                self.get_new_directions(self.corner)
+            else:
+                self.get_new_directions(self.pac_man.maze_pos)
+
+        if self.pending_directions:
+            self.direction = self.pending_directions.pop()
         else:
-            direction = self.a_star(self.pac_man.maze_pos)
-        self.direction = direction
+            self.direction = (0, 0)
