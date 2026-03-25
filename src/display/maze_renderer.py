@@ -26,9 +26,11 @@ class MazeRenderer:
     def _get_neighbors(self, c: Maze.Cell):
         x, y = c.pos
         c_top = self.maze.maze[y - 1][x] if y > 0 else None
-        c_bot = self.maze.maze[y + 1][x] if y < len(self.maze.maze) - 1 else None
+        c_bot = self.maze.maze[y +
+                               1][x] if y < len(self.maze.maze) - 1 else None
         c_left = self.maze.maze[y][x - 1] if x > 0 else None
-        c_right = self.maze.maze[y][x + 1] if x < len(self.maze.maze[0]) - 1 else None
+        c_right = self.maze.maze[y][x +
+                                    1] if x < len(self.maze.maze[0]) - 1 else None
         return c_top, c_right, c_bot, c_left
 
     def _put_cell(self, c: Maze.Cell, x: int, y: int) -> None:
@@ -83,28 +85,30 @@ class MazeRenderer:
             rl.image_draw_circle_lines(self.maze_image,
                                        x + CS, y + CS + G2, G2, WALL_COLOR)
             rl.image_draw_rectangle(self.maze_image,
-                                    x + CS - G, y + CS + 1, G, G - 1, rl.BLACK)
+                                    x + CS - G2, y + CS + 1, G2, G - 1,
+                                    rl.BLACK)
         # left hemicircle
         if (c.top and c_top and c_left and not c.left
                 and not c_left.top and not c_top.left):
             rl.image_draw_circle_lines(self.maze_image,
                                        x, y - G2, G2, WALL_COLOR)
             rl.image_draw_rectangle(self.maze_image,
-                                    x, y - G + 1, G, G - 1, rl.BLACK)
+                                    x + 1, y - G + 1, G2, G - 1, rl.BLACK)
         # bot hemicircle
         if (c.left and c_left and c_bot and not c.bot
                 and not c_bot.left and not c_left.bot):
             rl.image_draw_circle_lines(self.maze_image,
                                        x - G2, y + CS, G2, WALL_COLOR)
             rl.image_draw_rectangle(self.maze_image,
-                                    x - G + 1, y + CS - G, G - 1, G, rl.BLACK)
+                                    x - G + 1, y + CS - G2, G - 1, G2,
+                                    rl.BLACK)
         # top hemicircle
         if (c.right and c_right and c_top and not c.top
                 and not c_top.right and not c_right.top):
             rl.image_draw_circle_lines(self.maze_image,
                                        x + CS + G2, y, G2, WALL_COLOR)
             rl.image_draw_rectangle(self.maze_image,
-                                    x + CS + 1, y, G, G, rl.BLACK)
+                                    x + CS + 1, y, G, G2 + 1, rl.BLACK)
 
     def _put_corners(self, c, x, y, c_top, c_right, c_bot, c_left):
         G = self.gap
