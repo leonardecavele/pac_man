@@ -1,11 +1,11 @@
 import pyray as rl
-from src.display.enhanced_cell import EnhancedCell
+from src.maze import Maze
 
 WALL_COLOR = rl.Color(25, 25, 166, 255)
 
 
 class MazeRenderer:
-    def __init__(self, maze_image, maze: list[list[EnhancedCell]],
+    def __init__(self, maze_image, maze: Maze,
                  cell_size: int, gap: int):
         self.maze_image = maze_image
         self.maze = maze
@@ -14,24 +14,24 @@ class MazeRenderer:
 
     def draw(self):
         x, y = 0, 0
-        for line in range(len(self.maze)):
-            for c in range(len(self.maze[line])):
-                self._put_cell(self.maze[line][c],
+        for line in range(self.maze.height):
+            for c in range(self.maze.width):
+                self._put_cell(self.maze.maze[line][c],
                                x * (self.cell_size + self.gap),
                                y * (self.cell_size + self.gap))
                 x += 1
             x = 0
             y += 1
 
-    def _get_neighbors(self, c: EnhancedCell):
+    def _get_neighbors(self, c: Maze.Cell):
         x, y = c.pos
-        c_top = self.maze[y - 1][x] if y > 0 else None
-        c_bot = self.maze[y + 1][x] if y < len(self.maze) - 1 else None
-        c_left = self.maze[y][x - 1] if x > 0 else None
-        c_right = self.maze[y][x + 1] if x < len(self.maze[0]) - 1 else None
+        c_top = self.maze.maze[y - 1][x] if y > 0 else None
+        c_bot = self.maze.maze[y + 1][x] if y < len(self.maze.maze) - 1 else None
+        c_left = self.maze.maze[y][x - 1] if x > 0 else None
+        c_right = self.maze.maze[y][x + 1] if x < len(self.maze.maze[0]) - 1 else None
         return c_top, c_right, c_bot, c_left
 
-    def _put_cell(self, c: EnhancedCell, x: int, y: int) -> None:
+    def _put_cell(self, c: Maze.Cell, x: int, y: int) -> None:
         self._put_links(c, x, y)
         if c.top and c.bot and c.left and c.right:
             rl.image_draw_rectangle(self.maze_image, x, y,
@@ -51,7 +51,7 @@ class MazeRenderer:
             rl.image_draw_line(self.maze_image, x, y,
                                x, y + self.cell_size, WALL_COLOR)
 
-    def _put_links(self, c: EnhancedCell, x: int, y: int) -> None:
+    def _put_links(self, c: Maze.Cell, x: int, y: int) -> None:
         c_top, c_right, c_bot, c_left = self._get_neighbors(c)
         self._put_gap_lines(c, x, y, c_top, c_right, c_bot, c_left)
         self._put_hemicircles(c, x, y, c_top, c_right, c_bot, c_left)

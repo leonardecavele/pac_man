@@ -1,7 +1,5 @@
 import sys
 
-from mazegenerator import MazeGenerator
-
 from src.maze import Maze
 from src.error import ErrorCode
 from src.display import Display
