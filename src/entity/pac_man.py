@@ -22,7 +22,7 @@ class Pac_man(Entity):
             self.Input.up(self.input)
             and not self.maze.maze[y][x].top
         ):
-            self.direction = Maze.Direction.UP.value
+            self.direction = Maze.Direction.TOP.value
         elif (
             self.Input.right(self.input)
             and not self.maze.maze[y][x].right
@@ -32,7 +32,7 @@ class Pac_man(Entity):
             self.Input.down(self.input)
             and not self.maze.maze[y][x].bot
         ):
-            self.direction = Maze.Direction.DOWN.value
+            self.direction = Maze.Direction.BOT.value
         elif (
             self.Input.left(self.input)
             and not self.maze.maze[y][x].left
