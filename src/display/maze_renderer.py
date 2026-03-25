@@ -13,12 +13,16 @@ class MazeRenderer:
         self.gap = gap
 
     def draw(self):
+        border = rl.Rectangle(
+            0, 0, (self.cell_size + self.gap) * self.maze.width + self.gap,
+            (self.cell_size + self.gap) * self.maze.height + self.gap)
+        rl.image_draw_rectangle_lines(self.maze_image, border, 1, WALL_COLOR)
         x, y = 0, 0
         for line in range(self.maze.height):
             for c in range(self.maze.width):
                 self._put_cell(self.maze.maze[line][c],
-                               x * (self.cell_size + self.gap),
-                               y * (self.cell_size + self.gap))
+                               x * (self.cell_size + self.gap) + self.gap,
+                               y * (self.cell_size + self.gap) + self.gap)
                 x += 1
             x = 0
             y += 1

@@ -8,13 +8,9 @@ class Display:
         self.maze: Maze = maze
         self.width = 720
         self.height = 720
+        self._compute_cell_gap_size()
         rl.init_window(self.width, self.height, "Pac-Man")
         rl.set_target_fps(60)
-        self.gap = 18
-        self.cell_size = min(
-            (self.width - (self.maze.width - 1) * self.gap) // self.maze.width,
-            (self.height - (self.maze.height - 1) * self.gap) // self.maze.height,
-        ) - 1
         self.maze_image = rl.gen_image_color(self.width, self.height, rl.BLACK)
         renderer = MazeRenderer(
             self.maze_image, self.maze, self.cell_size, self.gap
@@ -29,3 +25,17 @@ class Display:
             rl.end_drawing()
 
         rl.close_window()
+
+    def _compute_cell_gap_size(self):
+        self.gap = 18
+        while (self.gap >= 0):
+            self.cell_size = min(
+                (self.width - (self.maze.width + 1) * self.gap)
+                // self.maze.width,
+                (self.height - (self.maze.height + 1) * self.gap)
+                // self.maze.height,
+            ) - 1
+            if (self.gap >= self.cell_size):
+                self.gap -= 2
+                continue
+            break

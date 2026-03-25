@@ -6,7 +6,7 @@ from src.display import Display
 
 
 def main() -> int:
-    maze: Maze = Maze(25, 25, 42)
+    maze: Maze = Maze(20, 20, 42)
     Display(maze)
     return ErrorCode.NO_ERROR
 
