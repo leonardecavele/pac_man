@@ -9,9 +9,9 @@ from src.type import vec2, brd
 class Maze():
 
     class Direction(Enum):
-        UP = (0, -1)
+        TOP = (0, -1)
         RIGHT = (1, 0)
-        DOWN = (0, 1)
+        BOT = (0, 1)
         LEFT = (-1, 0)
 
     class Cell(BaseModel):
@@ -57,3 +57,12 @@ class Maze():
         maze_generator.generate(seed)
         self.height = height
         self.width = width
+
+    @staticmethod
+    def convert(
+        value: "Maze.Direction | Maze.Cell.Walls"
+    ) -> "Maze.Direction | Maze.Cell.Walls":
+        if isinstance(value, Maze.Direction):
+            return Maze.Cell.Walls[value.name]
+        if isinstance(value, Maze.Cell.Walls):
+            return Maze.Direction[value.name]
