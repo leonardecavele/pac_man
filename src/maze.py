@@ -38,7 +38,9 @@ class Maze():
     def __init__(
         self, height: int, width: int, seed: int
     ) -> None:
-        maze_generator: MazeGenerator = MazeGenerator((height, width))
+        maze_generator: MazeGenerator = MazeGenerator(
+            (height, width), seed=seed
+        )
 
         self.maze: brd = []
         for y in range(height):
@@ -48,6 +50,5 @@ class Maze():
                     Maze.Cell(value=maze_generator.maze[y][x], pos=(x, y))
                 )
 
-        maze_generator.generate(seed)
         self.height = height
         self.width = width
