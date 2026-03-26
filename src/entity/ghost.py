@@ -41,20 +41,21 @@ class Ghost(Entity):
         ANGRY = 1 << 4  # only for blinky
 
     def __init__(
-        self, screen_pos: vec2, maze_pos: vec2,
-        sprite: str, m: Maze, pac_man: Pac_man
+        self, screen_pos: vec2, maze_pos: vec2, sprite: str, m: Maze,
+        pac_man: Pac_man, house_pos: vec2, corner_pos: vec2
     ) -> None:
         super().__init__(screen_pos, maze_pos, sprite, m)
         self.state: Ghost.State = self.State.SCATTER
         self.pac_man: Pac_man = pac_man
-        self.corner: vec2 = (0, 0)
-        self.target: vec2 = (0, 0)
+        self.corner: vec2 = corner_pos
+        self.house: vec2 = house_pos
+        self.target: vec2 | None = None
 
-    def new_direction(self) -> None:
+    def target_direction(self) -> None:
         x, y = self.maze_pos
         directions = self.legal_directions(x, y)
 
-        if not directions:
+        if not directions or self.target is None:
             self.direction = (0, 0)
             return
 
@@ -108,11 +109,18 @@ class Ghost(Entity):
 
 class Blinky(Ghost):
     def __init__(
-        self, screen_pos: vec2, maze_pos: vec2,
-        sprite: str, m: Maze, pac_man: Pac_man
+        self, screen_pos: vec2, maze_pos: vec2, sprite: str, m: Maze,
+        pac_man: Pac_man, house_pos: vec2
     ) -> None:
-        super().__init__(screen_pos, maze_pos, sprite, m, pac_man)
-        self.corner: vec2 = (self.maze.width - 1, 0)
+        super().__init__(
+            screen_pos,
+            maze_pos,
+            sprite,
+            m,
+            pac_man,
+            house_pos,
+            (self.maze.width - 1, 0)
+        )
         self.target: vec2 = self.corner
 
     def update(self) -> None:
@@ -123,16 +131,23 @@ class Blinky(Ghost):
             self.target = self.corner
         else:
             self.target = self.pac_man.maze_pos
-        self.new_direction()
+        self.target_direction()
 
 
 class Inky(Ghost):
     def __init__(
-        self, screen_pos: vec2, maze_pos: vec2,
-        sprite: str, m: Maze, pac_man: Pac_man
+        self, screen_pos: vec2, maze_pos: vec2, sprite: str, m: Maze,
+        pac_man: Pac_man, house_pos: vec2
     ) -> None:
-        super().__init__(screen_pos, maze_pos, sprite, m, pac_man)
-        self.corner: vec2 = (self.maze.width - 1, self.maze.height - 1)
+        super().__init__(
+            screen_pos,
+            maze_pos,
+            sprite,
+            m,
+            pac_man,
+            house_pos,
+            (self.maze.width - 1, self.maze.height - 1)
+        )
         self.target: vec2 = self.corner
 
     def update(self) -> None:
@@ -140,16 +155,23 @@ class Inky(Ghost):
             self.target = self.corner
         else:
             self.target = self.pac_man.maze_pos
-        self.new_direction()
+        self.target_direction()
 
 
 class Pinky(Ghost):
     def __init__(
-        self, screen_pos: vec2, maze_pos: vec2,
-        sprite: str, m: Maze, pac_man: Pac_man
+        self, screen_pos: vec2, maze_pos: vec2, sprite: str, m: Maze,
+        pac_man: Pac_man, house_pos: vec2
     ) -> None:
-        super().__init__(screen_pos, maze_pos, sprite, m, pac_man)
-        self.corner: vec2 = (0, 0)
+        super().__init__(
+            screen_pos,
+            maze_pos,
+            sprite,
+            m,
+            pac_man,
+            house_pos,
+            (0, 0)
+        )
         self.target: vec2 = self.corner
 
     def update(self) -> None:
@@ -157,16 +179,23 @@ class Pinky(Ghost):
             self.target = self.corner
         else:
             self.target = self.pac_man.maze_pos
-        self.new_direction()
+        self.target_direction()
 
 
 class Clyde(Ghost):
     def __init__(
-        self, screen_pos: vec2, maze_pos: vec2,
-        sprite: str, m: Maze, pac_man: Pac_man
+        self, screen_pos: vec2, maze_pos: vec2, sprite: str, m: Maze,
+        pac_man: Pac_man, house_pos: vec2
     ) -> None:
-        super().__init__(screen_pos, maze_pos, sprite, m, pac_man)
-        self.corner: vec2 = (0, self.maze.height - 1)
+        super().__init__(
+            screen_pos,
+            maze_pos,
+            sprite,
+            m,
+            pac_man,
+            house_pos,
+            (0, self.maze.height - 1)
+        )
         self.target: vec2 = self.corner
 
     def update(self) -> None:
@@ -177,4 +206,4 @@ class Clyde(Ghost):
             self.target = self.corner
         else:
             self.target = self.pac_man.maze_pos
-        self.new_direction()
+        self.target_direction()
