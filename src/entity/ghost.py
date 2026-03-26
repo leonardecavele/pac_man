@@ -2,6 +2,7 @@ import random
 
 from math import sqrt
 from enum import IntFlag
+from abc import ABC, abstractmethod
 
 from .pac_man import Pac_man
 from .entity import DEFAULT_VELOCITY, Entity
@@ -12,7 +13,7 @@ from src.maze import Maze
 
 # update is to be called every new cell entered, not every frame
 
-class Ghost(Entity):
+class Ghost(Entity, ABC):
     class State(IntFlag):
         SCATTER = 1 << 0
         EATEN = 1 << 1
@@ -119,6 +120,10 @@ class Ghost(Entity):
     @staticmethod
     def manhattan(pos1: vec2, pos2: vec2) -> int:
         return abs(pos1[0] - pos2[0]) + abs(pos1[1] - pos2[1])
+
+    @abstractmethod
+    def update(self) -> None:
+        ...
 
 
 class Blinky(Ghost):
