@@ -152,8 +152,14 @@ class Blinky(Ghost):
 
 class Inky(Ghost):
     def __init__(
-        self, screen_pos: vec2, maze_pos: vec2, sprite: str, m: Maze,
-        pac_man: Pac_man, house_pos: vec2
+        self,
+        screen_pos: vec2,
+        maze_pos: vec2,
+        sprite: str,
+        m: Maze,
+        pac_man: Pac_man,
+        blinky: Blinky,
+        house_pos: vec2
     ) -> None:
         super().__init__(
             screen_pos,
@@ -164,7 +170,21 @@ class Inky(Ghost):
             house_pos,
             (self.maze.width - 1, self.maze.height - 1)
         )
+        self.blinky: Blinky = blinky
         self.target = self.corner
+
+    def chase(self) -> vec2:
+        px, py = self.pac_man.maze_pos
+        dx, dy = self.pac_man.direction
+        bx, by = self.blinky.maze_pos
+
+        if (dx, dy) == (0, -1):
+            ahead = (px - 2, py - 2)
+        else:
+            ahead = (px + dx * 2, py + dy * 2)
+
+        ax, ay = ahead
+        return (ax * 2 - bx, ay * 2 - by)
 
     def update(self) -> None:
         if self.state & self.State.EATEN:
@@ -172,7 +192,7 @@ class Inky(Ghost):
         elif self.state & self.State.FRIGHTENED:
             self.target = None
         elif self.state & self.State.CHASE:
-            self.target = self.pac_man.maze_pos
+            self.target = self.chase()
         else:
             self.target = self.corner
 
@@ -201,7 +221,13 @@ class Pinky(Ghost):
         elif self.state & self.State.FRIGHTENED:
             self.target = None
         elif self.state & self.State.CHASE:
-            self.target = self.pac_man.maze_pos
+            px, py = self.pac_man.maze_pos
+            dx, dy = self.pac_man.direction
+
+            if (dx, dy) == (0, -1):
+                self.target = (px - 4, py - 4)
+            else:
+                self.target = (px + dx * 4, py + dy * 4)
         else:
             self.target = self.corner
 
