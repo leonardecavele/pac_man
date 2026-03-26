@@ -30,7 +30,7 @@ class Game:
         self.tick_interval: float = 1.0 / self.tick_rate
         self.tick_accumulator: float = 0.0
 
-        center: vec2 = (self.maze.width // 2, self.maze.height // 2)
+        center: vec2 = ((self.maze.width // 2) + 3, self.maze.height // 2)
 
         top_pos: vec2 = (self.maze.width // 2, 1)
         bottom_pos: vec2 = (self.maze.width // 2, self.maze.height - 2)
@@ -102,6 +102,8 @@ class Game:
         self.display.close()
 
     def update(self, dt: float) -> None:
+        self._handle_input()
+
         self.timer += dt
         cycle_time: float = self.timer % 50.0
 
@@ -118,6 +120,11 @@ class Game:
                     if entity.state != global_ghost_state:
                         entity.change_state(global_ghost_state)
 
+        self.tick_accumulator += dt
+        while self.tick_accumulator >= self.tick_interval:
+            self.pac_man.update()
+            self.tick_accumulator -= self.tick_interval
+
         for entity in self.entity_list:
             previous_maze_pos: vec2 = entity.maze_pos
 
@@ -126,12 +133,8 @@ class Game:
             self._snap_entity_to_corridor(entity)
 
             if isinstance(entity, Ghost) and entity.maze_pos != previous_maze_pos:
+                entity.screen_pos = self._maze_to_screen(entity.maze_pos)
                 entity.update()
-
-        self.tick_accumulator += dt
-        while self.tick_accumulator >= self.tick_interval:
-            self.pac_man.update()
-            self.tick_accumulator -= self.tick_interval
 
     def _snap_entity_to_corridor(self, entity: Entity) -> None:
         center_x: float
@@ -183,3 +186,36 @@ class Game:
         my = max(0, min(my, self.maze.height - 1))
 
         return (mx, my)
+
+    def _handle_input(self) -> None:
+        next_direction: vec2 | None = None
+
+        if (
+            raylib.is_key_down(raylib.KEY_UP)
+            or raylib.is_key_down(raylib.KEY_W)
+            or raylib.is_key_down(raylib.KEY_Z)
+            or raylib.is_key_down(raylib.KEY_K)
+        ):
+            next_direction = Maze.Direction.TOP.value
+        elif (
+            raylib.is_key_down(raylib.KEY_RIGHT)
+            or raylib.is_key_down(raylib.KEY_D)
+            or raylib.is_key_down(raylib.KEY_L)
+        ):
+            next_direction = Maze.Direction.RIGHT.value
+        elif (
+            raylib.is_key_down(raylib.KEY_DOWN)
+            or raylib.is_key_down(raylib.KEY_S)
+            or raylib.is_key_down(raylib.KEY_J)
+        ):
+            next_direction = Maze.Direction.BOT.value
+        elif (
+            raylib.is_key_down(raylib.KEY_LEFT)
+            or raylib.is_key_down(raylib.KEY_A)
+            or raylib.is_key_down(raylib.KEY_Q)
+            or raylib.is_key_down(raylib.KEY_H)
+        ):
+            next_direction = Maze.Direction.LEFT.value
+
+        if next_direction is not None:
+            self.pac_man.next_direction = next_direction
