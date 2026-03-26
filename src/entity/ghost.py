@@ -33,7 +33,7 @@ class Ghost(Entity, ABC):
         self.target: vec2 | None = None
         self.flip: bool = False
 
-    def change_state(self, new_state: State) -> None:
+    def change_state(self, new_state: "Ghost.State") -> None:
         match new_state:
             case self.State.ANGRY:
                 self.velocity = DEFAULT_VELOCITY * 2
@@ -95,7 +95,7 @@ class Ghost(Entity, ABC):
         directions: list[Maze.Direction] = []
 
         for direction in Maze.Direction:
-            if self.maze.maze[y][x] & Maze.convert(direction):
+            if self.maze.maze[y][x].value & Maze.convert(direction):
                 continue
             if back is not None and direction == back:
                 continue
@@ -173,7 +173,7 @@ class Inky(Ghost):
             m,
             pac_man,
             house_pos,
-            (m.width - 1, self.maze.height - 1)
+            (m.width - 1, m.height - 1)
         )
         self.blinky: Blinky = blinky
         self.target = self.corner

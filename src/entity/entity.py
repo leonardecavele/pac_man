@@ -3,7 +3,7 @@ from abc import ABC, abstractmethod
 from src.maze import Maze
 from src.type import vec2
 
-DEFAULT_VELOCITY: int = 2
+DEFAULT_VELOCITY: int = 55
 
 
 class Entity(ABC):

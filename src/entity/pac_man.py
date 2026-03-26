@@ -6,9 +6,9 @@ from src.type import vec2
 
 class Pac_man(Entity):
     def __init__(
-        self, screen_pos: vec2, maze_pos: vec2, sprite: str, maze: Maze
+        self, screen_pos: vec2, maze_pos: vec2, sprite: str, m: Maze
     ) -> None:
-        super().__init__(screen_pos, maze_pos, sprite, maze)
+        super().__init__(screen_pos, maze_pos, sprite, m)
         self.input: None | str = None
 
     # called every tick
