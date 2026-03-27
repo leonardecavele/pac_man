@@ -1,4 +1,5 @@
 import sys
+import pyray as rl
 
 from src.maze import Maze
 from src.game import Game

@@ -1,4 +1,5 @@
 from abc import ABC, abstractmethod
+import pyray as rl
 
 from src.maze import Maze
 from src.type import vec2
@@ -8,7 +9,8 @@ DEFAULT_VELOCITY: int = 55
 
 class Entity(ABC):
     def __init__(
-        self, screen_pos: vec2, maze_pos: vec2, sprite: str, maze: Maze
+            self, screen_pos: vec2, maze_pos: vec2, sprite: rl.Texture2D,
+            maze: Maze
     ) -> None:
         self.screen_pos: tuple[float, float] = screen_pos
         self.maze_pos: vec2 = maze_pos
