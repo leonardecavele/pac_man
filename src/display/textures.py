@@ -13,7 +13,8 @@ class Textures:
             "blinky": self._load_blinky_texture(),
             "pinky": self._load_pinky_texture(),
             "inky": self._load_inky_texture(),
-            "clyde": self._load_clyde_texture()
+            "clyde": self._load_clyde_texture(),
+            "fleeing": self._load_fleeing_texture()
         })
 
     def _load_pacman_texture(self) -> rl.Texture2D:
@@ -53,6 +54,14 @@ class Textures:
             self.cell_size - 1, self.cell_size - 1, rl.BLACK)
         rl.image_draw_rectangle(
             image, 4, 4, self.cell_size - 8, self.cell_size - 8, rl.ORANGE
+        )
+        return (rl.load_texture_from_image(image))
+
+    def _load_fleeing_texture(self) -> rl.Texture2D:
+        image = rl.gen_image_color(
+            self.cell_size - 1, self.cell_size - 1, rl.BLACK)
+        rl.image_draw_rectangle(
+            image, 4, 4, self.cell_size - 8, self.cell_size - 8, rl.BLUE
         )
         return (rl.load_texture_from_image(image))
 
