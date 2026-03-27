@@ -12,7 +12,7 @@ class Entity(ABC):
             self, screen_pos: vec2, maze_pos: vec2, sprite: rl.Texture2D,
             maze: Maze
     ) -> None:
-        self.screen_pos: tuple[float, float] = screen_pos
+        self.screen_pos: vec2 = screen_pos
         self.maze_pos: vec2 = maze_pos
         self.sprite: str = sprite
         self.direction: vec2 = (0, 0)
@@ -22,8 +22,8 @@ class Entity(ABC):
     # Called by the game loop
     def move(self, dt: float) -> None:
         self.screen_pos = (
-            self.screen_pos[0] + self.direction[0] * self.velocity * dt,
-            self.screen_pos[1] + self.direction[1] * self.velocity * dt,
+            round(self.screen_pos[0] + self.direction[0] * self.velocity * dt),
+            round(self.screen_pos[1] + self.direction[1] * self.velocity * dt),
         )
 
     @abstractmethod

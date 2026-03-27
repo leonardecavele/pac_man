@@ -2,8 +2,12 @@ import pyray as raylib
 
 from src.display.display import Display
 from src.maze import Maze
-from src.entity import Ghost, Entity, Blinky, Inky, Pinky, Clyde, Pac_man
+from src.entity import (
+    Ghost, Entity, Blinky, Inky, Pinky, Clyde, Pac_man, Collectible, Pacgum,
+    SuperPacgum
+)
 from src.type import vec2
+from src.display.textures import Textures
 
 
 class Game:
@@ -24,6 +28,7 @@ class Game:
             title=title,
             fps=fps,
         )
+        self.textures = Textures(self.display.cell_size)._load_textures()
         self.timer: float = 0.0
 
         self.tick_rate: float = tick_rate
@@ -40,14 +45,14 @@ class Game:
         self.pac_man: Pac_man = Pac_man(
             screen_pos=self._maze_to_screen(center),
             maze_pos=center,
-            sprite="pac_man",
+            sprite=self.textures["pac_man"],
             m=self.maze,
         )
 
         blinky: Blinky = Blinky(
             screen_pos=self._maze_to_screen(top_pos),
             maze_pos=top_pos,
-            sprite="blinky",
+            sprite=self.textures["blinky"],
             m=self.maze,
             pac_man=self.pac_man,
             house_pos=center,
@@ -56,7 +61,7 @@ class Game:
         inky: Inky = Inky(
             screen_pos=self._maze_to_screen(right_pos),
             maze_pos=right_pos,
-            sprite="inky",
+            sprite=self.textures["inky"],
             m=self.maze,
             pac_man=self.pac_man,
             blinky=blinky,
@@ -66,7 +71,7 @@ class Game:
         pinky: Pinky = Pinky(
             screen_pos=self._maze_to_screen(left_pos),
             maze_pos=left_pos,
-            sprite="pinky",
+            sprite=self.textures["pinky"],
             m=self.maze,
             pac_man=self.pac_man,
             house_pos=center,
@@ -75,7 +80,7 @@ class Game:
         clyde: Clyde = Clyde(
             screen_pos=self._maze_to_screen(bottom_pos),
             maze_pos=bottom_pos,
-            sprite="clyde",
+            sprite=self.textures["clyde"],
             m=self.maze,
             pac_man=self.pac_man,
             house_pos=center,
@@ -88,6 +93,7 @@ class Game:
             clyde,
             self.pac_man,
         ]
+        self.collectibles = self._gen_pacgums()
 
         for entity in self.entity_list:
             if isinstance(entity, Ghost):
@@ -97,7 +103,7 @@ class Game:
         while not self.display.should_close():
             dt: float = self.display.get_frame_time()
             self.update(dt)
-            self.display.draw(self.entity_list)
+            self.display.draw([self.collectibles, self.entity_list])
 
         self.display.close()
 
@@ -132,7 +138,8 @@ class Game:
             self._sync_maze_pos_from_screen_pos(entity)
             self._snap_entity_to_corridor(entity)
 
-            if isinstance(entity, Ghost) and entity.maze_pos != previous_maze_pos:
+            if (isinstance(entity, Ghost)
+                    and entity.maze_pos != previous_maze_pos):
                 entity.screen_pos = self._maze_to_screen(entity.maze_pos)
                 entity.update()
 
@@ -155,23 +162,23 @@ class Game:
     def _sync_maze_pos_from_screen_pos(self, entity: Entity) -> None:
         entity.maze_pos = self._screen_to_maze(entity.screen_pos)
 
-    def _maze_to_screen(self, pos: vec2) -> tuple[float, float]:
+    def _maze_to_screen(self, pos: vec2) -> vec2:
         x, y = pos
         step: int = self.display.cell_size + self.display.gap
 
-        screen_x: float = (
+        screen_x: int = (
             self.display.gap
             + x * step
-            + self.display.cell_size / 2
+            + self.display.cell_size // 2
         )
-        screen_y: float = (
+        screen_y: int = (
             self.display.gap
             + y * step
-            + self.display.cell_size / 2
+            + self.display.cell_size // 2
         )
         return (screen_x, screen_y)
 
-    def _screen_to_maze(self, pos: tuple[float, float]) -> vec2:
+    def _screen_to_maze(self, pos: vec2) -> vec2:
         sx, sy = pos
         step: int = self.display.cell_size + self.display.gap
 
@@ -219,3 +226,25 @@ class Game:
 
         if next_direction is not None:
             self.pac_man.next_direction = next_direction
+
+    def _gen_pacgums(self) -> list[Entity]:
+        pacgums: list[Entity] = []
+        for y in range(self.maze.height):
+            for x in range(self.maze.width):
+                if (self.maze.maze[y][x].value == 15):
+                    continue
+                if ((x == 0 and y == 0) or
+                    (x == 0 and y == self.maze.height - 1) or
+                    (x == self.maze.width - 1 and y == 0) or
+                    (x == self.maze.width - 1
+                     and y == self.maze.height - 1)):
+                    pacgums.append(SuperPacgum(
+                        self._maze_to_screen((x, y)), (x, y),
+                        self.textures["super_pacgum"], self.maze)
+                    )
+                else:
+                    pacgums.append(
+                        Pacgum(self._maze_to_screen((x, y)), (x, y),
+                               self.textures["pacgum"], self.maze)
+                    )
+        return (pacgums)

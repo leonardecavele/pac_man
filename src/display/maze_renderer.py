@@ -11,6 +11,7 @@ class MazeRenderer:
         self.maze = maze
         self.cell_size = cell_size
         self.gap = gap
+        self.draw()
 
     def draw(self):
         border = rl.Rectangle(
