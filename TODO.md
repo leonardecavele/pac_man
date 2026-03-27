@@ -37,7 +37,7 @@ Loop:
 ## LEONARD
 
 - Project setup
-  - [ ] Makefile
+  - [X] Makefile
   - [ ] Build .exe
 
 - Entity
@@ -45,7 +45,7 @@ Loop:
   (method .update())
 
   - [ ] Player
-  - [ ] Ghosts
+  - [X] Ghosts
   - [ ] Entity list (coordinates.. etc)
 
 - Networking

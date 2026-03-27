@@ -1,4 +1,4 @@
-from enum import IntEnum, Enum
+from enum import IntFlag, Enum
 
 from pydantic import BaseModel, Field
 from mazegenerator import MazeGenerator
@@ -9,14 +9,14 @@ from src.type import vec2, brd
 class Maze():
 
     class Direction(Enum):
-        UP = (0, -1)
+        TOP = (0, -1)
         RIGHT = (1, 0)
-        DOWN = (0, 1)
+        BOT = (0, 1)
         LEFT = (-1, 0)
 
     class Cell(BaseModel):
 
-        class Walls(IntEnum):
+        class Walls(IntFlag):
             TOP = 1 << 0
             RIGHT = 1 << 1
             BOT = 1 << 2
@@ -58,3 +58,12 @@ class Maze():
 
         self.height = height
         self.width = width
+
+    @staticmethod
+    def convert(
+        value: "Maze.Direction | Maze.Cell.Walls"
+    ) -> "Maze.Direction | Maze.Cell.Walls":
+        if isinstance(value, Maze.Direction):
+            return Maze.Cell.Walls[value.name]
+        if isinstance(value, Maze.Cell.Walls):
+            return Maze.Direction[value.name]

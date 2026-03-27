@@ -6,55 +6,31 @@ from src.type import vec2
 
 class Pac_man(Entity):
     def __init__(
-        self, screen_pos: vec2, maze_pos: vec2, sprite: str, maze: Maze
+        self, screen_pos: vec2, maze_pos: vec2, sprite: str, m: Maze
     ) -> None:
-        super().__init__(screen_pos, maze_pos, sprite, maze)
-        self.input: None | str = None
+        super().__init__(screen_pos, maze_pos, sprite, m)
+        self.next_direction: vec2 | None = None
 
-    # called every tick
-    def update(self):
-        # check input to update direction
+    def _can_move(self, direction: vec2) -> bool:
         x, y = self.maze_pos
 
-        if self.input is None:
-            return
-        elif (
-            self.Input.up(self.input)
-            and not self.maze.maze[y][x].top
-        ):
-            self.direction = (0, -1)
-        elif (
-            self.Input.right(self.input)
-            and not self.maze.maze[y][x].right
-        ):
-            self.direction = (1, 0)
-        elif (
-            self.Input.down(self.input)
-            and not self.maze.maze[y][x].bot
-        ):
-            self.direction = (0, 1)
-        elif (
-            self.Input.left(self.input)
-            and not self.maze.maze[y][x].left
-        ):
-            self.direction = (-1, 0)
-        else:
-            # invalid key
-            self.input = None
+        if direction == Maze.Direction.TOP.value:
+            return not self.maze.maze[y][x].top
+        if direction == Maze.Direction.RIGHT.value:
+            return not self.maze.maze[y][x].right
+        if direction == Maze.Direction.BOT.value:
+            return not self.maze.maze[y][x].bot
+        if direction == Maze.Direction.LEFT.value:
+            return not self.maze.maze[y][x].left
+        return False
 
-    class Input():
-        @staticmethod
-        def up(input: str) -> bool:
-            return input.lower() == 'w' or input.lower() == 'k'
+    # called every tick
+    def update(self) -> None:
+        if (
+            self.next_direction is not None
+            and self._can_move(self.next_direction)
+        ):
+            self.direction = self.next_direction
 
-        @staticmethod
-        def right(input: str) -> bool:
-            return input.lower() == 'd' or input.lower() == 'l'
-
-        @staticmethod
-        def down(input: str) -> bool:
-            return input.lower() == 's' or input.lower() == 'j'
-
-        @staticmethod
-        def left(input: str) -> bool:
-            return input.lower() == 'a' or input.lower() == 'h'
+        if self.direction != (0, 0) and not self._can_move(self.direction):
+            self.direction = (0, 0)
