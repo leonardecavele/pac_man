@@ -1,3 +1,5 @@
+import math
+
 import pyray as rl
 
 from src.display.display import Display
@@ -33,7 +35,8 @@ class Game:
         self.score: int = 0
         self.config: Config = config
         self.textures: dict[str, rl.Texture2D] = Textures(
-            self.display.cell_size)._load_textures()
+            self.display.cell_size
+        )._load_textures()
         self.timer: float = 0.0
         self.fright: bool = False
         self.fright_time: float = 0
@@ -120,66 +123,36 @@ class Game:
 
         if (self.fright):
             self.fright_time += dt
-        if (self.fright_time > 10):
+        if (self.fright_time > 6):
             self.fright_time = 0
             self.fright = False
             for e in self.enemies:
                 e.load_save()
 
-        self.timer += dt
-        cycle_time: float = self.timer % 50.0
+        pac = self.pac_man
+        prev_pos = pac.maze_pos
+        pac.move(dt)
+        self._sync_maze_pos_from_screen_pos(pac)
+        if pac.direction == (0, 0) or pac.maze_pos != prev_pos:
+            self._snap_entity_to_corridor(pac)
+            pac.update()
 
-        if cycle_time < 10.0:
-            global_ghost_state: Ghost.State = Ghost.State.SCATTER
-        else:
-            global_ghost_state = Ghost.State.CHASE
+        for ghost in self.enemies:
+            prev_pos = ghost.maze_pos
+            ghost.move(dt)
+            self._sync_maze_pos_from_screen_pos(ghost)
+            if ghost.maze_pos != prev_pos:
+                self._snap_entity_to_corridor(ghost)
+                ghost.update()
 
-        for entity in self.enemies:
-            if isinstance(entity, Ghost):
-                if entity.state not in (
-                    Ghost.State.EATEN, Ghost.State.FRIGHTENED
-                ):
-                    if entity.state != global_ghost_state:
-                        entity.change_state(global_ghost_state)
-
-        self.tick_accumulator += dt
-        while self.tick_accumulator >= self.tick_interval:
-            self.pac_man.update()
-            self.tick_accumulator -= self.tick_interval
-
-        for entity in [self.pac_man] + self.enemies:
-            previous_maze_pos: vec2 = entity.maze_pos
-
-            entity.move(dt)
-            self._sync_maze_pos_from_screen_pos(entity)
-            self._snap_entity_to_corridor(entity)
-
-            if (isinstance(entity, Ghost)
-                    and entity.maze_pos != previous_maze_pos):
-                entity.screen_pos = self._maze_to_screen(entity.maze_pos)
-                entity.update()
         self._check_collision()
 
-    def _check_collision(self) -> None:
-        for gum in self.collectibles:
-            if (gum.maze_pos == self.pac_man.maze_pos):
-                self.collectibles.remove(gum)
-                if (isinstance(gum, SuperPacgum)):
-                    self.score += self.config.points_per_super_pacgum
-                    self.fright = True
-                    for e in self.enemies:
-                        e.sprite = self.textures["fleeing"]
-                        e.change_state(Ghost.State.FRIGHTENED)
-                else:
-                    self.score += self.config.points_per_pacgum
-                return
-        for ghost in self.enemies:
-            if (ghost.maze_pos == self.pac_man.maze_pos):
-                if (ghost.state == Ghost.State.FRIGHTENED):
-                    self.enemies.remove(ghost)
-                    self.score += self.config.points_per_ghost
-                else:
-                    exit(10)
+    def _collides(self, a: Entity, b: Entity) -> bool:
+        size: int = self.display.cell_size // 2
+        return (
+            abs(a.screen_pos[0] - b.screen_pos[0]) < size
+            and abs(a.screen_pos[1] - b.screen_pos[1]) < size
+        )
 
     def _snap_entity_to_corridor(self, entity: Entity) -> None:
         center_x: float
@@ -197,8 +170,46 @@ class Game:
         else:
             entity.screen_pos = (center_x, center_y)
 
+    def _check_collision(self) -> None:
+        for gum in self.collectibles:
+            if self._collides(gum, self.pac_man):
+                self.collectibles.remove(gum)
+                if (isinstance(gum, SuperPacgum)):
+                    self.score += self.config.points_per_super_pacgum
+                    self.fright = True
+                    for e in self.enemies:
+                        e.sprite = self.textures["fleeing"]
+                        e.change_state(Ghost.State.FRIGHTENED)
+                else:
+                    self.score += self.config.points_per_pacgum
+                return
+        for ghost in self.enemies:
+            if self._collides(ghost, self.pac_man):
+                if (ghost.state == Ghost.State.FRIGHTENED):
+                    self.enemies.remove(ghost)
+                    self.score += self.config.points_per_ghost
+                else:
+                    exit(10)
+
     def _sync_maze_pos_from_screen_pos(self, entity: Entity) -> None:
-        entity.maze_pos = self._screen_to_maze(entity.screen_pos)
+        sx, sy = entity.screen_pos
+        step: int = self.display.cell_size + self.display.gap
+        dx, dy = entity.direction
+
+        raw_x: float = (sx - self.display.gap -
+                        self.display.cell_size / 2) / step
+        raw_y: float = (sy - self.display.gap -
+                        self.display.cell_size / 2) / step
+
+        mx: int = math.floor(raw_x) if dx > 0 else math.ceil(
+            raw_x) if dx < 0 else round(raw_x)
+        my: int = math.floor(raw_y) if dy > 0 else math.ceil(
+            raw_y) if dy < 0 else round(raw_y)
+
+        entity.maze_pos = (
+            max(0, min(mx, self.maze.width - 1)),
+            max(0, min(my, self.maze.height - 1)),
+        )
 
     def _maze_to_screen(self, pos: vec2) -> vec2:
         x, y = pos
