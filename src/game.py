@@ -137,7 +137,6 @@ class Game:
         if (pac.direction == (0, 0) or pac.maze_pos != prev_pos or
                 (pac.next_direction and dx and pac.next_direction[0]) or
                 (pac.next_direction and dy and pac.next_direction[1])):
-            self._snap_entity_to_corridor(pac)
             pac.update()
 
         for ghost in self.enemies:
@@ -145,7 +144,6 @@ class Game:
             ghost.move(dt)
             self._sync_maze_pos_from_screen_pos(ghost)
             if ghost.maze_pos != prev_pos:
-                self._snap_entity_to_corridor(ghost)
                 ghost.update()
 
         self._check_collision()
@@ -156,22 +154,6 @@ class Game:
             abs(a.screen_pos[0] - b.screen_pos[0]) < size
             and abs(a.screen_pos[1] - b.screen_pos[1]) < size
         )
-
-    def _snap_entity_to_corridor(self, entity: Entity) -> None:
-        center_x: float
-        center_y: float
-        center_x, center_y = self._maze_to_screen(entity.maze_pos)
-
-        dx: int
-        dy: int
-        dx, dy = entity.direction
-
-        if dx != 0:
-            entity.screen_pos = (entity.screen_pos[0], center_y)
-        elif dy != 0:
-            entity.screen_pos = (center_x, entity.screen_pos[1])
-        else:
-            entity.screen_pos = (center_x, center_y)
 
     def _check_collision(self) -> None:
         for gum in self.collectibles:
