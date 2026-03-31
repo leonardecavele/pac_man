@@ -1,3 +1,3 @@
-from .display import Display
+from .textures import Textures
 
-__all__ = ["Display"]
+__all__ = ["Textures"]
