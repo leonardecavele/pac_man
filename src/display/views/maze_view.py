@@ -2,7 +2,7 @@ import pyray as rl
 import math
 
 from src.display.maze_renderer import MazeRenderer
-from .view import View
+from .view import View, ViewEvent, ViewEventType
 from src.maze import Maze
 from src.type import vec2
 from src.entity import (
@@ -103,7 +103,6 @@ class MazeView(View):
             entity.update()
 
     def draw(self) -> None:
-        rl.begin_drawing()
         rl.clear_background(rl.BLACK)
         rl.draw_texture(self.maze_texture, 0, 0, rl.WHITE)
         for i in [self.collectibles, self.enemies, [self.pac_man]]:
@@ -112,9 +111,8 @@ class MazeView(View):
                 x -= self.cell_size // 2
                 y -= self.cell_size // 2
                 rl.draw_texture(e.sprite, x + 1, y + 1, rl.WHITE)
-        rl.end_drawing()
 
-    def update(self, dt: float) -> None:
+    def update(self, dt: float) -> ViewEvent:
         self._handle_input()
 
         if (self.fright):
@@ -143,6 +141,7 @@ class MazeView(View):
                 ghost.update()
 
         self._check_collision()
+        return (ViewEvent(type=ViewEventType.NONE))
 
     def _collides(self, a: Entity, b: Entity) -> bool:
         size: int = self.cell_size // 2

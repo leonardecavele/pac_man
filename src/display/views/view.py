@@ -1,4 +1,17 @@
 from abc import ABC, abstractmethod
+from enum import Enum, auto
+from pydantic import BaseModel, Field
+
+
+class ViewEventType(Enum):
+    NONE = auto()
+    CHANGE_VIEW = auto()
+    QUIT = auto()
+
+
+class ViewEvent(BaseModel):
+    type: ViewEventType = Field(...)
+    message: str = Field(default="")
 
 
 class View(ABC):
@@ -10,7 +23,7 @@ class View(ABC):
         pass
 
     @abstractmethod
-    def update(self, dt: float) -> None:
+    def update(self, dt: float) -> ViewEvent:
         pass
 
     @abstractmethod
