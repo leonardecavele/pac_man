@@ -33,6 +33,7 @@ class Ghost(Entity, ABC):
         self.house: vec2 = house_pos
         self.target: vec2 | None = None
         self.flip: bool = False
+        self.save_state()
 
     def change_state(self, new_state: "Ghost.State") -> None:
         match new_state:
@@ -146,7 +147,6 @@ class Ghost(Entity, ABC):
 
         return None
 
-
     def target_direction(self) -> None:
         x, y = self.maze_pos
         directions = self.legal_directions(x, y)
@@ -223,6 +223,14 @@ class Ghost(Entity, ABC):
     @abstractmethod
     def update(self) -> None:
         ...
+
+    def save_state(self):
+        self.saved_state = self.state
+        self.saved_sprite = self.sprite
+
+    def load_save(self):
+        self.sprite = self.saved_sprite
+        self.change_state(self.saved_state)
 
 
 class Blinky(Ghost):

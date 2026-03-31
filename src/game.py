@@ -1,4 +1,6 @@
-import pyray as raylib
+import math
+
+import pyray as rl
 
 from src.display.display import Display
 from src.maze import Maze
@@ -8,12 +10,14 @@ from src.entity import (
 )
 from src.type import vec2
 from src.display.textures import Textures
+from src.parsing.config import Config
 
 
 class Game:
     def __init__(
         self,
         maze: Maze,
+        config: Config,
         width: int = 720,
         height: int = 720,
         title: str = "pac_man",
@@ -28,14 +32,20 @@ class Game:
             title=title,
             fps=fps,
         )
-        self.textures = Textures(self.display.cell_size)._load_textures()
+        self.score: int = 0
+        self.config: Config = config
+        self.textures: dict[str, rl.Texture2D] = Textures(
+            self.display.cell_size
+        )._load_textures()
         self.timer: float = 0.0
+        self.fright: bool = False
+        self.fright_time: float = 0
 
         self.tick_rate: float = tick_rate
         self.tick_interval: float = 1.0 / self.tick_rate
         self.tick_accumulator: float = 0.0
 
-        center: vec2 = ((self.maze.width // 2) + 3, self.maze.height // 2)
+        center: vec2 = ((self.maze.width // 2), self.maze.height // 2)
 
         top_pos: vec2 = (self.maze.width // 2, 1)
         bottom_pos: vec2 = (self.maze.width // 2, self.maze.height - 2)
@@ -86,81 +96,105 @@ class Game:
             house_pos=center,
         )
 
-        self.entity_list: list[Entity] = [
+        self.enemies: list[Ghost] = [
             blinky,
             inky,
             pinky,
-            clyde,
-            self.pac_man,
+            clyde
         ]
         self.collectibles = self._gen_pacgums()
 
-        for entity in self.entity_list:
-            if isinstance(entity, Ghost):
-                entity.update()
+        for entity in self.enemies:
+            entity.update()
 
     def run(self) -> None:
         while not self.display.should_close():
             dt: float = self.display.get_frame_time()
             self.update(dt)
-            self.display.draw([self.collectibles, self.entity_list])
+            # Each sub_list act as a layer
+            self.display.draw(
+                [self.collectibles, [self.pac_man], self.enemies]
+            )
 
         self.display.close()
 
     def update(self, dt: float) -> None:
         self._handle_input()
 
-        self.timer += dt
-        cycle_time: float = self.timer % 50.0
+        if (self.fright):
+            self.fright_time += dt
+        if (self.fright_time > 6):
+            self.fright_time = 0
+            self.fright = False
+            for e in self.enemies:
+                e.load_save()
 
-        if cycle_time < 10.0:
-            global_ghost_state: Ghost.State = Ghost.State.SCATTER
-        else:
-            global_ghost_state = Ghost.State.CHASE
+        pac = self.pac_man
+        prev_pos = pac.maze_pos
+        pac.move(dt)
+        self._sync_maze_pos_from_screen_pos(pac)
+        dx, dy = pac.direction
+        if (pac.direction == (0, 0) or pac.maze_pos != prev_pos or
+                (pac.next_direction and dx and pac.next_direction[0]) or
+                (pac.next_direction and dy and pac.next_direction[1])):
+            pac.update()
 
-        for entity in self.entity_list:
-            if isinstance(entity, Ghost):
-                if entity.state not in (
-                    Ghost.State.EATEN, Ghost.State.FRIGHTENED
-                ):
-                    if entity.state != global_ghost_state:
-                        entity.change_state(global_ghost_state)
+        for ghost in self.enemies:
+            prev_pos = ghost.maze_pos
+            ghost.move(dt)
+            self._sync_maze_pos_from_screen_pos(ghost)
+            if ghost.maze_pos != prev_pos:
+                ghost.update()
 
-        self.tick_accumulator += dt
-        while self.tick_accumulator >= self.tick_interval:
-            self.pac_man.update()
-            self.tick_accumulator -= self.tick_interval
+        self._check_collision()
 
-        for entity in self.entity_list:
-            previous_maze_pos: vec2 = entity.maze_pos
+    def _collides(self, a: Entity, b: Entity) -> bool:
+        size: int = self.display.cell_size // 2
+        return (
+            abs(a.screen_pos[0] - b.screen_pos[0]) < size
+            and abs(a.screen_pos[1] - b.screen_pos[1]) < size
+        )
 
-            entity.move(dt)
-            self._sync_maze_pos_from_screen_pos(entity)
-            self._snap_entity_to_corridor(entity)
-
-            if (isinstance(entity, Ghost)
-                    and entity.maze_pos != previous_maze_pos):
-                entity.screen_pos = self._maze_to_screen(entity.maze_pos)
-                entity.update()
-
-    def _snap_entity_to_corridor(self, entity: Entity) -> None:
-        center_x: float
-        center_y: float
-        center_x, center_y = self._maze_to_screen(entity.maze_pos)
-
-        dx: int
-        dy: int
-        dx, dy = entity.direction
-
-        if dx != 0:
-            entity.screen_pos = (entity.screen_pos[0], center_y)
-        elif dy != 0:
-            entity.screen_pos = (center_x, entity.screen_pos[1])
-        else:
-            entity.screen_pos = (center_x, center_y)
+    def _check_collision(self) -> None:
+        for gum in self.collectibles:
+            if self._collides(gum, self.pac_man):
+                self.collectibles.remove(gum)
+                if (isinstance(gum, SuperPacgum)):
+                    self.score += self.config.points_per_super_pacgum
+                    self.fright = True
+                    for e in self.enemies:
+                        e.sprite = self.textures["fleeing"]
+                        e.change_state(Ghost.State.FRIGHTENED)
+                else:
+                    self.score += self.config.points_per_pacgum
+                return
+        for ghost in self.enemies:
+            if self._collides(ghost, self.pac_man):
+                if (ghost.state == Ghost.State.FRIGHTENED):
+                    self.enemies.remove(ghost)
+                    self.score += self.config.points_per_ghost
+                else:
+                    exit(10)
 
     def _sync_maze_pos_from_screen_pos(self, entity: Entity) -> None:
-        entity.maze_pos = self._screen_to_maze(entity.screen_pos)
+        sx, sy = entity.screen_pos
+        step: int = self.display.cell_size + self.display.gap
+        dx, dy = entity.direction
+
+        raw_x: float = (sx - self.display.gap -
+                        self.display.cell_size / 2) / step
+        raw_y: float = (sy - self.display.gap -
+                        self.display.cell_size / 2) / step
+
+        mx: int = math.floor(raw_x) if dx > 0 else math.ceil(
+            raw_x) if dx < 0 else round(raw_x)
+        my: int = math.floor(raw_y) if dy > 0 else math.ceil(
+            raw_y) if dy < 0 else round(raw_y)
+
+        entity.maze_pos = (
+            max(0, min(mx, self.maze.width - 1)),
+            max(0, min(my, self.maze.height - 1)),
+        )
 
     def _maze_to_screen(self, pos: vec2) -> vec2:
         x, y = pos
@@ -198,29 +232,29 @@ class Game:
         next_direction: vec2 | None = None
 
         if (
-            raylib.is_key_down(raylib.KEY_UP)
-            or raylib.is_key_down(raylib.KEY_W)
-            or raylib.is_key_down(raylib.KEY_Z)
-            or raylib.is_key_down(raylib.KEY_K)
+            rl.is_key_down(rl.KEY_UP)
+            or rl.is_key_down(rl.KEY_W)
+            or rl.is_key_down(rl.KEY_Z)
+            or rl.is_key_down(rl.KEY_K)
         ):
             next_direction = Maze.Direction.TOP.value
         elif (
-            raylib.is_key_down(raylib.KEY_RIGHT)
-            or raylib.is_key_down(raylib.KEY_D)
-            or raylib.is_key_down(raylib.KEY_L)
+            rl.is_key_down(rl.KEY_RIGHT)
+            or rl.is_key_down(rl.KEY_D)
+            or rl.is_key_down(rl.KEY_L)
         ):
             next_direction = Maze.Direction.RIGHT.value
         elif (
-            raylib.is_key_down(raylib.KEY_DOWN)
-            or raylib.is_key_down(raylib.KEY_S)
-            or raylib.is_key_down(raylib.KEY_J)
+            rl.is_key_down(rl.KEY_DOWN)
+            or rl.is_key_down(rl.KEY_S)
+            or rl.is_key_down(rl.KEY_J)
         ):
             next_direction = Maze.Direction.BOT.value
         elif (
-            raylib.is_key_down(raylib.KEY_LEFT)
-            or raylib.is_key_down(raylib.KEY_A)
-            or raylib.is_key_down(raylib.KEY_Q)
-            or raylib.is_key_down(raylib.KEY_H)
+            rl.is_key_down(rl.KEY_LEFT)
+            or rl.is_key_down(rl.KEY_A)
+            or rl.is_key_down(rl.KEY_Q)
+            or rl.is_key_down(rl.KEY_H)
         ):
             next_direction = Maze.Direction.LEFT.value
 

@@ -39,8 +39,8 @@ class Display:
         for i in entities:
             for e in i:
                 x, y = e.screen_pos
-                x = x - self.cell_size // 2
-                y = y - self.cell_size // 2
+                x -= self.cell_size // 2
+                y -= self.cell_size // 2
                 rl.draw_texture(e.sprite, x + 1, y + 1, rl.WHITE)
         rl.end_drawing()
 
