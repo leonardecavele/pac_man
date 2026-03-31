@@ -2,7 +2,8 @@ import math
 
 import pyray as rl
 
-from src.display.views import MazeView
+from src.display.views.view import View, ViewEvent, ViewEventType
+from src.display.views import MazeView, MenuView
 from src.maze import Maze
 from src.type import vec2
 from src.display import Textures
@@ -32,15 +33,19 @@ class Game:
         self.textures: dict[str, rl.Texture2D] = Textures(
             self.cell_size
         )._load_textures()
-        self.display: MazeView = MazeView(
-            maze=maze,
-            width=width,
-            height=height,
-            config=self.config,
-            textures=self.textures,
-            gap=self.gap,
-            cell_size=self.cell_size
-        )
+        self.views: dict[str, View] = {
+            "maze": MazeView(
+                maze=maze,
+                width=width,
+                height=height,
+                config=self.config,
+                textures=self.textures,
+                gap=self.gap,
+                cell_size=self.cell_size
+            ),
+            "main_menu": MenuView()
+        }
+        self.current_view = self.views["main_menu"]
         self.score: int = 0
         self.timer: float = 0.0
         self.fright: bool = False
@@ -67,8 +72,19 @@ class Game:
     def run(self) -> None:
         while not rl.window_should_close():
             dt: float = rl.get_frame_time()
-            self.display.update(dt)
-            self.display.draw()
+            event = self.current_view.update(dt)
+            if (event.type == ViewEventType.QUIT):
+                break
+            elif (event.type == ViewEventType.CHANGE_VIEW):
+                self.current_view = self.views[event.message]
+                continue
+            rl.begin_drawing()
+            self.current_view.draw()
+            rl.end_drawing()
 
-        self.display.close()
+        self._close_view()
         rl.close_window()
+
+    def _close_view(self):
+        for view in self.views.values():
+            view.close()
