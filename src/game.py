@@ -133,7 +133,10 @@ class Game:
         prev_pos = pac.maze_pos
         pac.move(dt)
         self._sync_maze_pos_from_screen_pos(pac)
-        if pac.direction == (0, 0) or pac.maze_pos != prev_pos:
+        dx, dy = pac.direction
+        if (pac.direction == (0, 0) or pac.maze_pos != prev_pos or
+                (pac.next_direction and dx and pac.next_direction[0]) or
+                (pac.next_direction and dy and pac.next_direction[1])):
             self._snap_entity_to_corridor(pac)
             pac.update()
 
