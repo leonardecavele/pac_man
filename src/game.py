@@ -3,7 +3,7 @@ import math
 import pyray as rl
 
 from src.display.views.view import View, ViewEvent, ViewEventType
-from src.display.views import MazeView, MenuView
+from src.display.views import EndView, MazeView, MenuView
 from src.maze import Maze
 from src.type import vec2
 from src.display import Textures
@@ -46,6 +46,10 @@ class Game:
             "main_menu": MenuView(
                 width=width,
                 height=height
+            ),
+            "end": EndView(
+                width=width,
+                height=height
             )
         }
         self.current_view = self.views["main_menu"]
@@ -80,6 +84,14 @@ class Game:
                 break
             elif (event.type == ViewEventType.CHANGE_VIEW):
                 self.current_view = self.views[event.message]
+                continue
+            elif (event.type == ViewEventType.END):
+                action, score = event.message.split(":")
+                self.current_view = self.views["end"]
+                if (isinstance(self.current_view, EndView)):
+                    print(action, score)
+                    self.current_view.action = action
+                    self.current_view.score = int(score)
                 continue
             rl.begin_drawing()
             self.current_view.draw()
