@@ -155,14 +155,17 @@ class MazeView(View):
                 ghost.update()
 
         if (not len(self.collectibles)):
+            tmp = self.score
+            self.init()
             return (ViewEvent(
-                type=ViewEventType.END, message=f"victory:{self.score}"
+                type=ViewEventType.END, message=f"victory:{tmp}"
             ))
         match self._check_collision():
             case CollisionEvent.DEATH:
+                tmp = self.score
                 self.init()
                 return (ViewEvent(
-                    type=ViewEventType.END, message=f"game_over:{self.score}"
+                    type=ViewEventType.END, message=f"game_over:{tmp}"
                 ))
             case _:
                 return (ViewEvent(type=ViewEventType.NONE))

@@ -89,6 +89,7 @@ class Game:
                 action, score = event.message.split(":")
                 self.current_view = self.views["end"]
                 if (isinstance(self.current_view, EndView)):
+                    print(action, score)
                     self.current_view.action = action
                     self.current_view.score = int(score)
                 continue

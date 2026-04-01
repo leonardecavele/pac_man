@@ -1,38 +1,7 @@
 import pyray as rl
-from typing import Callable
 
 from .view import View, ViewEvent, ViewEventType
-
-
-class Button:
-    def __init__(
-        self, x: int, y: int, label: str, font_size: int, action: Callable,
-        color: rl.Color = rl.WHITE
-    ):
-        self.x = x
-        self.y = y
-        self.label = label
-        self.w = rl.measure_text(self.label, font_size)
-        self.h = font_size
-        self.action = action
-        self.font_size = font_size
-        self.color = color
-
-    def contains(self, mx: int, my: int) -> bool:
-        """Check if the coords (mx, my) are in the button
-
-        Keyword arguments:
-        mx -- x coordinate
-        my -- y coordinate
-        """
-        return (
-            self.x <= mx < self.x + self.w and
-            self.y <= my < self.y + self.h
-        )
-
-    def draw(self):
-        # rl.draw_rectangle(self.x, self.y, self.w, self.h, rl.PURPLE)
-        rl.draw_text(self.label, self.x, self.y, self.font_size, self.color)
+from src.display.components import Button
 
 
 class MenuView(View):
@@ -53,6 +22,10 @@ class MenuView(View):
         self.exit_btn.draw()
 
     def update(self, dt: float) -> ViewEvent:
+        if (rl.is_key_pressed(rl.KEY_ENTER)):
+            return (
+                ViewEvent(type=ViewEventType.CHANGE_VIEW, message="maze")
+            )
         mouse = rl.get_mouse_position()
         if (self.play_btn.contains(mouse.x, mouse.y)):
             self.play_btn.color = rl.YELLOW
