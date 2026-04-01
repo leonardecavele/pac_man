@@ -9,14 +9,14 @@ from src.parsing.parsing import Parser
 def main() -> int:
     parser = Parser("config.json")
     config = parser.run()
-    maze: Maze = Maze(15, 15, 42)
+    maze: Maze = Maze(10, 10, 42)
     game: Game = Game(
         maze=maze,
         config=config,
         width=700,
         height=900,
         title="Pac_Man",
-        fps=60,
+        fps=120,
     )
     game.run()
     return ErrorCode.NO_ERROR

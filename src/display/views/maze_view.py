@@ -1,5 +1,6 @@
 import pyray as rl
 import math
+from enum import Enum, auto
 
 from src.display.maze_renderer import MazeRenderer
 from .view import View, ViewEvent, ViewEventType
@@ -10,6 +11,11 @@ from src.entity import (
     SuperPacgum
 )
 from src.parsing.config import Config
+
+
+class CollisionEvent(Enum):
+    NONE = auto()
+    DEATH = auto()
 
 
 class MazeView(View):
@@ -32,13 +38,16 @@ class MazeView(View):
             self.maze_image, self.maze, self.cell_size, self.gap
         )
         self.maze_texture = rl.load_texture_from_image(self.maze_image)
+
+        self.tick_rate: float = 8.0
+        self.tick_interval: float = 1.0 / self.tick_rate
+        self.init()
+
+    def init(self) -> None:
         self.score: int = 0
         self.timer: float = 0.0
         self.fright: bool = False
         self.fright_time: float = 0
-
-        self.tick_rate: float = 8.0
-        self.tick_interval: float = 1.0 / self.tick_rate
         self.tick_accumulator: float = 0.0
         center: vec2 = ((self.maze.width // 2), self.maze.height // 2)
 
@@ -140,8 +149,14 @@ class MazeView(View):
             if ghost.maze_pos != prev_pos:
                 ghost.update()
 
-        self._check_collision()
-        return (ViewEvent(type=ViewEventType.NONE))
+        match self._check_collision():
+            case CollisionEvent.DEATH:
+                self.init()
+                return (ViewEvent(
+                    type=ViewEventType.CHANGE_VIEW, message="main_menu"
+                ))
+            case _:
+                return (ViewEvent(type=ViewEventType.NONE))
 
     def _collides(self, a: Entity, b: Entity) -> bool:
         size: int = self.cell_size // 2
@@ -150,26 +165,28 @@ class MazeView(View):
             and abs(a.screen_pos[1] - b.screen_pos[1]) < size
         )
 
-    def _check_collision(self) -> None:
+    def _check_collision(self) -> CollisionEvent:
         for gum in self.collectibles:
             if self._collides(gum, self.pac_man):
                 self.collectibles.remove(gum)
                 if (isinstance(gum, SuperPacgum)):
                     self.score += self.config.points_per_super_pacgum
                     self.fright = True
+                    self.fright_time = 0
                     for e in self.enemies:
                         e.sprite = self.textures["fleeing"]
                         e.change_state(Ghost.State.FRIGHTENED)
                 else:
                     self.score += self.config.points_per_pacgum
-                return
+                return (CollisionEvent.NONE)
         for ghost in self.enemies:
             if self._collides(ghost, self.pac_man):
                 if (ghost.state == Ghost.State.FRIGHTENED):
                     self.enemies.remove(ghost)
                     self.score += self.config.points_per_ghost
                 else:
-                    exit(10)
+                    return (CollisionEvent.DEATH)
+        return (CollisionEvent.NONE)
 
     def _sync_maze_pos_from_screen_pos(self, entity: Entity) -> None:
         sx, sy = entity.screen_pos
