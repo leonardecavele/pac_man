@@ -49,6 +49,16 @@ class MazeView(View):
         self.fright: bool = False
         self.fright_time: float = 0
         self.tick_accumulator: float = 0.0
+        self.ghost_behavior: dict[float, Ghost.State] = {
+            7: Ghost.State.SCATTER,
+            27: Ghost.State.CHASE,
+            34: Ghost.State.SCATTER,
+            54: Ghost.State.CHASE,
+            59: Ghost.State.SCATTER,
+            79: Ghost.State.CHASE,
+            84: Ghost.State.SCATTER,
+            float("inf"): Ghost.State.CHASE,
+        }
         center: vec2 = ((self.maze.width // 2), self.maze.height // 2)
 
         top_pos: vec2 = (self.maze.width // 2, 1)
@@ -131,6 +141,13 @@ class MazeView(View):
         self.timer += dt
         if (self.fright):
             self.fright_time += dt
+        else:
+            self.tick_accumulator += dt
+            for time, state in self.ghost_behavior.items():
+                if (time < self.tick_accumulator):
+                    continue
+                self.switch_state(state)
+                break
         if (self.fright_time > 6):
             self.fright_time = 0
             self.fright = False
@@ -196,6 +213,10 @@ class MazeView(View):
                 else:
                     return (CollisionEvent.DEATH)
         return (CollisionEvent.NONE)
+
+    def switch_state(self, state: Ghost.State) -> None:
+        for e in self.enemies:
+            e.state = state
 
     def _sync_maze_pos_from_screen_pos(self, entity: Entity) -> None:
         sx, sy = entity.screen_pos
