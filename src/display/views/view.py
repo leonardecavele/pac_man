@@ -7,6 +7,7 @@ class ViewEventType(Enum):
     NONE = auto()
     CHANGE_VIEW = auto()
     QUIT = auto()
+    END = auto()
 
 
 class ViewEvent(BaseModel):

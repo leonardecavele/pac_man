@@ -156,13 +156,13 @@ class MazeView(View):
 
         if (not len(self.collectibles)):
             return (ViewEvent(
-                type=ViewEventType.CHANGE_VIEW, message="main_menu"
+                type=ViewEventType.END, message=f"victory:{self.score}"
             ))
         match self._check_collision():
             case CollisionEvent.DEATH:
                 self.init()
                 return (ViewEvent(
-                    type=ViewEventType.CHANGE_VIEW, message="main_menu"
+                    type=ViewEventType.END, message=f"game_over:{self.score}"
                 ))
             case _:
                 return (ViewEvent(type=ViewEventType.NONE))
