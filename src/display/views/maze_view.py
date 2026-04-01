@@ -31,6 +31,9 @@ class MazeView(View):
         self.gap = gap
         self.cell_size = cell_size
 
+        self.buffered_input: vec2 | None = None
+        self.buffered_input_frames: int = 0
+
         self.maze_image = rl.gen_image_color(
             self.width, self.height, rl.BLACK
         )
@@ -136,8 +139,10 @@ class MazeView(View):
                      30, rl.WHITE)
 
     def update(self, dt: float) -> ViewEvent:
+        # fetch input
         self._handle_input()
 
+        # game behaviour update
         self.timer += dt
         if (self.fright):
             self.fright_time += dt
@@ -154,14 +159,38 @@ class MazeView(View):
             for e in self.enemies:
                 e.load_save()
 
+        # move pac_man
         pac = self.pac_man
         prev_pos = pac.maze_pos
+        prev_direction = pac.direction
+
+        if self.buffered_input is not None and self.buffered_input_frames > 0:
+            pac.next_direction = self.buffered_input
+
         pac.move(dt)
         self._sync_maze_pos_from_screen_pos(pac)
+
+        if self.buffered_input is not None:
+            if (
+                pac.direction == self.buffered_input
+                and prev_direction != pac.direction
+            ):
+                self.buffered_input = None
+                self.buffered_input_frames = 0
+            else:
+                self.buffered_input_frames -= 1
+                if self.buffered_input_frames <= 0:
+                    if pac.next_direction == self.buffered_input:
+                        pac.next_direction = None
+                    self.buffered_input = None
+
         dx, dy = pac.direction
-        if (pac.direction == (0, 0) or pac.maze_pos != prev_pos or
-                (pac.next_direction and dx and pac.next_direction[0]) or
-                (pac.next_direction and dy and pac.next_direction[1])):
+        if (
+            pac.direction == (0, 0)
+            or pac.maze_pos != prev_pos
+            or (pac.next_direction and dx and pac.next_direction[0])
+            or (pac.next_direction and dy and pac.next_direction[1])
+        ):
             pac.update()
 
         for ghost in self.enemies:
@@ -272,7 +301,7 @@ class MazeView(View):
                          rl.PURPLE)
 
     def _handle_input(self) -> None:
-        next_direction: vec2 | None = None
+        user_input: vec2 | None = None
 
         if (
             rl.is_key_down(rl.KEY_UP)
@@ -280,29 +309,30 @@ class MazeView(View):
             or rl.is_key_down(rl.KEY_Z)
             or rl.is_key_down(rl.KEY_K)
         ):
-            next_direction = Maze.Direction.TOP.value
+            user_input = Maze.Direction.TOP.value
         elif (
             rl.is_key_down(rl.KEY_RIGHT)
             or rl.is_key_down(rl.KEY_D)
             or rl.is_key_down(rl.KEY_L)
         ):
-            next_direction = Maze.Direction.RIGHT.value
+            user_input = Maze.Direction.RIGHT.value
         elif (
             rl.is_key_down(rl.KEY_DOWN)
             or rl.is_key_down(rl.KEY_S)
             or rl.is_key_down(rl.KEY_J)
         ):
-            next_direction = Maze.Direction.BOT.value
+            user_input = Maze.Direction.BOT.value
         elif (
             rl.is_key_down(rl.KEY_LEFT)
             or rl.is_key_down(rl.KEY_A)
             or rl.is_key_down(rl.KEY_Q)
             or rl.is_key_down(rl.KEY_H)
         ):
-            next_direction = Maze.Direction.LEFT.value
+            user_input = Maze.Direction.LEFT.value
 
-        if next_direction is not None:
-            self.pac_man.next_direction = next_direction
+        if user_input is not None:
+            self.buffered_input = user_input
+            self.buffered_input_frames = 42
 
     def _gen_pacgums(self) -> list[Entity]:
         pacgums: list[Entity] = []
