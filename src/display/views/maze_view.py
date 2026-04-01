@@ -120,10 +120,15 @@ class MazeView(View):
                 x -= self.cell_size // 2
                 y -= self.cell_size // 2
                 rl.draw_texture(e.sprite, x + 1, y + 1, rl.WHITE)
+        rl.draw_text(f"Score: {self.score} - Timer: {math.floor(self.timer)}",
+                     self.gap,
+                     (self.maze.height + 1) * (self.cell_size + self.gap),
+                     30, rl.WHITE)
 
     def update(self, dt: float) -> ViewEvent:
         self._handle_input()
 
+        self.timer += dt
         if (self.fright):
             self.fright_time += dt
         if (self.fright_time > 6):
@@ -149,6 +154,10 @@ class MazeView(View):
             if ghost.maze_pos != prev_pos:
                 ghost.update()
 
+        if (not len(self.collectibles)):
+            return (ViewEvent(
+                type=ViewEventType.CHANGE_VIEW, message="main_menu"
+            ))
         match self._check_collision():
             case CollisionEvent.DEATH:
                 self.init()
