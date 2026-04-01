@@ -19,13 +19,26 @@ class Entity(ABC):
         self.velocity: int = DEFAULT_VELOCITY
         self.maze: Maze = maze
 
-    # Called by the game loop
-    def move(self, dt: float) -> None:
-        self.screen_pos = (
-            round(self.screen_pos[0] + self.direction[0] * self.velocity * dt),
-            round(self.screen_pos[1] + self.direction[1] * self.velocity * dt),
-        )
+    @property
+    def back_direction(self) -> Maze.Direction | None:
+        if self.direction == (0, 0):
+            return None
+        return Maze.Direction((-self.direction[0], -self.direction[1]))
 
+    def valid_direction(self, direction: vec2) -> bool:
+        x, y = self.maze_pos
+
+        if direction == Maze.Direction.TOP.value:
+            return not self.maze.maze[y][x].top
+        if direction == Maze.Direction.RIGHT.value:
+            return not self.maze.maze[y][x].right
+        if direction == Maze.Direction.BOT.value:
+            return not self.maze.maze[y][x].bot
+        if direction == Maze.Direction.LEFT.value:
+            return not self.maze.maze[y][x].left
+        return False
+
+    # Called by the game loop
     @abstractmethod
     def update(self) -> None:
         pass

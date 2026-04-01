@@ -35,6 +35,12 @@ class Ghost(Entity, ABC):
         self.flip: bool = False
         self.save_state()
 
+    def move(self, dt: float) -> None:
+        self.screen_pos = (
+            round(self.screen_pos[0] + self.direction[0] * self.velocity * dt),
+            round(self.screen_pos[1] + self.direction[1] * self.velocity * dt),
+        )
+
     def change_state(self, new_state: "Ghost.State") -> None:
         match new_state:
             case self.State.ANGRY:
@@ -203,12 +209,6 @@ class Ghost(Entity, ABC):
         if not directions and back is not None:
             return [back]
         return directions
-
-    @property
-    def back_direction(self) -> Maze.Direction | None:
-        if self.direction == (0, 0):
-            return None
-        return Maze.Direction((-self.direction[0], -self.direction[1]))
 
     @staticmethod
     def euclidean(pos1: vec2, pos2: vec2) -> int:
