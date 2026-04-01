@@ -1,5 +1,4 @@
 import sys
-import pyray as rl
 
 from src.maze import Maze
 from src.game import Game
@@ -14,8 +13,8 @@ def main() -> int:
     game: Game = Game(
         maze=maze,
         config=config,
-        width=900,
-        height=700,
+        width=700,
+        height=900,
         title="Pac_Man",
         fps=60,
     )

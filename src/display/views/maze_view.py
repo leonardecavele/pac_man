@@ -6,7 +6,7 @@ from .view import View, ViewEvent, ViewEventType
 from src.maze import Maze
 from src.type import vec2
 from src.entity import (
-    Ghost, Entity, Blinky, Inky, Pinky, Clyde, Pac_man, Collectible, Pacgum,
+    Ghost, Entity, Blinky, Inky, Pinky, Clyde, Pac_man, Pacgum,
     SuperPacgum
 )
 from src.parsing.config import Config

@@ -43,7 +43,10 @@ class Game:
                 gap=self.gap,
                 cell_size=self.cell_size
             ),
-            "main_menu": MenuView()
+            "main_menu": MenuView(
+                width=width,
+                height=height
+            )
         }
         self.current_view = self.views["main_menu"]
         self.score: int = 0
