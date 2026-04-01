@@ -7,9 +7,9 @@ from .view import View, ViewEvent, ViewEventType
 from src.maze import Maze
 from src.type import vec2
 from src.entity import (
-    Ghost, Entity, Blinky, Inky, Pinky, Clyde, Pac_man, Pacgum,
-    SuperPacgum
-)
+        Ghost, Entity, Blinky, Inky, Pinky, Clyde, Pac_man, Pacgum,
+        SuperPacgum
+        )
 from src.parsing.config import Config
 
 
@@ -20,9 +20,9 @@ class CollisionEvent(Enum):
 
 class MazeView(View):
     def __init__(
-        self, maze: Maze, config: Config, textures: dict[str, rl.Texture2D],
-        gap: int, cell_size: int, width: int = 720, height: int = 720
-    ) -> None:
+            self, maze: Maze, config: Config, textures: dict[str, rl.Texture2D],
+            gap: int, cell_size: int, width: int = 720, height: int = 720
+            ) -> None:
         self.maze: Maze = maze
         self.width: int = width
         self.height: int = height
@@ -35,11 +35,11 @@ class MazeView(View):
         self.buffered_input_frames: int = 0
 
         self.maze_image = rl.gen_image_color(
-            self.width, self.height, rl.BLACK
-        )
+                self.width, self.height, rl.BLACK
+                )
         MazeRenderer(
-            self.maze_image, self.maze, self.cell_size, self.gap
-        )
+                self.maze_image, self.maze, self.cell_size, self.gap
+                )
         self.maze_texture = rl.load_texture_from_image(self.maze_image)
 
         self.tick_rate: float = 8.0
@@ -53,15 +53,15 @@ class MazeView(View):
         self.fright_time: float = 0
         self.tick_accumulator: float = 0.0
         self.ghost_behavior: dict[float, Ghost.State] = {
-            7: Ghost.State.SCATTER,
-            27: Ghost.State.CHASE,
-            34: Ghost.State.SCATTER,
-            54: Ghost.State.CHASE,
-            59: Ghost.State.SCATTER,
-            79: Ghost.State.CHASE,
-            84: Ghost.State.SCATTER,
-            float("inf"): Ghost.State.CHASE,
-        }
+                7: Ghost.State.SCATTER,
+                27: Ghost.State.CHASE,
+                34: Ghost.State.SCATTER,
+                54: Ghost.State.CHASE,
+                59: Ghost.State.SCATTER,
+                79: Ghost.State.CHASE,
+                84: Ghost.State.SCATTER,
+                float("inf"): Ghost.State.CHASE,
+                }
         center: vec2 = ((self.maze.width // 2), self.maze.height // 2)
 
         top_pos: vec2 = (self.maze.width // 2, 1)
@@ -70,55 +70,55 @@ class MazeView(View):
         right_pos: vec2 = (self.maze.width - 2, self.maze.height // 2)
 
         self.pac_man: Pac_man = Pac_man(
-            screen_pos=self._maze_to_screen(center),
-            maze_pos=center,
-            sprite=self.textures["pac_man"],
-            m=self.maze,
-        )
+                screen_pos=self.maze_to_screen(center),
+                maze_pos=center,
+                sprite=self.textures["pac_man"],
+                m=self.maze,
+                )
 
         blinky: Blinky = Blinky(
-            screen_pos=self._maze_to_screen(top_pos),
-            maze_pos=top_pos,
-            sprite=self.textures["blinky"],
-            m=self.maze,
-            pac_man=self.pac_man,
-            house_pos=center,
-        )
+                screen_pos=self.maze_to_screen(top_pos),
+                maze_pos=top_pos,
+                sprite=self.textures["blinky"],
+                m=self.maze,
+                pac_man=self.pac_man,
+                house_pos=center,
+                )
 
         inky: Inky = Inky(
-            screen_pos=self._maze_to_screen(right_pos),
-            maze_pos=right_pos,
-            sprite=self.textures["inky"],
-            m=self.maze,
-            pac_man=self.pac_man,
-            blinky=blinky,
-            house_pos=center,
-        )
+                screen_pos=self.maze_to_screen(right_pos),
+                maze_pos=right_pos,
+                sprite=self.textures["inky"],
+                m=self.maze,
+                pac_man=self.pac_man,
+                blinky=blinky,
+                house_pos=center,
+                )
 
         pinky: Pinky = Pinky(
-            screen_pos=self._maze_to_screen(left_pos),
-            maze_pos=left_pos,
-            sprite=self.textures["pinky"],
-            m=self.maze,
-            pac_man=self.pac_man,
-            house_pos=center,
-        )
+                screen_pos=self.maze_to_screen(left_pos),
+                maze_pos=left_pos,
+                sprite=self.textures["pinky"],
+                m=self.maze,
+                pac_man=self.pac_man,
+                house_pos=center,
+                )
 
         clyde: Clyde = Clyde(
-            screen_pos=self._maze_to_screen(bottom_pos),
-            maze_pos=bottom_pos,
-            sprite=self.textures["clyde"],
-            m=self.maze,
-            pac_man=self.pac_man,
-            house_pos=center,
-        )
+                screen_pos=self.maze_to_screen(bottom_pos),
+                maze_pos=bottom_pos,
+                sprite=self.textures["clyde"],
+                m=self.maze,
+                pac_man=self.pac_man,
+                house_pos=center,
+                )
 
         self.enemies: list[Ghost] = [
-            blinky,
-            inky,
-            pinky,
-            clyde
-        ]
+                blinky,
+                inky,
+                pinky,
+                clyde
+                ]
         self.collectibles = self._gen_pacgums()
 
         for entity in self.enemies:
@@ -130,13 +130,16 @@ class MazeView(View):
         for i in [self.collectibles, self.enemies, [self.pac_man]]:
             for e in i:
                 x, y = e.screen_pos
-                x -= self.cell_size // 2
-                y -= self.cell_size // 2
+                x = round(x) - self.cell_size // 2
+                y = round(y) - self.cell_size // 2
                 rl.draw_texture(e.sprite, x + 1, y + 1, rl.WHITE)
-        rl.draw_text(f"Score: {self.score} - Timer: {math.floor(self.timer)}",
-                     self.gap,
-                     (self.maze.height + 1) * (self.cell_size + self.gap),
-                     30, rl.WHITE)
+        rl.draw_text(
+            f"Score: {self.score} - Timer: {math.floor(self.timer)}",
+            self.gap,
+            (self.maze.height + 1) * (self.cell_size + self.gap),
+            30,
+            rl.WHITE
+        )
 
     def update(self, dt: float) -> ViewEvent:
         # fetch input
@@ -160,65 +163,44 @@ class MazeView(View):
                 e.load_save()
 
         # move pac_man
-        pac = self.pac_man
-        prev_pos = pac.maze_pos
-        prev_direction = pac.direction
+        p: Pac_man = self.pac_man
+        p.update()
 
-        if self.buffered_input is not None and self.buffered_input_frames > 0:
-            pac.next_direction = self.buffered_input
+        if p.target_cell is not None:
+            p_target_screen_pos: vec2 = self.maze_to_screen(p.target_cell)
 
-        pac.move(dt)
-        self._sync_maze_pos_from_screen_pos(pac)
-
-        if self.buffered_input is not None:
-            if (
-                pac.direction == self.buffered_input
-                and prev_direction != pac.direction
-            ):
-                self.buffered_input = None
-                self.buffered_input_frames = 0
-            else:
-                self.buffered_input_frames -= 1
-                if self.buffered_input_frames <= 0:
-                    if pac.next_direction == self.buffered_input:
-                        pac.next_direction = None
-                    self.buffered_input = None
-
-        dx, dy = pac.direction
-        if (
-            pac.direction == (0, 0)
-            or pac.maze_pos != prev_pos
-            or (pac.next_direction and dx and pac.next_direction[0])
-            or (pac.next_direction and dy and pac.next_direction[1])
-        ):
-            pac.update()
+            reached: bool = p.move_to_target(dt, p_target_screen_pos)
+            if reached:
+                p.screen_pos = p_target_screen_pos
+                p.maze_pos = p.target_cell
+                p.target_cell = None
 
         for ghost in self.enemies:
             prev_pos = ghost.maze_pos
             ghost.move(dt)
-            self._sync_maze_pos_from_screen_pos(ghost)
+            self.sync_maze_screen_pos(ghost)
             if ghost.maze_pos != prev_pos:
                 ghost.update()
 
         if (not len(self.collectibles)):
             return (ViewEvent(
                 type=ViewEventType.CHANGE_VIEW, message="main_menu"
-            ))
+                ))
         match self._check_collision():
             case CollisionEvent.DEATH:
                 self.init()
                 return (ViewEvent(
                     type=ViewEventType.CHANGE_VIEW, message="main_menu"
-                ))
+                    ))
             case _:
                 return (ViewEvent(type=ViewEventType.NONE))
 
     def _collides(self, a: Entity, b: Entity) -> bool:
         size: int = self.cell_size // 2
         return (
-            abs(a.screen_pos[0] - b.screen_pos[0]) < size
-            and abs(a.screen_pos[1] - b.screen_pos[1]) < size
-        )
+                abs(a.screen_pos[0] - b.screen_pos[0]) < size
+                and abs(a.screen_pos[1] - b.screen_pos[1]) < size
+                )
 
     def _check_collision(self) -> CollisionEvent:
         for gum in self.collectibles:
@@ -247,27 +229,25 @@ class MazeView(View):
         for e in self.enemies:
             e.state = state
 
-    def _sync_maze_pos_from_screen_pos(self, entity: Entity) -> None:
+    def sync_maze_screen_pos(self, entity: Entity) -> None:
         sx, sy = entity.screen_pos
         step: int = self.cell_size + self.gap
         dx, dy = entity.direction
 
-        raw_x: float = (sx - self.gap -
-                        self.cell_size / 2) / step
-        raw_y: float = (sy - self.gap -
-                        self.cell_size / 2) / step
+        raw_x: float = (sx - self.gap - self.cell_size / 2) / step
+        raw_y: float = (sy - self.gap - self.cell_size / 2) / step
 
         mx: int = math.floor(raw_x) if dx > 0 else math.ceil(
-            raw_x) if dx < 0 else round(raw_x)
+                raw_x) if dx < 0 else round(raw_x)
         my: int = math.floor(raw_y) if dy > 0 else math.ceil(
-            raw_y) if dy < 0 else round(raw_y)
+                raw_y) if dy < 0 else round(raw_y)
 
         entity.maze_pos = (
             max(0, min(mx, self.maze.width - 1)),
             max(0, min(my, self.maze.height - 1)),
         )
 
-    def _maze_to_screen(self, pos: vec2) -> vec2:
+    def maze_to_screen(self, pos: vec2) -> vec2:
         x, y = pos
         step: int = self.cell_size + self.gap
 
@@ -301,38 +281,32 @@ class MazeView(View):
                          rl.PURPLE)
 
     def _handle_input(self) -> None:
-        user_input: vec2 | None = None
-
         if (
             rl.is_key_down(rl.KEY_UP)
             or rl.is_key_down(rl.KEY_W)
             or rl.is_key_down(rl.KEY_Z)
             or rl.is_key_down(rl.KEY_K)
         ):
-            user_input = Maze.Direction.TOP.value
+            self.pac_man.input = Maze.Direction.TOP.value
         elif (
             rl.is_key_down(rl.KEY_RIGHT)
             or rl.is_key_down(rl.KEY_D)
             or rl.is_key_down(rl.KEY_L)
         ):
-            user_input = Maze.Direction.RIGHT.value
+            self.pac_man.input = Maze.Direction.RIGHT.value
         elif (
             rl.is_key_down(rl.KEY_DOWN)
             or rl.is_key_down(rl.KEY_S)
             or rl.is_key_down(rl.KEY_J)
         ):
-            user_input = Maze.Direction.BOT.value
+            self.pac_man.input = Maze.Direction.BOT.value
         elif (
             rl.is_key_down(rl.KEY_LEFT)
             or rl.is_key_down(rl.KEY_A)
             or rl.is_key_down(rl.KEY_Q)
             or rl.is_key_down(rl.KEY_H)
         ):
-            user_input = Maze.Direction.LEFT.value
-
-        if user_input is not None:
-            self.buffered_input = user_input
-            self.buffered_input_frames = 42
+            self.pac_man.input = Maze.Direction.LEFT.value
 
     def _gen_pacgums(self) -> list[Entity]:
         pacgums: list[Entity] = []
@@ -345,13 +319,13 @@ class MazeView(View):
                     (x == self.maze.width - 1 and y == 0) or
                     (x == self.maze.width - 1
                      and y == self.maze.height - 1)):
-                    pacgums.append(SuperPacgum(
-                        self._maze_to_screen((x, y)), (x, y),
-                        self.textures["super_pacgum"], self.maze)
-                    )
+                        pacgums.append(SuperPacgum(
+                            self.maze_to_screen((x, y)), (x, y),
+                            self.textures["super_pacgum"], self.maze)
+                                       )
                 else:
                     pacgums.append(
-                        Pacgum(self._maze_to_screen((x, y)), (x, y),
-                               self.textures["pacgum"], self.maze)
-                    )
+                            Pacgum(self.maze_to_screen((x, y)), (x, y),
+                                   self.textures["pacgum"], self.maze)
+                            )
         return (pacgums)
