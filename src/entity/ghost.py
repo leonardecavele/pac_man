@@ -204,12 +204,6 @@ class Ghost(Entity, ABC):
             return [back]
         return directions
 
-    @property
-    def back_direction(self) -> Maze.Direction | None:
-        if self.direction == (0, 0):
-            return None
-        return Maze.Direction((-self.direction[0], -self.direction[1]))
-
     @staticmethod
     def euclidean(pos1: vec2, pos2: vec2) -> int:
         dx: int = pos2[0] - pos1[0]

@@ -19,6 +19,12 @@ class Entity(ABC):
         self.velocity: int = DEFAULT_VELOCITY
         self.maze: Maze = maze
 
+    @property
+    def back_direction(self) -> Maze.Direction | None:
+        if self.direction == (0, 0):
+            return None
+        return Maze.Direction((-self.direction[0], -self.direction[1]))
+
     def valid_direction(self, direction: vec2) -> bool:
         x, y = self.maze_pos
 

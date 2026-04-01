@@ -173,6 +173,7 @@ class MazeView(View):
             if reached:
                 p.screen_pos = p_target_screen_pos
                 p.maze_pos = p.target_cell
+                p.origin_cell = None
                 p.target_cell = None
 
         for ghost in self.enemies:

@@ -12,6 +12,7 @@ class Pac_man(Entity):
     ) -> None:
         super().__init__(screen_pos, maze_pos, sprite, m)
         self.input: vec2 | None = None
+        self.origin_cell: vec2 | None = None
         self.target_cell: vec2 | None = None
 
     def move_to_target(self, dt: float, target_screen_pos: vec2) -> bool:
@@ -40,6 +41,17 @@ class Pac_man(Entity):
     # called every tick
     def update(self) -> None:
         if self.target_cell is not None:
+            if (
+                self.input is not None
+                and self.back_direction is not None
+                and Maze.Direction(self.input) == self.back_direction
+                and self.origin_cell is not None
+            ):
+                self.direction = self.input
+                self.origin_cell, self.target_cell = (
+                    self.target_cell,
+                    self.origin_cell,
+                )
             return
 
         wanted_direction: vec2 | None = None
@@ -53,7 +65,8 @@ class Pac_man(Entity):
             return
 
         self.direction = wanted_direction
-
-        x, y = self.maze_pos
-        dx, dy = self.direction
-        self.target_cell = (x + dx, y + dy)
+        self.origin_cell = self.maze_pos
+        self.target_cell = (
+            self.maze_pos[0] + self.direction[0],
+            self.maze_pos[1] + self.direction[1],
+        )
