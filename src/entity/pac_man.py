@@ -39,6 +39,19 @@ class Pac_man(Entity):
         )
         return False
 
+    def valid_direction(self, direction: vec2) -> bool:
+        x, y = self.maze_pos
+
+        if direction == Maze.Direction.TOP.value:
+            return not self.maze.maze[y][x].top
+        if direction == Maze.Direction.RIGHT.value:
+            return not self.maze.maze[y][x].right
+        if direction == Maze.Direction.BOT.value:
+            return not self.maze.maze[y][x].bot
+        if direction == Maze.Direction.LEFT.value:
+            return not self.maze.maze[y][x].left
+        return False
+
     # called every tick
     def update(self) -> None:
         if self.target_cell is not None:
