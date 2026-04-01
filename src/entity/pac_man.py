@@ -14,6 +14,7 @@ class Pac_man(Entity):
         self.input: vec2 | None = None
         self.origin_cell: vec2 | None = None
         self.target_cell: vec2 | None = None
+        self.velocity = 120
 
     def move_to_target(self, dt: float, target_screen_pos: vec2) -> bool:
         x, y = self.screen_pos

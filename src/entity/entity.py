@@ -39,12 +39,6 @@ class Entity(ABC):
         return False
 
     # Called by the game loop
-    def move(self, dt: float) -> None:
-        self.screen_pos = (
-            round(self.screen_pos[0] + self.direction[0] * self.velocity * dt),
-            round(self.screen_pos[1] + self.direction[1] * self.velocity * dt),
-        )
-
     @abstractmethod
     def update(self) -> None:
         pass
