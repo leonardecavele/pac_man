@@ -33,7 +33,7 @@ class Ghost(Entity, ABC):
         default_velocity_px: int
     ) -> None:
         super().__init__(
-            screen_pos, maze_pos, sprite, m, int(default_velocity_px * 0.75)
+            screen_pos, maze_pos, sprite, m, default_velocity_px
         )
         self.state: Ghost.State = self.State.SCATTER
         self.pac_man: Pac_man = pac_man
@@ -59,15 +59,15 @@ class Ghost(Entity, ABC):
 
         match new_state:
             case self.State.ELROY1:
-                self.default_velocity_px = int(self.default_velocity_px * 0.80)
+                self.velocity_px = int(self.default_velocity_px * 0.80)
             case self.State.ELROY2:
-                self.default_velocity_px = int(self.default_velocity_px * 0.85)
+                self.velocity_px = int(self.default_velocity_px * 0.85)
             case self.State.EATEN:
-                self.default_velocity_px = self.default_velocity_px * 2
+                self.velocity_px = int((self.default_velocity_px * 0.80) * 2)
             case self.State.FRIGHTENED:
-                self.default_velocity_px = self.default_velocity_px // 2
+                self.velocity_px = self.default_velocity_px // 2
             case _:
-                self.default_velocity_px = int(self.default_velocity_px * 0.75)
+                self.velocity_px = int(self.default_velocity_px * 0.75)
 
         self.state = new_state
 

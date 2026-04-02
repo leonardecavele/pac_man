@@ -9,7 +9,7 @@ from src.parsing.parsing import Parser
 def main() -> int:
     parser = Parser("config.json")
     config = parser.run()
-    maze: Maze = Maze(15, 15, 11)
+    maze: Maze = Maze(12, 12, 13)
     game: Game = Game(
         maze=maze,
         config=config,

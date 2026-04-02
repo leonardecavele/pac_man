@@ -19,7 +19,7 @@ class Pac_man(Entity):
     ) -> None:
         super().__init__(screen_pos, maze_pos, sprite, m, default_velocity_px)
         self.input: vec2i | None = None
-        self.velocity = int(self.default_velocity_px * 0.80)
+        self.velocity_px = int(self.default_velocity_px * 0.80)
         self.turn_window: float = 4.5
 
     def try_corner(self, maze_to_screen: Callable[[vec2i], vec2i]) -> bool:

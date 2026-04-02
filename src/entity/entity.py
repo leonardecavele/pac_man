@@ -19,12 +19,16 @@ class Entity(ABC):
     ) -> None:
         self.screen_pos: vec2f = screen_pos
         self.maze_pos: vec2i = maze_pos
-        self.sprite: rl.Texture2D = sprite
+
         self.direction: vec2i = (0, 0)
         self.origin_cell: vec2i | None = None
         self.target_cell: vec2i | None = None
         self.default_velocity_px: int = default_velocity_px
+        self.velocity_px = self.default_velocity_px
+
         self.maze: Maze = maze
+
+        self.sprite: rl.Texture2D = sprite
 
     def move_to_target(self, dt: float, target_screen_pos: vec2i) -> bool:
         x, y = self.screen_pos
@@ -33,7 +37,7 @@ class Entity(ABC):
         dx: float = tx - x
         dy: float = ty - y
         distance: float = math.sqrt(dx * dx + dy * dy)
-        step: float = self.default_velocity_px * dt
+        step: float = self.velocity_px * dt
 
         if distance == 0 or distance <= step:
             self.screen_pos = (float(tx), float(ty))

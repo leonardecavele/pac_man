@@ -12,7 +12,7 @@ from src.type import vec2i
 if TYPE_CHECKING:
     from .maze_geometry import MazeGeometry
 
-DEFAULT_VELOCITY_CELLS: int = 5
+DEFAULT_VELOCITY_CELLS: int = 6
 
 
 class MazeState:
