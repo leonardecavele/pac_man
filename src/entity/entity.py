@@ -7,7 +7,7 @@ import pyray as rl
 from src.maze import Maze
 from src.type import vec2i, vec2f
 
-DEFAULT_VELOCITY: int = 169
+DEFAULT_VELOCITY: int = 269
 
 
 class Entity(ABC):

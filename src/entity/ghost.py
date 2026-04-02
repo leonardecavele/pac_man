@@ -18,7 +18,8 @@ class Ghost(Entity, ABC):
         EATEN = 1 << 1
         FRIGHTENED = 1 << 2
         CHASE = 1 << 3
-        ANGRY = 1 << 4
+        ELROY1 = 1 << 4
+        ELROY2 = 1 << 5
 
     def __init__(
         self,
@@ -54,12 +55,16 @@ class Ghost(Entity, ABC):
         )
 
         match new_state:
-            case self.State.ANGRY:
-                self.velocity = DEFAULT_VELOCITY * 2
+            case self.State.ELROY1:
+                self.velocity = int(DEFAULT_VELOCITY * 0.80)
+            case self.State.ELROY2:
+                self.velocity = int(DEFAULT_VELOCITY * 0.85)
             case self.State.EATEN:
-                self.velocity = DEFAULT_VELOCITY * 3
+                self.velocity = DEFAULT_VELOCITY * 2
+            case self.State.FRIGHTENED:
+                self.velocity = DEFAULT_VELOCITY // 2
             case _:
-                self.velocity = DEFAULT_VELOCITY
+                self.velocity = int(DEFAULT_VELOCITY * 0.75)
 
         self.state = new_state
 
@@ -287,7 +292,11 @@ class Blinky(Ghost):
         self.target = self.corner
 
     def is_chasing(self) -> bool:
-        return bool(self.state & (self.State.CHASE | self.State.ANGRY))
+        return bool(
+            self.state & (
+                self.State.CHASE | self.State.ELROY1 | self.State.ELROY2
+            )
+        )
 
     def compute_chase_target(self) -> vec2i:
         return self.pac_man.maze_pos

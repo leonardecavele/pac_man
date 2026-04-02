@@ -1,4 +1,4 @@
-from .entity import Entity
+from .entity import DEFAULT_VELOCITY, Entity
 
 from src.maze import Maze
 from src.type import vec2i, vec2f
@@ -10,6 +10,7 @@ class Pac_man(Entity):
     ) -> None:
         super().__init__(screen_pos, maze_pos, sprite, m)
         self.input: vec2i | None = None
+        self.velocity = int(DEFAULT_VELOCITY * 0.80)
 
     def update(self, dt: float = 0.0) -> None:
         if self.target_cell is not None:
