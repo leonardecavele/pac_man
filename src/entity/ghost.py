@@ -5,7 +5,7 @@ from abc import ABC, abstractmethod
 from enum import IntFlag
 from math import sqrt
 
-from .entity import DEFAULT_VELOCITY, Entity
+from .entity import Entity
 from .pac_man import Pac_man
 
 from src.maze import Maze
@@ -30,8 +30,11 @@ class Ghost(Entity, ABC):
         pac_man: Pac_man,
         house_pos: vec2i,
         corner_pos: vec2i,
+        default_velocity_px: int
     ) -> None:
-        super().__init__(screen_pos, maze_pos, sprite, m)
+        super().__init__(
+            screen_pos, maze_pos, sprite, m, int(default_velocity_px * 0.75)
+        )
         self.state: Ghost.State = self.State.SCATTER
         self.pac_man: Pac_man = pac_man
         self.corner: vec2i = corner_pos
@@ -56,15 +59,15 @@ class Ghost(Entity, ABC):
 
         match new_state:
             case self.State.ELROY1:
-                self.velocity = int(DEFAULT_VELOCITY * 0.80)
+                self.default_velocity_px = int(self.default_velocity_px * 0.80)
             case self.State.ELROY2:
-                self.velocity = int(DEFAULT_VELOCITY * 0.85)
+                self.default_velocity_px = int(self.default_velocity_px * 0.85)
             case self.State.EATEN:
-                self.velocity = DEFAULT_VELOCITY * 2
+                self.default_velocity_px = self.default_velocity_px * 2
             case self.State.FRIGHTENED:
-                self.velocity = DEFAULT_VELOCITY // 2
+                self.default_velocity_px = self.default_velocity_px // 2
             case _:
-                self.velocity = int(DEFAULT_VELOCITY * 0.75)
+                self.default_velocity_px = int(self.default_velocity_px * 0.75)
 
         self.state = new_state
 
@@ -279,6 +282,7 @@ class Blinky(Ghost):
         m: Maze,
         pac_man: Pac_man,
         house_pos: vec2i,
+        default_velocity_px: int
     ) -> None:
         super().__init__(
             screen_pos,
@@ -288,6 +292,7 @@ class Blinky(Ghost):
             pac_man,
             house_pos,
             (m.width - 1, 0),
+            default_velocity_px
         )
         self.target = self.corner
 
@@ -312,6 +317,7 @@ class Inky(Ghost):
         pac_man: Pac_man,
         blinky: Blinky,
         house_pos: vec2i,
+        default_velocity_px: int
     ) -> None:
         super().__init__(
             screen_pos,
@@ -321,6 +327,7 @@ class Inky(Ghost):
             pac_man,
             house_pos,
             (m.width - 1, m.height - 1),
+            default_velocity_px
         )
         self.blinky: Blinky = blinky
         self.target = self.corner
@@ -348,6 +355,7 @@ class Pinky(Ghost):
         m: Maze,
         pac_man: Pac_man,
         house_pos: vec2i,
+        default_velocity_px: int
     ) -> None:
         super().__init__(
             screen_pos,
@@ -357,6 +365,7 @@ class Pinky(Ghost):
             pac_man,
             house_pos,
             (0, 0),
+            default_velocity_px
         )
         self.target = self.corner
 
@@ -378,6 +387,7 @@ class Clyde(Ghost):
         m: Maze,
         pac_man: Pac_man,
         house_pos: vec2i,
+        default_velocity_px: int
     ) -> None:
         super().__init__(
             screen_pos,
@@ -387,6 +397,7 @@ class Clyde(Ghost):
             pac_man,
             house_pos,
             (0, m.height - 1),
+            default_velocity_px
         )
         self.target = self.corner
 

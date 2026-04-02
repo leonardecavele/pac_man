@@ -31,6 +31,7 @@ class MazeView(View):
             config=config,
             textures=textures,
             geometry=self.geometry,
+            cell_size=cell_size
         )
         self.controller = MazeController()
         self.input_reader = MazeInputReader()

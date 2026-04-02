@@ -12,6 +12,8 @@ from src.type import vec2i
 if TYPE_CHECKING:
     from .maze_geometry import MazeGeometry
 
+DEFAULT_VELOCITY_CELLS: int = 5
+
 
 class MazeState:
     def __init__(
@@ -20,12 +22,14 @@ class MazeState:
         config: Config,
         textures: dict[str, rl.Texture2D],
         geometry: "MazeGeometry",
+        cell_size: int
     ) -> None:
         self.maze = maze
         self.config = config
         self.textures = textures
         self.geometry = geometry
         self.fright_duration: float = 6.0
+        self.default_velocity_px: int = DEFAULT_VELOCITY_CELLS * cell_size
         self.ghost_behavior: dict[float, Ghost.State] = {
             7: Ghost.State.SCATTER,
             27: Ghost.State.CHASE,
@@ -58,7 +62,9 @@ class MazeState:
 
         blinky_spawn: vec2i = center
         pinky_spawn: vec2i = (max(0, center[0] - 1), house_exit[1])
-        inky_spawn: vec2i = (min(self.maze.width - 1, center[0] + 1), house_exit[1])
+        inky_spawn: vec2i = (
+            min(self.maze.width - 1, center[0] + 1), house_exit[1]
+        )
         clyde_spawn: vec2i = (center[0], min(self.maze.height - 1, center[1] + 1))
 
         self.pac_man = Pac_man(
@@ -66,6 +72,7 @@ class MazeState:
             maze_pos=pac_man_start,
             sprite=self.textures["pac_man"],
             m=self.maze,
+            default_velocity_px=self.default_velocity_px
         )
 
         blinky = Blinky(
@@ -75,6 +82,7 @@ class MazeState:
             m=self.maze,
             pac_man=self.pac_man,
             house_pos=center,
+            default_velocity_px=self.default_velocity_px
         )
 
         inky = Inky(
@@ -85,6 +93,7 @@ class MazeState:
             pac_man=self.pac_man,
             blinky=blinky,
             house_pos=center,
+            default_velocity_px=self.default_velocity_px
         )
 
         pinky = Pinky(
@@ -94,6 +103,7 @@ class MazeState:
             m=self.maze,
             pac_man=self.pac_man,
             house_pos=center,
+            default_velocity_px=self.default_velocity_px
         )
 
         clyde = Clyde(
@@ -103,6 +113,7 @@ class MazeState:
             m=self.maze,
             pac_man=self.pac_man,
             house_pos=center,
+            default_velocity_px=self.default_velocity_px
         )
 
         self.ghosts: list[Ghost] = [blinky, inky, pinky, clyde]

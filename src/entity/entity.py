@@ -7,8 +7,6 @@ import pyray as rl
 from src.maze import Maze
 from src.type import vec2i, vec2f
 
-DEFAULT_VELOCITY: int = 269
-
 
 class Entity(ABC):
     def __init__(
@@ -17,14 +15,15 @@ class Entity(ABC):
         maze_pos: vec2i,
         sprite: rl.Texture2D,
         maze: Maze,
+        default_velocity_px: int = 0
     ) -> None:
         self.screen_pos: vec2f = screen_pos
         self.maze_pos: vec2i = maze_pos
         self.sprite: rl.Texture2D = sprite
         self.direction: vec2i = (0, 0)
-        self.velocity: int = DEFAULT_VELOCITY
         self.origin_cell: vec2i | None = None
         self.target_cell: vec2i | None = None
+        self.default_velocity_px: int = default_velocity_px
         self.maze: Maze = maze
 
     def move_to_target(self, dt: float, target_screen_pos: vec2i) -> bool:
@@ -34,7 +33,7 @@ class Entity(ABC):
         dx: float = tx - x
         dy: float = ty - y
         distance: float = math.sqrt(dx * dx + dy * dy)
-        step: float = self.velocity * dt
+        step: float = self.default_velocity_px * dt
 
         if distance == 0 or distance <= step:
             self.screen_pos = (float(tx), float(ty))

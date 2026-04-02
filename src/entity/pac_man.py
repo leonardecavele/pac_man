@@ -2,7 +2,7 @@ import math
 
 from collections.abc import Callable
 
-from .entity import DEFAULT_VELOCITY, Entity
+from .entity import Entity
 
 from src.maze import Maze
 from src.type import vec2i, vec2f
@@ -10,11 +10,16 @@ from src.type import vec2i, vec2f
 
 class Pac_man(Entity):
     def __init__(
-        self, screen_pos: vec2f, maze_pos: vec2i, sprite: str, m: Maze
+        self,
+        screen_pos: vec2f,
+        maze_pos: vec2i,
+        sprite: str,
+        m: Maze,
+        default_velocity_px: int
     ) -> None:
-        super().__init__(screen_pos, maze_pos, sprite, m)
+        super().__init__(screen_pos, maze_pos, sprite, m, default_velocity_px)
         self.input: vec2i | None = None
-        self.velocity = int(DEFAULT_VELOCITY * 0.80)
+        self.velocity = int(self.default_velocity_px * 0.80)
         self.turn_window: float = 4.5
 
     def try_corner(self, maze_to_screen: Callable[[vec2i], vec2i]) -> bool:
