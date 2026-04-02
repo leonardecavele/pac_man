@@ -3,7 +3,7 @@ from enum import Enum, IntFlag
 from pydantic import BaseModel, Field
 from mazegenerator import MazeGenerator
 
-from src.type import vec2, brd
+from src.type import vec2i, brd
 
 
 class Maze:
@@ -21,7 +21,7 @@ class Maze:
             LEFT = 1 << 3
 
         value: int = Field(..., ge=0, le=15)
-        pos: vec2 = Field(...)
+        pos: vec2i = Field(...)
 
         @property
         def top(self) -> bool:

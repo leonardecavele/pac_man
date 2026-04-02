@@ -2,7 +2,7 @@ import math
 
 from src.entity import Entity
 from src.maze import Maze
-from src.type import vec2
+from src.type import vec2i, vec2f
 
 
 class MazeGeometry:
@@ -11,7 +11,7 @@ class MazeGeometry:
         self.gap = gap
         self.cell_size = cell_size
 
-    def maze_to_screen(self, pos: vec2) -> vec2:
+    def maze_to_screen(self, pos: vec2i) -> vec2i:
         x, y = pos
         step: int = self.cell_size + self.gap
         screen_x: int = self.gap + x * step + self.cell_size // 2
@@ -34,7 +34,7 @@ class MazeGeometry:
             max(0, min(my, self.maze.height - 1)),
         )
 
-    def get_draw_pos(self, screen_pos: vec2) -> tuple[int, int]:
+    def get_draw_pos(self, screen_pos: vec2f) -> tuple[int, int]:
         x, y = screen_pos
         return (
             round(x) - self.cell_size // 2 + 1,

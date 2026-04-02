@@ -2,10 +2,12 @@ from typing import TYPE_CHECKING
 
 import pyray as rl
 
-from src.entity import Blinky, Clyde, Collectible, Ghost, Inky, Pac_man, Pacgum, Pinky, SuperPacgum
+from src.entity import (
+    Blinky, Clyde, Collectible, Ghost, Inky, Pac_man, Pacgum, Pinky, SuperPacgum
+)
 from src.maze import Maze
 from src.parsing.config import Config
-from src.type import vec2
+from src.type import vec2i
 
 if TYPE_CHECKING:
     from .maze_geometry import MazeGeometry
@@ -50,14 +52,14 @@ class MazeState:
         self.ghost_schedule_time: float = 0.0
         self.current_ghost_mode: Ghost.State = Ghost.State.SCATTER
 
-        center: vec2 = (self.maze.width // 2, self.maze.height // 2)
-        house_exit: vec2 = (center[0], max(0, center[1] - 1))
-        pac_man_start: vec2 = (self.maze.width // 2, self.maze.height - 2)
+        center: vec2i = (self.maze.width // 2, self.maze.height // 2)
+        house_exit: vec2i = (center[0], max(0, center[1] - 1))
+        pac_man_start: vec2i = (self.maze.width // 2, self.maze.height - 2)
 
-        blinky_spawn: vec2 = center
-        pinky_spawn: vec2 = (max(0, center[0] - 1), house_exit[1])
-        inky_spawn: vec2 = (min(self.maze.width - 1, center[0] + 1), house_exit[1])
-        clyde_spawn: vec2 = (center[0], min(self.maze.height - 1, center[1] + 1))
+        blinky_spawn: vec2i = center
+        pinky_spawn: vec2i = (max(0, center[0] - 1), house_exit[1])
+        inky_spawn: vec2i = (min(self.maze.width - 1, center[0] + 1), house_exit[1])
+        clyde_spawn: vec2i = (center[0], min(self.maze.height - 1, center[1] + 1))
 
         self.pac_man = Pac_man(
             screen_pos=self.geometry.maze_to_screen(pac_man_start),
@@ -143,7 +145,7 @@ class MazeState:
                 )
         return pacgums
 
-    def _is_corner(self, pos: vec2) -> bool:
+    def _is_corner(self, pos: vec2i) -> bool:
         x, y = pos
         return (
             (x == 0 and y == 0)

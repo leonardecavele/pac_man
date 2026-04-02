@@ -5,7 +5,7 @@ from abc import ABC, abstractmethod
 import pyray as rl
 
 from src.maze import Maze
-from src.type import vec2
+from src.type import vec2i, vec2f
 
 DEFAULT_VELOCITY: int = 169
 
@@ -13,21 +13,21 @@ DEFAULT_VELOCITY: int = 169
 class Entity(ABC):
     def __init__(
         self,
-        screen_pos: vec2,
-        maze_pos: vec2,
+        screen_pos: vec2f,
+        maze_pos: vec2i,
         sprite: rl.Texture2D,
         maze: Maze,
     ) -> None:
-        self.screen_pos: vec2 = screen_pos
-        self.maze_pos: vec2 = maze_pos
+        self.screen_pos: vec2f = screen_pos
+        self.maze_pos: vec2i = maze_pos
         self.sprite: rl.Texture2D = sprite
-        self.direction: vec2 = (0, 0)
+        self.direction: vec2i = (0, 0)
         self.velocity: int = DEFAULT_VELOCITY
-        self.origin_cell: vec2 | None = None
-        self.target_cell: vec2 | None = None
+        self.origin_cell: vec2i | None = None
+        self.target_cell: vec2i | None = None
         self.maze: Maze = maze
 
-    def move_to_target(self, dt: float, target_screen_pos: vec2) -> bool:
+    def move_to_target(self, dt: float, target_screen_pos: vec2i) -> bool:
         x, y = self.screen_pos
         tx, ty = target_screen_pos
 
@@ -36,21 +36,17 @@ class Entity(ABC):
         distance: float = math.sqrt(dx * dx + dy * dy)
         step: float = self.velocity * dt
 
-        if distance <= step:
-            self.screen_pos = target_screen_pos
-            return True
-
-        if distance == 0:
-            self.screen_pos = target_screen_pos
+        if distance == 0 or distance <= step:
+            self.screen_pos = (float(tx), float(ty))
             return True
 
         self.screen_pos = (
-            int(x + dx / distance * step),
-            int(y + dy / distance * step),
+            x + dx / distance * step,
+            y + dy / distance * step,
         )
         return False
 
-    def valid_direction(self, direction: vec2) -> bool:
+    def valid_direction(self, direction: vec2i) -> bool:
         x, y = self.maze_pos
 
         if direction == Maze.Direction.TOP.value:

@@ -3,7 +3,7 @@ from dataclasses import dataclass
 import pyray as rl
 
 from src.maze import Maze
-from src.type import vec2
+from src.type import vec2i
 
 
 UP_KEYS: list[int] = [
@@ -35,7 +35,7 @@ LEFT_KEYS: list[int] = [
 
 @dataclass(slots=True)
 class MazeInputState:
-    direction: vec2 | None = None
+    direction: vec2i | None = None
 
 
 class MazeInputReader:

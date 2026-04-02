@@ -1,15 +1,15 @@
 from .entity import Entity
 
 from src.maze import Maze
-from src.type import vec2
+from src.type import vec2i, vec2f
 
 
 class Pac_man(Entity):
     def __init__(
-        self, screen_pos: vec2, maze_pos: vec2, sprite: str, m: Maze
+        self, screen_pos: vec2f, maze_pos: vec2i, sprite: str, m: Maze
     ) -> None:
         super().__init__(screen_pos, maze_pos, sprite, m)
-        self.input: vec2 | None = None
+        self.input: vec2i | None = None
 
     def update(self, dt: float = 0.0) -> None:
         if self.target_cell is not None:
@@ -26,7 +26,7 @@ class Pac_man(Entity):
                 )
             return
 
-        wanted_direction: vec2 | None = None
+        wanted_direction: vec2i | None = None
 
         if self.input is not None and self.valid_direction(self.input):
             wanted_direction = self.input
