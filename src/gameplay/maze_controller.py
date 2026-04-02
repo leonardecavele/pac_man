@@ -135,6 +135,34 @@ class MazeController:
 
             ghost.update()
 
+    def _update_elroy_state(self, state: MazeState) -> None:
+        if not state.ghosts:
+            return
+
+        blinky = state.ghosts[0]
+        ratio = state.collectible_ratio_remaining()
+
+        if blinky.state in (Ghost.State.FRIGHTENED, Ghost.State.EATEN):
+            if blinky.state == Ghost.State.FRIGHTENED:
+                if ratio <= 0.10:
+                    blinky.saved_state = Ghost.State.ELROY2
+                elif ratio <= 0.25:
+                    blinky.saved_state = Ghost.State.ELROY1
+                else:
+                    blinky.saved_state = state.current_ghost_mode
+            return
+
+        if ratio <= 0.10:
+            blinky.change_state(Ghost.State.ELROY2)
+            blinky.update()
+        elif ratio <= 0.25:
+            blinky.change_state(Ghost.State.ELROY1)
+            blinky.update()
+        else:
+            if blinky.state in (Ghost.State.ELROY1, Ghost.State.ELROY2):
+                blinky.change_state(state.current_ghost_mode)
+                blinky.update()
+
     def _update_ghost_house_exit(
         self, state: MazeState, ghost: Ghost, dt: float
     ) -> None:
@@ -173,6 +201,8 @@ class MazeController:
                 continue
             state.collectibles.remove(collectible)
             collectible.on_collect(state)
+            self._update_elroy_state(state)
+
             if not state.collectibles:
                 return self._finish_level(state, MazeActionType.VICTORY)
             return MazeAction(MazeActionType.NONE)

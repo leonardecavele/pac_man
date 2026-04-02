@@ -118,6 +118,7 @@ class MazeState:
 
         self.ghosts: list[Ghost] = [blinky, inky, pinky, clyde]
         self.collectibles: list[Collectible] = self._gen_collectibles()
+        self.initial_collectible_count: int = len(self.collectibles)
 
         for ghost in self.ghosts:
             ghost.house_exit = house_exit
@@ -186,3 +187,8 @@ class MazeState:
             if ghost.state == Ghost.State.FRIGHTENED:
                 ghost.load_save()
                 ghost.update()
+
+    def collectible_ratio_remaining(self) -> float:
+        if self.initial_collectible_count == 0:
+            return 0.0
+        return len(self.collectibles) / self.initial_collectible_count
