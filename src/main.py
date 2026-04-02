@@ -9,12 +9,12 @@ from src.parsing.parsing import Parser
 def main() -> int:
     parser = Parser("config.json")
     config = parser.run()
-    maze: Maze = Maze(15, 15, 10)
+    maze: Maze = Maze(12, 12, 11)
     game: Game = Game(
         maze=maze,
         config=config,
-        width=700,
-        height=900,
+        width=1000,
+        height=1200,
         title="Pac_Man",
         fps=120,
     )
