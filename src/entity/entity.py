@@ -23,6 +23,8 @@ class Entity(ABC):
         self.sprite: rl.Texture2D = sprite
         self.direction: vec2 = (0, 0)
         self.velocity: int = DEFAULT_VELOCITY
+        self.origin_cell: vec2 | None = None
+        self.target_cell: vec2 | None = None
         self.maze: Maze = maze
 
     def move_to_target(self, dt: float, target_screen_pos: vec2) -> bool:

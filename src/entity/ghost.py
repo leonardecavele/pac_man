@@ -38,22 +38,19 @@ class Ghost(Entity, ABC):
         self.target: vec2 | None = None
         self.flip: bool = False
         self.saved_state: Ghost.State = self.state
-        self.released: bool = True
+        self.released: bool = False
         self.exiting_house: bool = False
         self.house_exit: vec2 = (house_pos[0], max(0, house_pos[1] - 1))
         self.identifier: str = self.__class__.__name__.lower()
 
-    def move(self, dt: float) -> None:
-        self.screen_pos = (
-            round(self.screen_pos[0] + self.direction[0] * self.velocity * dt),
-            round(self.screen_pos[1] + self.direction[1] * self.velocity * dt),
-        )
-
     def change_state(self, new_state: "Ghost.State") -> None:
-        self.flip = new_state in (
-            self.State.CHASE,
-            self.State.SCATTER,
-            self.State.FRIGHTENED,
+        self.flip = (
+            self.direction != (0, 0)
+            and new_state in (
+                self.State.CHASE,
+                self.State.SCATTER,
+                self.State.FRIGHTENED,
+            )
         )
 
         match new_state:
@@ -215,8 +212,24 @@ class Ghost(Entity, ABC):
         return abs(pos1[0] - pos2[0]) + abs(pos1[1] - pos2[1])
 
     def update(self, dt: float = 0.0) -> None:
+        if self.target_cell is not None:
+            if self.flip and self.origin_cell is not None:
+                self.flip = False
+                self.direction = (-self.direction[0], -self.direction[1])
+                self.origin_cell, self.target_cell = self.target_cell, self.origin_cell
+            return
+
         self.target = self.compute_target()
         self.target_direction()
+
+        if self.direction == (0, 0):
+            return
+
+        self.origin_cell = self.maze_pos
+        self.target_cell = (
+            self.maze_pos[0] + self.direction[0],
+            self.maze_pos[1] + self.direction[1],
+        )
 
     def compute_target(self) -> vec2 | None:
         if self.state & self.State.EATEN:

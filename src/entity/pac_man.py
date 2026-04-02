@@ -10,9 +10,6 @@ class Pac_man(Entity):
     ) -> None:
         super().__init__(screen_pos, maze_pos, sprite, m)
         self.input: vec2 | None = None
-        self.origin_cell: vec2 | None = None
-        self.target_cell: vec2 | None = None
-        self.velocity = 120
 
     def update(self, dt: float = 0.0) -> None:
         if self.target_cell is not None:
