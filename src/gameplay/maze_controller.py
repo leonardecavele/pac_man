@@ -79,6 +79,9 @@ class MazeController:
         pac_man = state.pac_man
         pac_man.update(dt)
 
+        if pac_man.target_cell is not None:
+            pac_man.try_corner(state.geometry.maze_to_screen)
+
         if pac_man.target_cell is None:
             return
 
@@ -91,6 +94,8 @@ class MazeController:
         pac_man.maze_pos = pac_man.target_cell
         pac_man.origin_cell = None
         pac_man.target_cell = None
+
+        pac_man.update()
 
     def _update_ghosts(self, state: MazeState, dt: float) -> None:
         for ghost in state.ghosts:

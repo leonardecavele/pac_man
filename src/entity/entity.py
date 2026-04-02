@@ -47,7 +47,10 @@ class Entity(ABC):
         return False
 
     def valid_direction(self, direction: vec2i) -> bool:
-        x, y = self.maze_pos
+        return self.valid_direction_from(self.maze_pos, direction)
+
+    def valid_direction_from(self, pos: vec2i, direction: vec2i) -> bool:
+        x, y = pos
 
         if direction == Maze.Direction.TOP.value:
             return not self.maze.maze[y][x].top
