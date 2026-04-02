@@ -60,10 +60,8 @@ class Ghost(Entity, ABC):
         match new_state:
             case self.State.ELROY1:
                 self.velocity_px = int(self.default_velocity_px * 0.80)
-                print("elroy 1")
             case self.State.ELROY2:
                 self.velocity_px = int(self.default_velocity_px * 0.85)
-                print("elroy 2")
             case self.State.EATEN:
                 self.velocity_px = int((self.default_velocity_px * 0.80) * 2)
             case self.State.FRIGHTENED:
