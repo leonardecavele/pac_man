@@ -120,16 +120,25 @@ class Ghost(Entity, ABC):
             visited.add((x, y))
 
             for direction in Maze.Direction:
-                if (x, y) == start_pos and back is not None and direction == back:
+                if (
+                    (x, y) == start_pos
+                    and back is not None
+                    and direction == back
+                ):
                     continue
 
-                if self.maze.maze[y][x].value & Maze.convert(direction):
+                if self.maze.maze[y][x].value & Maze.direction_to_wall(
+                    direction
+                ):
                     continue
 
                 new_x: int = x + direction.value[0]
                 new_y: int = y + direction.value[1]
 
-                if not (0 <= new_x < self.maze.width and 0 <= new_y < self.maze.height):
+                if not (
+                    0 <= new_x < self.maze.width
+                    and 0 <= new_y < self.maze.height
+                ):
                     continue
 
                 if (new_x, new_y) in visited:
@@ -191,7 +200,7 @@ class Ghost(Entity, ABC):
         directions: list[Maze.Direction] = []
 
         for direction in Maze.Direction:
-            if self.maze.maze[y][x].value & Maze.convert(direction):
+            if self.maze.maze[y][x].value & Maze.direction_to_wall(direction):
                 continue
             if back is not None and direction == back:
                 continue
@@ -216,7 +225,9 @@ class Ghost(Entity, ABC):
             if self.flip and self.origin_cell is not None:
                 self.flip = False
                 self.direction = (-self.direction[0], -self.direction[1])
-                self.origin_cell, self.target_cell = self.target_cell, self.origin_cell
+                self.origin_cell, self.target_cell = (
+                    self.target_cell, self.origin_cell
+                )
             return
 
         self.target = self.compute_target()

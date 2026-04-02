@@ -1,7 +1,7 @@
 from dataclasses import dataclass
 from enum import Enum, auto
 
-from src.entity import Collectible, Entity, Ghost
+from src.entity import Entity, Ghost
 
 from .maze_input import MazeInputState
 from .maze_state import MazeState

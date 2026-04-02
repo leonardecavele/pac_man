@@ -1,4 +1,4 @@
-from enum import IntFlag, Enum
+from enum import Enum, IntFlag
 
 from pydantic import BaseModel, Field
 from mazegenerator import MazeGenerator
@@ -6,8 +6,7 @@ from mazegenerator import MazeGenerator
 from src.type import vec2, brd
 
 
-class Maze():
-
+class Maze:
     class Direction(Enum):
         TOP = (0, -1)
         RIGHT = (1, 0)
@@ -15,7 +14,6 @@ class Maze():
         LEFT = (-1, 0)
 
     class Cell(BaseModel):
-
         class Walls(IntFlag):
             TOP = 1 << 0
             RIGHT = 1 << 1
@@ -26,24 +24,22 @@ class Maze():
         pos: vec2 = Field(...)
 
         @property
-        def top(self):
+        def top(self) -> bool:
             return bool(self.value & Maze.Cell.Walls.TOP)
 
         @property
-        def right(self):
+        def right(self) -> bool:
             return bool(self.value & Maze.Cell.Walls.RIGHT)
 
         @property
-        def bot(self):
+        def bot(self) -> bool:
             return bool(self.value & Maze.Cell.Walls.BOT)
 
         @property
-        def left(self):
+        def left(self) -> bool:
             return bool(self.value & Maze.Cell.Walls.LEFT)
 
-    def __init__(
-        self, height: int, width: int, seed: int
-    ) -> None:
+    def __init__(self, height: int, width: int, seed: int) -> None:
         maze_generator: MazeGenerator = MazeGenerator(
             (height, width), seed=seed
         )
@@ -60,10 +56,25 @@ class Maze():
         self.width = width
 
     @staticmethod
-    def convert(
-        value: "Maze.Direction | Maze.Cell.Walls"
-    ) -> "Maze.Direction | Maze.Cell.Walls":
-        if isinstance(value, Maze.Direction):
-            return Maze.Cell.Walls[value.name]
-        if isinstance(value, Maze.Cell.Walls):
-            return Maze.Direction[value.name]
+    def direction_to_wall(direction: "Maze.Direction") -> "Maze.Cell.Walls":
+        match direction:
+            case Maze.Direction.TOP:
+                return Maze.Cell.Walls.TOP
+            case Maze.Direction.RIGHT:
+                return Maze.Cell.Walls.RIGHT
+            case Maze.Direction.BOT:
+                return Maze.Cell.Walls.BOT
+            case Maze.Direction.LEFT:
+                return Maze.Cell.Walls.LEFT
+
+    @staticmethod
+    def wall_to_direction(wall: "Maze.Cell.Walls") -> "Maze.Direction":
+        match wall:
+            case Maze.Cell.Walls.TOP:
+                return Maze.Direction.TOP
+            case Maze.Cell.Walls.RIGHT:
+                return Maze.Direction.RIGHT
+            case Maze.Cell.Walls.BOT:
+                return Maze.Direction.BOT
+            case Maze.Cell.Walls.LEFT:
+                return Maze.Direction.LEFT
