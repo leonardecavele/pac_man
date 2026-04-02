@@ -34,6 +34,12 @@ class MazeState:
             84: Ghost.State.SCATTER,
             float("inf"): Ghost.State.CHASE,
         }
+        self.ghost_release_schedule: dict[str, float] = {
+            "blinky": 0.0,
+            "pinky": 2.0,
+            "inky": 4.0,
+            "clyde": 6.0,
+        }
         self.reset()
 
     def reset(self) -> None:
@@ -45,21 +51,24 @@ class MazeState:
         self.current_ghost_mode: Ghost.State = Ghost.State.SCATTER
 
         center: vec2 = (self.maze.width // 2, self.maze.height // 2)
-        top_pos: vec2 = (self.maze.width // 2, 1)
-        bottom_pos: vec2 = (self.maze.width // 2, self.maze.height - 2)
-        left_pos: vec2 = (1, self.maze.height // 2)
-        right_pos: vec2 = (self.maze.width - 2, self.maze.height // 2)
+        house_exit: vec2 = (center[0], max(0, center[1] - 1))
+        pac_man_start: vec2 = (self.maze.width // 2, self.maze.height - 2)
+
+        blinky_spawn: vec2 = center
+        pinky_spawn: vec2 = (max(0, center[0] - 1), house_exit[1])
+        inky_spawn: vec2 = (min(self.maze.width - 1, center[0] + 1), house_exit[1])
+        clyde_spawn: vec2 = (center[0], min(self.maze.height - 1, center[1] + 1))
 
         self.pac_man = Pac_man(
-            screen_pos=self.geometry.maze_to_screen(center),
-            maze_pos=center,
+            screen_pos=self.geometry.maze_to_screen(pac_man_start),
+            maze_pos=pac_man_start,
             sprite=self.textures["pac_man"],
             m=self.maze,
         )
 
         blinky = Blinky(
-            screen_pos=self.geometry.maze_to_screen(top_pos),
-            maze_pos=top_pos,
+            screen_pos=self.geometry.maze_to_screen(blinky_spawn),
+            maze_pos=blinky_spawn,
             sprite=self.textures["blinky"],
             m=self.maze,
             pac_man=self.pac_man,
@@ -67,8 +76,8 @@ class MazeState:
         )
 
         inky = Inky(
-            screen_pos=self.geometry.maze_to_screen(right_pos),
-            maze_pos=right_pos,
+            screen_pos=self.geometry.maze_to_screen(inky_spawn),
+            maze_pos=inky_spawn,
             sprite=self.textures["inky"],
             m=self.maze,
             pac_man=self.pac_man,
@@ -77,8 +86,8 @@ class MazeState:
         )
 
         pinky = Pinky(
-            screen_pos=self.geometry.maze_to_screen(left_pos),
-            maze_pos=left_pos,
+            screen_pos=self.geometry.maze_to_screen(pinky_spawn),
+            maze_pos=pinky_spawn,
             sprite=self.textures["pinky"],
             m=self.maze,
             pac_man=self.pac_man,
@@ -86,8 +95,8 @@ class MazeState:
         )
 
         clyde = Clyde(
-            screen_pos=self.geometry.maze_to_screen(bottom_pos),
-            maze_pos=bottom_pos,
+            screen_pos=self.geometry.maze_to_screen(clyde_spawn),
+            maze_pos=clyde_spawn,
             sprite=self.textures["clyde"],
             m=self.maze,
             pac_man=self.pac_man,
@@ -98,6 +107,10 @@ class MazeState:
         self.collectibles: list[Collectible] = self._gen_collectibles()
 
         for ghost in self.ghosts:
+            ghost.house_exit = house_exit
+            ghost.released = False
+            ghost.exiting_house = False
+            ghost.direction = (0, 0)
             ghost.change_state(self.current_ghost_mode)
             ghost.update()
 

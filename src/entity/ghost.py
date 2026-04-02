@@ -38,6 +38,10 @@ class Ghost(Entity, ABC):
         self.target: vec2 | None = None
         self.flip: bool = False
         self.saved_state: Ghost.State = self.state
+        self.released: bool = True
+        self.exiting_house: bool = False
+        self.house_exit: vec2 = (house_pos[0], max(0, house_pos[1] - 1))
+        self.identifier: str = self.__class__.__name__.lower()
 
     def move(self, dt: float) -> None:
         self.screen_pos = (
@@ -151,10 +155,10 @@ class Ghost(Entity, ABC):
 
         if self.flip:
             back = self.back_direction
+            self.flip = False
             if back is not None:
                 self.direction = back.value
-            self.flip = False
-            return
+                return
 
         if not directions:
             self.direction = (0, 0)

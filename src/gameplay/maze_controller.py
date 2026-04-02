@@ -92,6 +92,18 @@ class MazeController:
 
     def _update_ghosts(self, state: MazeState, dt: float) -> None:
         for ghost in state.ghosts:
+            if not ghost.released:
+                release_time = state.ghost_release_schedule.get(ghost.identifier, 0.0)
+                if state.ghost_schedule_time < release_time:
+                    continue
+                ghost.released = True
+                ghost.exiting_house = True
+                ghost.direction = (0, 0)
+
+            if ghost.exiting_house:
+                self._update_ghost_house_exit(state, ghost, dt)
+                continue
+
             previous_pos = ghost.maze_pos
             ghost.move(dt)
             state.geometry.sync_maze_screen_pos(ghost)
@@ -102,6 +114,29 @@ class MazeController:
             if ghost.state == Ghost.State.EATEN and ghost.maze_pos == ghost.house:
                 ghost.load_save()
             ghost.update()
+
+    def _update_ghost_house_exit(self, state: MazeState, ghost: Ghost, dt: float) -> None:
+        ghost.target = ghost.house_exit
+        if ghost.direction == (0, 0):
+            next_direction = ghost.a_star_direction(ghost.house_exit)
+            if next_direction is not None:
+                ghost.direction = next_direction
+
+        previous_pos = ghost.maze_pos
+        ghost.move(dt)
+        state.geometry.sync_maze_screen_pos(ghost)
+
+        if ghost.maze_pos == previous_pos:
+            return
+
+        if ghost.maze_pos == ghost.house_exit:
+            ghost.exiting_house = False
+            ghost.update()
+            return
+
+        next_direction = ghost.a_star_direction(ghost.house_exit)
+        if next_direction is not None:
+            ghost.direction = next_direction
 
     def _resolve_collectible_collisions(self, state: MazeState) -> MazeAction:
         for collectible in state.collectibles[:]:
