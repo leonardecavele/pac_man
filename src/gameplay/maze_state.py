@@ -168,10 +168,14 @@ class MazeState:
     def start_fright_mode(self) -> None:
         self.fright = True
         self.fright_time = 0.0
+
         for ghost in self.ghosts:
             if ghost.state == Ghost.State.EATEN:
                 continue
-            ghost.save_state()
+
+            if ghost.state != Ghost.State.FRIGHTENED:
+                ghost.save_state()
+
             ghost.change_state(Ghost.State.FRIGHTENED)
             ghost.update()
 
