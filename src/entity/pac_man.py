@@ -1,5 +1,3 @@
-import math
-
 from .entity import Entity
 
 from src.maze import Maze
@@ -15,42 +13,6 @@ class Pac_man(Entity):
         self.origin_cell: vec2 | None = None
         self.target_cell: vec2 | None = None
         self.velocity = 120
-
-    def move_to_target(self, dt: float, target_screen_pos: vec2) -> bool:
-        x, y = self.screen_pos
-        tx, ty = target_screen_pos
-
-        dx: float = tx - x
-        dy: float = ty - y
-        distance: float = math.sqrt(dx * dx + dy * dy)
-        step: float = self.velocity * dt
-
-        if distance <= step:
-            self.screen_pos = target_screen_pos
-            return True
-
-        if distance == 0:
-            self.screen_pos = target_screen_pos
-            return True
-
-        self.screen_pos = (
-            x + dx / distance * step,
-            y + dy / distance * step,
-        )
-        return False
-
-    def valid_direction(self, direction: vec2) -> bool:
-        x, y = self.maze_pos
-
-        if direction == Maze.Direction.TOP.value:
-            return not self.maze.maze[y][x].top
-        if direction == Maze.Direction.RIGHT.value:
-            return not self.maze.maze[y][x].right
-        if direction == Maze.Direction.BOT.value:
-            return not self.maze.maze[y][x].bot
-        if direction == Maze.Direction.LEFT.value:
-            return not self.maze.maze[y][x].left
-        return False
 
     def update(self, dt: float = 0.0) -> None:
         if self.target_cell is not None:
