@@ -52,8 +52,7 @@ class Pac_man(Entity):
             return not self.maze.maze[y][x].left
         return False
 
-    # called every tick
-    def update(self) -> None:
+    def update(self, dt: float = 0.0) -> None:
         if self.target_cell is not None:
             if (
                 self.input is not None

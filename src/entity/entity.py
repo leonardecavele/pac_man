@@ -1,4 +1,5 @@
 from abc import ABC, abstractmethod
+
 import pyray as rl
 
 from src.maze import Maze
@@ -9,12 +10,15 @@ DEFAULT_VELOCITY: int = 100
 
 class Entity(ABC):
     def __init__(
-            self, screen_pos: vec2, maze_pos: vec2, sprite: rl.Texture2D,
-            maze: Maze
+        self,
+        screen_pos: vec2,
+        maze_pos: vec2,
+        sprite: rl.Texture2D,
+        maze: Maze,
     ) -> None:
         self.screen_pos: vec2 = screen_pos
         self.maze_pos: vec2 = maze_pos
-        self.sprite: str = sprite
+        self.sprite: rl.Texture2D = sprite
         self.direction: vec2 = (0, 0)
         self.velocity: int = DEFAULT_VELOCITY
         self.maze: Maze = maze
@@ -25,7 +29,6 @@ class Entity(ABC):
             return None
         return Maze.Direction((-self.direction[0], -self.direction[1]))
 
-    # Called by the game loop
     @abstractmethod
-    def update(self) -> None:
+    def update(self, dt: float = 0.0) -> None:
         pass

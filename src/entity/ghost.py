@@ -1,18 +1,16 @@
-import random
 import heapq
+import random
 
-from math import sqrt
-from enum import IntFlag
 from abc import ABC, abstractmethod
+from enum import IntFlag
+from math import sqrt
 
-from .pac_man import Pac_man
 from .entity import DEFAULT_VELOCITY, Entity
+from .pac_man import Pac_man
 
-from src.type import vec2
 from src.maze import Maze
+from src.type import vec2
 
-
-# update is to be called every new cell entered, not every frame
 
 class Ghost(Entity, ABC):
     class State(IntFlag):
@@ -20,11 +18,17 @@ class Ghost(Entity, ABC):
         EATEN = 1 << 1
         FRIGHTENED = 1 << 2
         CHASE = 1 << 3
-        ANGRY = 1 << 4  # only for blinky
+        ANGRY = 1 << 4
 
     def __init__(
-        self, screen_pos: vec2, maze_pos: vec2, sprite: str, m: Maze,
-        pac_man: Pac_man, house_pos: vec2, corner_pos: vec2
+        self,
+        screen_pos: vec2,
+        maze_pos: vec2,
+        sprite: str,
+        m: Maze,
+        pac_man: Pac_man,
+        house_pos: vec2,
+        corner_pos: vec2,
     ) -> None:
         super().__init__(screen_pos, maze_pos, sprite, m)
         self.state: Ghost.State = self.State.SCATTER
@@ -33,7 +37,7 @@ class Ghost(Entity, ABC):
         self.house: vec2 = house_pos
         self.target: vec2 | None = None
         self.flip: bool = False
-        self.save_state()
+        self.saved_state: Ghost.State = self.state
 
     def move(self, dt: float) -> None:
         self.screen_pos = (
@@ -42,22 +46,21 @@ class Ghost(Entity, ABC):
         )
 
     def change_state(self, new_state: "Ghost.State") -> None:
+        self.flip = new_state in (
+            self.State.CHASE,
+            self.State.SCATTER,
+            self.State.FRIGHTENED,
+        )
+
         match new_state:
             case self.State.ANGRY:
                 self.velocity = DEFAULT_VELOCITY * 2
-                self.state = self.State.ANGRY
-            case self.State.CHASE:
-                self.flip = True
-                self.state = self.State.CHASE
-            case self.State.SCATTER:
-                self.flip = True
-                self.state = self.State.SCATTER
             case self.State.EATEN:
                 self.velocity = DEFAULT_VELOCITY * 3
-                self.state = self.State.EATEN
-            case self.State.FRIGHTENED:
-                self.flip = True
-                self.state = self.State.FRIGHTENED
+            case _:
+                self.velocity = DEFAULT_VELOCITY
+
+        self.state = new_state
 
     def a_star_direction(self, target: vec2) -> vec2 | None:
         counter: int = 0
@@ -65,7 +68,7 @@ class Ghost(Entity, ABC):
         def push(
             queue: list[tuple[int, int, Maze.Cell]],
             new_cell: Maze.Cell,
-            score: int
+            score: int,
         ) -> None:
             nonlocal counter
             heapq.heappush(queue, (score, counter, new_cell))
@@ -84,21 +87,15 @@ class Ghost(Entity, ABC):
             return None
 
         back: Maze.Direction | None = self.back_direction
-
         visited: set[vec2] = set()
         parent: dict[vec2, vec2] = {}
-
         queue: list[tuple[int, int, Maze.Cell]] = []
         g: dict[vec2, int] = {}
         h: dict[vec2, int] = {}
 
         g[start_pos] = 0
         h[start_pos] = self.manhattan(start_pos, goal_pos)
-        push(
-            queue,
-            self.maze.maze[start_y][start_x],
-            g[start_pos] + h[start_pos]
-        )
+        push(queue, self.maze.maze[start_y][start_x], g[start_pos] + h[start_pos])
 
         while queue:
             _, _, current = heapq.heappop(queue)
@@ -106,7 +103,6 @@ class Ghost(Entity, ABC):
 
             if (x, y) == goal_pos:
                 current_pos: vec2 = (x, y)
-
                 while current_pos in parent and parent[current_pos] != start_pos:
                     current_pos = parent[current_pos]
 
@@ -145,11 +141,7 @@ class Ghost(Entity, ABC):
                     parent[new_pos] = (x, y)
                     g[new_pos] = new_g
                     h[new_pos] = self.manhattan(new_pos, goal_pos)
-                    push(
-                        queue,
-                        self.maze.maze[new_y][new_x],
-                        new_g + h[new_pos]
-                    )
+                    push(queue, self.maze.maze[new_y][new_x], new_g + h[new_pos])
 
         return None
 
@@ -169,26 +161,24 @@ class Ghost(Entity, ABC):
             return
 
         if self.target is None:
-            random_direction = random.choice(directions)
-            self.direction = random_direction.value
+            self.direction = random.choice(directions).value
             return
 
-        next_direction: vec2 | None = self.a_star_direction(self.target)
-
+        next_direction = self.a_star_direction(self.target)
         if next_direction is not None:
             self.direction = next_direction
             return
 
-        best_direction: Maze.Direction = directions[0]
+        best_direction = directions[0]
         best_pos: vec2 = (
-            x + best_direction.value[0], y + best_direction.value[1]
+            x + best_direction.value[0],
+            y + best_direction.value[1],
         )
         best_distance: int = self.manhattan(best_pos, self.target)
 
         for direction in directions[1:]:
             pos: vec2 = (x + direction.value[0], y + direction.value[1])
             distance: int = self.manhattan(pos, self.target)
-
             if distance < best_distance:
                 best_distance = distance
                 best_direction = direction
@@ -220,23 +210,42 @@ class Ghost(Entity, ABC):
     def manhattan(pos1: vec2, pos2: vec2) -> int:
         return abs(pos1[0] - pos2[0]) + abs(pos1[1] - pos2[1])
 
+    def update(self, dt: float = 0.0) -> None:
+        self.target = self.compute_target()
+        self.target_direction()
+
+    def compute_target(self) -> vec2 | None:
+        if self.state & self.State.EATEN:
+            return self.house
+        if self.state & self.State.FRIGHTENED:
+            return None
+        if self.is_chasing():
+            return self.compute_chase_target()
+        return self.corner
+
+    def is_chasing(self) -> bool:
+        return bool(self.state & self.State.CHASE)
+
     @abstractmethod
-    def update(self) -> None:
+    def compute_chase_target(self) -> vec2:
         ...
 
-    def save_state(self):
+    def save_state(self) -> None:
         self.saved_state = self.state
-        self.saved_sprite = self.sprite
 
-    def load_save(self):
-        self.sprite = self.saved_sprite
+    def load_save(self) -> None:
         self.change_state(self.saved_state)
 
 
 class Blinky(Ghost):
     def __init__(
-        self, screen_pos: vec2, maze_pos: vec2, sprite: str, m: Maze,
-        pac_man: Pac_man, house_pos: vec2
+        self,
+        screen_pos: vec2,
+        maze_pos: vec2,
+        sprite: str,
+        m: Maze,
+        pac_man: Pac_man,
+        house_pos: vec2,
     ) -> None:
         super().__init__(
             screen_pos,
@@ -245,21 +254,15 @@ class Blinky(Ghost):
             m,
             pac_man,
             house_pos,
-            (m.width - 1, 0)
+            (m.width - 1, 0),
         )
         self.target = self.corner
 
-    def update(self) -> None:
-        if self.state & self.State.EATEN:
-            self.target = self.house
-        elif self.state & self.State.FRIGHTENED:
-            self.target = None
-        elif self.state & (self.State.CHASE | self.State.ANGRY):
-            self.target = self.pac_man.maze_pos
-        else:
-            self.target = self.corner
+    def is_chasing(self) -> bool:
+        return bool(self.state & (self.State.CHASE | self.State.ANGRY))
 
-        self.target_direction()
+    def compute_chase_target(self) -> vec2:
+        return self.pac_man.maze_pos
 
 
 class Inky(Ghost):
@@ -271,7 +274,7 @@ class Inky(Ghost):
         m: Maze,
         pac_man: Pac_man,
         blinky: Blinky,
-        house_pos: vec2
+        house_pos: vec2,
     ) -> None:
         super().__init__(
             screen_pos,
@@ -280,12 +283,12 @@ class Inky(Ghost):
             m,
             pac_man,
             house_pos,
-            (m.width - 1, m.height - 1)
+            (m.width - 1, m.height - 1),
         )
         self.blinky: Blinky = blinky
         self.target = self.corner
 
-    def chase(self) -> vec2:
+    def compute_chase_target(self) -> vec2:
         px, py = self.pac_man.maze_pos
         dx, dy = self.pac_man.direction
         bx, by = self.blinky.maze_pos
@@ -298,23 +301,16 @@ class Inky(Ghost):
         ax, ay = ahead
         return (ax * 2 - bx, ay * 2 - by)
 
-    def update(self) -> None:
-        if self.state & self.State.EATEN:
-            self.target = self.house
-        elif self.state & self.State.FRIGHTENED:
-            self.target = None
-        elif self.state & self.State.CHASE:
-            self.target = self.chase()
-        else:
-            self.target = self.corner
-
-        self.target_direction()
-
 
 class Pinky(Ghost):
     def __init__(
-        self, screen_pos: vec2, maze_pos: vec2, sprite: str, m: Maze,
-        pac_man: Pac_man, house_pos: vec2
+        self,
+        screen_pos: vec2,
+        maze_pos: vec2,
+        sprite: str,
+        m: Maze,
+        pac_man: Pac_man,
+        house_pos: vec2,
     ) -> None:
         super().__init__(
             screen_pos,
@@ -323,33 +319,28 @@ class Pinky(Ghost):
             m,
             pac_man,
             house_pos,
-            (0, 0)
+            (0, 0),
         )
         self.target = self.corner
 
-    def update(self) -> None:
-        if self.state & self.State.EATEN:
-            self.target = self.house
-        elif self.state & self.State.FRIGHTENED:
-            self.target = None
-        elif self.state & self.State.CHASE:
-            px, py = self.pac_man.maze_pos
-            dx, dy = self.pac_man.direction
+    def compute_chase_target(self) -> vec2:
+        px, py = self.pac_man.maze_pos
+        dx, dy = self.pac_man.direction
 
-            if (dx, dy) == (0, -1):
-                self.target = (px - 4, py - 4)
-            else:
-                self.target = (px + dx * 4, py + dy * 4)
-        else:
-            self.target = self.corner
-
-        self.target_direction()
+        if (dx, dy) == (0, -1):
+            return (px - 4, py - 4)
+        return (px + dx * 4, py + dy * 4)
 
 
 class Clyde(Ghost):
     def __init__(
-        self, screen_pos: vec2, maze_pos: vec2, sprite: str, m: Maze,
-        pac_man: Pac_man, house_pos: vec2
+        self,
+        screen_pos: vec2,
+        maze_pos: vec2,
+        sprite: str,
+        m: Maze,
+        pac_man: Pac_man,
+        house_pos: vec2,
     ) -> None:
         super().__init__(
             screen_pos,
@@ -358,21 +349,11 @@ class Clyde(Ghost):
             m,
             pac_man,
             house_pos,
-            (0, m.height - 1)
+            (0, m.height - 1),
         )
         self.target = self.corner
 
-    def update(self) -> None:
-        if self.state & self.State.EATEN:
-            self.target = self.house
-        elif self.state & self.State.FRIGHTENED:
-            self.target = None
-        elif self.state & self.State.CHASE:
-            if self.euclidean(self.maze_pos, self.pac_man.maze_pos) < 4:
-                self.target = self.corner
-            else:
-                self.target = self.pac_man.maze_pos
-        else:
-            self.target = self.corner
-
-        self.target_direction()
+    def compute_chase_target(self) -> vec2:
+        if self.euclidean(self.maze_pos, self.pac_man.maze_pos) < 4:
+            return self.corner
+        return self.pac_man.maze_pos
