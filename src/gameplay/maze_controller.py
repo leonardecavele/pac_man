@@ -132,8 +132,10 @@ class MazeController:
             ghost.origin_cell = None
             ghost.target_cell = None
 
-            if ghost.state == Ghost.State.EATEN and ghost.maze_pos == ghost.house:
-                ghost.load_save()
+            if ghost.state & Ghost.State.EATEN:
+                target = ghost.compute_target()
+                if target is not None and ghost.maze_pos == target:
+                    ghost.load_save()
 
             ghost.update()
 

@@ -321,8 +321,13 @@ class Ghost(Entity, ABC):
         )
 
     def compute_target(self) -> vec2i | None:
-        if self.state & self.State.EATEN:
-            return self.house
+        if (
+            self.maze.og
+            and self.state & self.State.EATEN
+            and isinstance(self, Blinky)
+        ):
+            x, y = self.house
+            return (x, y + 1)
         if self.state & self.State.FRIGHTENED:
             return None
         if self.is_chasing():
@@ -332,7 +337,7 @@ class Ghost(Entity, ABC):
     def is_chasing(self) -> bool:
         return bool(self.state & self.State.CHASE)
 
-    @ abstractmethod
+    @abstractmethod
     def compute_chase_target(self) -> vec2i:
         ...
 
