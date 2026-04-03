@@ -1,6 +1,8 @@
 import sys
 
-from src.maze import Maze
+from random import randint
+
+from src.maze import Maze, OriginalMaze, RandomMaze
 from src.game import Game
 from src.error import ErrorCode
 from src.parsing.parsing import Parser
@@ -9,7 +11,9 @@ from src.parsing.parsing import Parser
 def main() -> int:
     parser = Parser("config.json")
     config = parser.run()
-    maze: Maze = Maze(12, 12, 13)
+
+    maze: Maze = RandomMaze(13, 13, 10)
+
     game: Game = Game(
         maze=maze,
         config=config,

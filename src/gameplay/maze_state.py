@@ -60,12 +60,20 @@ class MazeState:
         house_exit: vec2i = (center[0], max(0, center[1] - 1))
         pac_man_start: vec2i = (self.maze.width // 2, self.maze.height - 2)
 
-        blinky_spawn: vec2i = center
-        pinky_spawn: vec2i = (max(0, center[0] - 1), house_exit[1])
-        inky_spawn: vec2i = (
-            min(self.maze.width - 1, center[0] + 1), house_exit[1]
-        )
-        clyde_spawn: vec2i = (center[0], min(self.maze.height - 1, center[1] + 1))
+        if self.maze.og:
+            blinky_spawn: vec2i = center
+            pinky_spawn: vec2i = (max(0, center[0] - 1), house_exit[1])
+            inky_spawn: vec2i = (
+                min(self.maze.width - 1, center[0] + 1), house_exit[1]
+            )
+            clyde_spawn: vec2i = (
+                center[0], min(self.maze.height - 1, center[1] + 1)
+            )
+        else:
+            blinky_spawn = (self.maze.width - 1, 0)
+            pinky_spawn = (0, 0)
+            inky_spawn = (self.maze.width - 1, self.maze.height - 1)
+            clyde_spawn = (0, self.maze.height - 1)
 
         self.pac_man = Pac_man(
             screen_pos=self.geometry.maze_to_screen(pac_man_start),
@@ -121,7 +129,7 @@ class MazeState:
         self.initial_collectible_count: int = len(self.collectibles)
 
         for ghost in self.ghosts:
-            ghost.house_exit = house_exit
+            ghost.house_exit = ghost.corner
             ghost.released = False
             ghost.exiting_house = False
             ghost.direction = (0, 0)
