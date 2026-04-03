@@ -65,55 +65,61 @@ class MazeState:
         inky_spawn: vec2i = (
             min(self.maze.width - 1, center[0] + 1), house_exit[1]
         )
-        clyde_spawn: vec2i = (center[0], min(self.maze.height - 1, center[1] + 1))
+        clyde_spawn: vec2i = (center[0], min(
+            self.maze.height - 1, center[1] + 1))
 
         self.pac_man = Pac_man(
             screen_pos=self.geometry.maze_to_screen(pac_man_start),
             maze_pos=pac_man_start,
-            sprite=self.textures["pac_man"],
+            sprite=self.textures["pac_man_right"][0],
             m=self.maze,
-            default_velocity_px=self.default_velocity_px
+            default_velocity_px=self.default_velocity_px,
+            textures=self.textures
         )
 
         blinky = Blinky(
             screen_pos=self.geometry.maze_to_screen(blinky_spawn),
             maze_pos=blinky_spawn,
-            sprite=self.textures["blinky"],
+            sprite=self.textures["blinky_right"][0],
             m=self.maze,
             pac_man=self.pac_man,
             house_pos=center,
-            default_velocity_px=self.default_velocity_px
+            default_velocity_px=self.default_velocity_px,
+            textures=self.textures
         )
 
         inky = Inky(
             screen_pos=self.geometry.maze_to_screen(inky_spawn),
             maze_pos=inky_spawn,
-            sprite=self.textures["inky"],
+            sprite=self.textures["inky_right"][0],
             m=self.maze,
             pac_man=self.pac_man,
             blinky=blinky,
             house_pos=center,
-            default_velocity_px=self.default_velocity_px
+            default_velocity_px=self.default_velocity_px,
+            textures=self.textures
         )
 
         pinky = Pinky(
             screen_pos=self.geometry.maze_to_screen(pinky_spawn),
             maze_pos=pinky_spawn,
-            sprite=self.textures["pinky"],
+            sprite=self.textures["pinky_right"][0],
             m=self.maze,
             pac_man=self.pac_man,
             house_pos=center,
-            default_velocity_px=self.default_velocity_px
+            default_velocity_px=self.default_velocity_px,
+            textures=self.textures
         )
 
         clyde = Clyde(
             screen_pos=self.geometry.maze_to_screen(clyde_spawn),
             maze_pos=clyde_spawn,
-            sprite=self.textures["clyde"],
+            sprite=self.textures["clyde_right"][0],
             m=self.maze,
             pac_man=self.pac_man,
             house_pos=center,
-            default_velocity_px=self.default_velocity_px
+            default_velocity_px=self.default_velocity_px,
+            textures=self.textures
         )
 
         self.ghosts: list[Ghost] = [blinky, inky, pinky, clyde]

@@ -56,6 +56,4 @@ class MazeSceneRenderer:
         rl.draw_texture(sprite, x, y, rl.WHITE)
 
     def _ghost_sprite(self, ghost: Ghost) -> rl.Texture2D:
-        if ghost.state == Ghost.State.FRIGHTENED:
-            return self.state.textures["fleeing"]
         return ghost.sprite

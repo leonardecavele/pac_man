@@ -76,6 +76,7 @@ class MazeController:
 
     def _update_pac_man(self, state: MazeState, dt: float) -> None:
         pac_man = state.pac_man
+        pac_man.animate()
         pac_man.update(dt)
 
         if pac_man.target_cell is not None:
@@ -98,6 +99,7 @@ class MazeController:
 
     def _update_ghosts(self, state: MazeState, dt: float) -> None:
         for ghost in state.ghosts:
+            ghost.animate()
             if not ghost.released:
                 release_time = state.ghost_release_schedule.get(
                     ghost.identifier, 0.0

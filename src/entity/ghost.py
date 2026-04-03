@@ -1,5 +1,6 @@
 import heapq
 import random
+import pyray as rl
 
 from abc import ABC, abstractmethod
 from enum import IntFlag
@@ -30,7 +31,8 @@ class Ghost(Entity, ABC):
         pac_man: Pac_man,
         house_pos: vec2i,
         corner_pos: vec2i,
-        default_velocity_px: int
+        default_velocity_px: int,
+        textures: dict[str, list[rl.Texture2D]]
     ) -> None:
         super().__init__(
             screen_pos, maze_pos, sprite, m, default_velocity_px
@@ -46,6 +48,24 @@ class Ghost(Entity, ABC):
         self.exiting_house: bool = False
         self.house_exit: vec2i = (house_pos[0], max(0, house_pos[1] - 1))
         self.identifier: str = self.__class__.__name__.lower()
+        self.textures = textures
+
+    def animate(self):
+        self.tick += 1
+        if (self.state == Ghost.State.FRIGHTENED):
+            idx = self.tick // 30 % 2
+            self.sprite = self.textures["fleeing"][idx]
+            return
+        dx, dy = self.direction
+        idx = self.tick // 30 % 2
+        if (dx == 1):
+            self.sprite = self.textures[self.identifier + "_right"][idx]
+        elif (dx == -1):
+            self.sprite = self.textures[self.identifier + "_left"][idx]
+        elif (dy == 1):
+            self.sprite = self.textures[self.identifier + "_down"][idx]
+        elif (dy == -1):
+            self.sprite = self.textures[self.identifier + "_up"][idx]
 
     def change_state(self, new_state: "Ghost.State") -> None:
         self.flip = (
@@ -104,7 +124,8 @@ class Ghost(Entity, ABC):
 
         g[start_pos] = 0
         h[start_pos] = self.manhattan(start_pos, goal_pos)
-        push(queue, self.maze.maze[start_y][start_x], g[start_pos] + h[start_pos])
+        push(queue, self.maze.maze[start_y]
+             [start_x], g[start_pos] + h[start_pos])
 
         while queue:
             _, _, current = heapq.heappop(queue)
@@ -159,7 +180,8 @@ class Ghost(Entity, ABC):
                     parent[new_pos] = (x, y)
                     g[new_pos] = new_g
                     h[new_pos] = self.manhattan(new_pos, goal_pos)
-                    push(queue, self.maze.maze[new_y][new_x], new_g + h[new_pos])
+                    push(queue, self.maze.maze[new_y]
+                         [new_x], new_g + h[new_pos])
 
         return None
 
@@ -218,13 +240,13 @@ class Ghost(Entity, ABC):
             return [back]
         return directions
 
-    @staticmethod
+    @ staticmethod
     def euclidean(pos1: vec2i, pos2: vec2i) -> int:
         dx: int = pos2[0] - pos1[0]
         dy: int = pos2[1] - pos1[1]
         return int(sqrt(dx * dx + dy * dy))
 
-    @staticmethod
+    @ staticmethod
     def manhattan(pos1: vec2i, pos2: vec2i) -> int:
         return abs(pos1[0] - pos2[0]) + abs(pos1[1] - pos2[1])
 
@@ -262,7 +284,7 @@ class Ghost(Entity, ABC):
     def is_chasing(self) -> bool:
         return bool(self.state & self.State.CHASE)
 
-    @abstractmethod
+    @ abstractmethod
     def compute_chase_target(self) -> vec2i:
         ...
 
@@ -282,7 +304,8 @@ class Blinky(Ghost):
         m: Maze,
         pac_man: Pac_man,
         house_pos: vec2i,
-        default_velocity_px: int
+        default_velocity_px: int,
+        textures: dict[str, list[rl.Texture2D]]
     ) -> None:
         super().__init__(
             screen_pos,
@@ -292,7 +315,8 @@ class Blinky(Ghost):
             pac_man,
             house_pos,
             (m.width - 1, 0),
-            default_velocity_px
+            default_velocity_px,
+            textures
         )
         self.target = self.corner
 
@@ -317,7 +341,8 @@ class Inky(Ghost):
         pac_man: Pac_man,
         blinky: Blinky,
         house_pos: vec2i,
-        default_velocity_px: int
+        default_velocity_px: int,
+        textures: dict[str, list[rl.Texture2D]]
     ) -> None:
         super().__init__(
             screen_pos,
@@ -327,7 +352,8 @@ class Inky(Ghost):
             pac_man,
             house_pos,
             (m.width - 1, m.height - 1),
-            default_velocity_px
+            default_velocity_px,
+            textures
         )
         self.blinky: Blinky = blinky
         self.target = self.corner
@@ -355,7 +381,8 @@ class Pinky(Ghost):
         m: Maze,
         pac_man: Pac_man,
         house_pos: vec2i,
-        default_velocity_px: int
+        default_velocity_px: int,
+        textures: dict[str, list[rl.Texture2D]]
     ) -> None:
         super().__init__(
             screen_pos,
@@ -365,7 +392,8 @@ class Pinky(Ghost):
             pac_man,
             house_pos,
             (0, 0),
-            default_velocity_px
+            default_velocity_px,
+            textures
         )
         self.target = self.corner
 
@@ -387,7 +415,8 @@ class Clyde(Ghost):
         m: Maze,
         pac_man: Pac_man,
         house_pos: vec2i,
-        default_velocity_px: int
+        default_velocity_px: int,
+        textures: dict[str, list[rl.Texture2D]]
     ) -> None:
         super().__init__(
             screen_pos,
@@ -397,7 +426,8 @@ class Clyde(Ghost):
             pac_man,
             house_pos,
             (0, m.height - 1),
-            default_velocity_px
+            default_velocity_px,
+            textures
         )
         self.target = self.corner
 

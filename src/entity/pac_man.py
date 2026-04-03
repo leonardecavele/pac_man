@@ -1,4 +1,5 @@
 import math
+import pyray as rl
 
 from collections.abc import Callable
 
@@ -15,12 +16,14 @@ class Pac_man(Entity):
         maze_pos: vec2i,
         sprite: str,
         m: Maze,
-        default_velocity_px: int
+        default_velocity_px: int,
+        textures: dict[str, list[rl.Texture2D]]
     ) -> None:
         super().__init__(screen_pos, maze_pos, sprite, m, default_velocity_px)
         self.input: vec2i | None = None
         self.velocity_px = int(self.default_velocity_px * 0.80)
         self.turn_window: float = 4.5
+        self.textures: dict[str, list[rl.Texture2D]] = textures
 
     def try_corner(self, maze_to_screen: Callable[[vec2i], vec2i]) -> bool:
         if self.target_cell is None or self.input is None:
@@ -66,6 +69,19 @@ class Pac_man(Entity):
         self.direction = self.input
         self.update()
         return True
+
+    def animate(self):
+        self.tick += 1
+        dx, dy = self.direction
+        idx = self.tick // 30 % 2
+        if (dx == 1):
+            self.sprite = self.textures["pac_man_right"][idx]
+        elif (dx == -1):
+            self.sprite = self.textures["pac_man_left"][idx]
+        elif (dy == 1):
+            self.sprite = self.textures["pac_man_down"][idx]
+        elif (dy == -1):
+            self.sprite = self.textures["pac_man_up"][idx]
 
     def update(self, dt: float = 0.0) -> None:
         if self.target_cell is not None:
