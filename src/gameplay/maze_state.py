@@ -40,12 +40,20 @@ class MazeState:
             84: Ghost.State.SCATTER,
             float("inf"): Ghost.State.CHASE,
         }
-        self.ghost_release_schedule: dict[str, float] = {
-            "blinky": 0.0,
-            "pinky": 2.0,
-            "inky": 4.0,
-            "clyde": 6.0,
-        }
+        if maze.og:
+            self.ghost_release_schedule: dict[str, float] = {
+                "blinky": 0.0,
+                "pinky": 2.0,
+                "inky": 4.0,
+                "clyde": 6.0,
+            }
+        else:
+            self.ghost_release_schedule = {
+                "blinky": 0.0,
+                "pinky": 0.0,
+                "inky": 0.0,
+                "clyde": 0.0,
+            }
         self.reset()
 
     def reset(self) -> None:
@@ -57,27 +65,27 @@ class MazeState:
         self.current_ghost_mode: Ghost.State = Ghost.State.SCATTER
 
         center: vec2i = (self.maze.width // 2, self.maze.height // 2)
-        house_exit: vec2i = (center[0], max(0, center[1] - 1))
-        pac_man_start: vec2i = (self.maze.width // 2, self.maze.height - 2)
 
         if self.maze.og:
-            blinky_spawn: vec2i = center
-            pinky_spawn: vec2i = (max(0, center[0] - 1), house_exit[1])
-            inky_spawn: vec2i = (
-                min(self.maze.width - 1, center[0] + 1), house_exit[1]
-            )
+            pac_man_spawn: vec2i = (center[0], 7)
+
+            house_exit: vec2i = (center[0], 3)
+            blinky_spawn: vec2i = house_exit
+            inky_spawn: vec2i = (max(0, center[0] - 1), house_exit[1] + 1)
             clyde_spawn: vec2i = (
-                center[0], min(self.maze.height - 1, center[1] + 1)
+                min(self.maze.width - 1, center[0] + 1), house_exit[1] + 1
             )
+            pinky_spawn: vec2i = (center[0], house_exit[1] + 1)
         else:
+            pac_man_spawn = center
             blinky_spawn = (self.maze.width - 1, 0)
             pinky_spawn = (0, 0)
             inky_spawn = (self.maze.width - 1, self.maze.height - 1)
             clyde_spawn = (0, self.maze.height - 1)
 
         self.pac_man = Pac_man(
-            screen_pos=self.geometry.maze_to_screen(pac_man_start),
-            maze_pos=pac_man_start,
+            screen_pos=self.geometry.maze_to_screen(pac_man_spawn),
+            maze_pos=pac_man_spawn,
             sprite=self.textures["pac_man"],
             m=self.maze,
             default_velocity_px=self.default_velocity_px
@@ -89,7 +97,7 @@ class MazeState:
             sprite=self.textures["blinky"],
             m=self.maze,
             pac_man=self.pac_man,
-            house_pos=center,
+            house_pos=blinky_spawn,
             default_velocity_px=self.default_velocity_px
         )
 
@@ -100,7 +108,7 @@ class MazeState:
             m=self.maze,
             pac_man=self.pac_man,
             blinky=blinky,
-            house_pos=center,
+            house_pos=inky_spawn,
             default_velocity_px=self.default_velocity_px
         )
 
@@ -110,7 +118,7 @@ class MazeState:
             sprite=self.textures["pinky"],
             m=self.maze,
             pac_man=self.pac_man,
-            house_pos=center,
+            house_pos=pinky_spawn,
             default_velocity_px=self.default_velocity_px
         )
 
@@ -120,7 +128,7 @@ class MazeState:
             sprite=self.textures["clyde"],
             m=self.maze,
             pac_man=self.pac_man,
-            house_pos=center,
+            house_pos=clyde_spawn,
             default_velocity_px=self.default_velocity_px
         )
 
