@@ -15,6 +15,7 @@ class Textures:
             "pac_man_left": self._load_pacman_texture_left(),
             "pac_man_up": self._load_pacman_texture_up(),
             "pac_man_down": self._load_pacman_texture_down(),
+            "pac_man_dying": self._load_pacman_texture_dying(),
             "blinky_right": self._load_blinky_texture_right(),
             "blinky_left": self._load_blinky_texture_left(),
             "blinky_up": self._load_blinky_texture_up(),
@@ -73,6 +74,24 @@ class Textures:
             [
                 self._get_sprite(0, 3),
                 self._get_sprite(1, 3)
+            ]
+        )
+
+    def _load_pacman_texture_dying(self) -> list[rl.Texture2D]:
+        return (
+            [
+                self._get_sprite(2, 0),
+                self._get_sprite(3, 0),
+                self._get_sprite(4, 0),
+                self._get_sprite(5, 0),
+                self._get_sprite(6, 0),
+                self._get_sprite(7, 0),
+                self._get_sprite(8, 0),
+                self._get_sprite(9, 0),
+                self._get_sprite(10, 0),
+                self._get_sprite(11, 0),
+                self._get_sprite(12, 0),
+                self._get_sprite(13, 0)
             ]
         )
 

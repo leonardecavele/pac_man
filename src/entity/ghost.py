@@ -328,6 +328,8 @@ class Ghost(Entity, ABC):
         ):
             x, y = self.house
             return (x, y + 1)
+        if self.state & self.State.EATEN:
+            return self.house
         if self.state & self.State.FRIGHTENED:
             return None
         if self.is_chasing():

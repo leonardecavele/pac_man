@@ -68,7 +68,6 @@ class MazeState:
 
         if self.maze.og:
             pac_man_spawn: vec2i = (center[0], 7)
-
             house_exit: vec2i = (center[0], 3)
             blinky_spawn: vec2i = house_exit
             inky_spawn: vec2i = (max(0, center[0] - 1), house_exit[1] + 1)
@@ -86,7 +85,7 @@ class MazeState:
         self.pac_man = Pac_man(
             screen_pos=self.geometry.maze_to_screen(pac_man_spawn),
             maze_pos=pac_man_spawn,
-            sprite=self.textures["pac_man_right"][0],
+            sprite=self.textures["pac_man_dying"][0],
             m=self.maze,
             default_velocity_px=self.default_velocity_px,
             textures=self.textures
