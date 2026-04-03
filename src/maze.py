@@ -5,11 +5,9 @@ from pydantic import BaseModel, Field
 from mazegenerator import MazeGenerator
 
 from src.type import vec2i, brd
-from src.original import ORIGINAL
 
 
 class Maze(ABC):
-
     def __init__(self, height: int, width: int, maze: brd, og: bool) -> None:
         self.height: int = height
         self.width: int = width
@@ -75,16 +73,29 @@ class Maze(ABC):
 
 
 class OriginalMaze(Maze):
+    CLASSIC_MAP: list[list[int]] = [
+        [9, 5, 5, 1, 5, 3, 15, 9, 5, 3, 15, 9, 5, 1, 5, 5, 3],
+        [8, 5, 5, 2, 15, 12, 5, 2, 15, 8, 5, 6, 15, 8, 5, 5, 2],
+        [10, 15, 9, 4, 5, 1, 5, 6, 15, 12, 5, 1, 5, 4, 3, 15, 10],
+        [8, 5, 4, 1, 5, 0, 5, 5, 21, 5, 5, 0, 5, 1, 4, 5, 2],
+        [8, 5, 5, 2, 15, 10, 15, 13, 21, 7, 15, 10, 15, 8, 5, 5, 2],
+        [12, 3, 15, 10, 15, 8, 5, 5, 5, 5, 5, 2, 15, 10, 15, 9, 6],
+        [9, 6, 15, 10, 15, 12, 5, 3, 15, 9, 5, 6, 15, 10, 15, 12, 3],
+        [8, 5, 1, 4, 5, 1, 5, 0, 5, 0, 5, 1, 5, 4, 1, 5, 2],
+        [10, 15, 12, 5, 5, 2, 15, 12, 5, 6, 15, 8, 5, 5, 6, 15, 10],
+        [12, 5, 5, 5, 5, 4, 5, 5, 5, 5, 5, 4, 5, 5, 5, 5, 6],
+    ]
+
     def __init__(self):
-        height: int = len(ORIGINAL)
-        width: int = len(ORIGINAL[0])
+        height: int = len(self.CLASSIC_MAP)
+        width: int = len(self.CLASSIC_MAP[0])
 
         maze: brd = []
         for y in range(height):
             row: list[Maze.Cell] = []
             for x in range(width):
                 row.append(
-                    Maze.Cell(value=ORIGINAL[y][x], pos=(x, y))
+                    Maze.Cell(value=self.CLASSIC_MAP[y][x], pos=(x, y))
                 )
             maze.append(row)
         super().__init__(height, width, maze, True)
