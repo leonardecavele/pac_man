@@ -137,7 +137,7 @@ class MazeState:
         self.initial_collectible_count: int = len(self.collectibles)
 
         for ghost in self.ghosts:
-            ghost.house_exit = ghost.corner
+            ghost.house_exit = ghost.house
             ghost.released = False
             ghost.exiting_house = False
             ghost.direction = (0, 0)

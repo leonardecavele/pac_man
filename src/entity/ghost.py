@@ -71,6 +71,29 @@ class Ghost(Entity, ABC):
 
         self.state = new_state
 
+    def can_cross_wall(
+        self,
+        current_cell: Maze.Cell,
+        next_cell: Maze.Cell,
+    ) -> bool:
+        current_is_ghost_house: bool = bool(
+            current_cell.value & Maze.Cell.Walls.GHOST_HOUSE
+        )
+        next_is_ghost_house: bool = bool(
+            next_cell.value & Maze.Cell.Walls.GHOST_HOUSE
+        )
+
+        if current_is_ghost_house and next_is_ghost_house:
+            return True
+
+        if self.state & self.State.EATEN and next_is_ghost_house:
+            return True
+
+        if self.exiting_house and current_is_ghost_house:
+            return True
+
+        return False
+
     def a_star_direction(self, target: vec2i) -> vec2i | None:
         counter: int = 0
 
@@ -127,16 +150,13 @@ class Ghost(Entity, ABC):
 
             visited.add((x, y))
 
+            current_cell = self.maze.maze[y][x]
+
             for direction in Maze.Direction:
                 if (
                     (x, y) == start_pos
                     and back is not None
                     and direction == back
-                ):
-                    continue
-
-                if self.maze.maze[y][x].value & Maze.direction_to_wall(
-                    direction
                 ):
                     continue
 
@@ -146,6 +166,17 @@ class Ghost(Entity, ABC):
                 if not (
                     0 <= new_x < self.maze.width
                     and 0 <= new_y < self.maze.height
+                ):
+                    continue
+
+                next_cell = self.maze.maze[new_y][new_x]
+
+                wall: Maze.Cell.Walls = Maze.direction_to_wall(direction)
+                has_wall: bool = bool(current_cell.value & wall)
+
+                if (
+                    has_wall
+                    and not self.can_cross_wall(current_cell, next_cell)
                 ):
                     continue
 
@@ -159,7 +190,7 @@ class Ghost(Entity, ABC):
                     parent[new_pos] = (x, y)
                     g[new_pos] = new_g
                     h[new_pos] = self.manhattan(new_pos, goal_pos)
-                    push(queue, self.maze.maze[new_y][new_x], new_g + h[new_pos])
+                    push(queue, next_cell, new_g + h[new_pos])
 
         return None
 
@@ -208,9 +239,6 @@ class Ghost(Entity, ABC):
         directions: list[Maze.Direction] = []
 
         current_cell = self.maze.maze[y][x]
-        current_is_ghost_house: bool = bool(
-            current_cell.value & Maze.Cell.Walls.GHOST_HOUSE
-        )
 
         for direction in Maze.Direction:
             if back is not None and direction == back:
@@ -224,15 +252,12 @@ class Ghost(Entity, ABC):
                 continue
 
             next_cell = self.maze.maze[ny][nx]
-            next_is_ghost_house: bool = bool(
-                next_cell.value & Maze.Cell.Walls.GHOST_HOUSE
-            )
-
             wall: Maze.Cell.Walls = Maze.direction_to_wall(direction)
             has_wall: bool = bool(current_cell.value & wall)
 
-            if has_wall and not (
-                current_is_ghost_house and next_is_ghost_house
+            if (
+                has_wall
+                and not self.can_cross_wall(current_cell, next_cell)
             ):
                 continue
 
