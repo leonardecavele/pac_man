@@ -56,7 +56,7 @@ class Ghost(Entity, ABC):
             idx = self.tick // 30 % 2
             self.sprite = self.textures["fleeing"][idx]
             return
-        if not self.released:
+        if self.maze.og and not self.released:
             phase = self.tick // 30 % 4
 
             if phase == 0:
