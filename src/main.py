@@ -12,7 +12,8 @@ def main() -> int:
     parser = Parser("config.json")
     config = parser.run()
 
-    maze: Maze = RandomMaze(13, 13, 10)
+    #maze: Maze = RandomMaze(13, 13, 10)
+    maze: Maze = OriginalMaze()
 
     game: Game = Game(
         maze=maze,

@@ -30,7 +30,7 @@ class Maze(ABC):
             LEFT = 1 << 3
             GHOST_HOUSE = 1 << 4
 
-        value: int = Field(..., ge=0, le=15)
+        value: int = Field(..., ge=0, le=31)
         pos: vec2i = Field(...)
 
         @property
