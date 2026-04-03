@@ -1,4 +1,4 @@
-from dataclasses import dataclass
+from pydantic import BaseModel, Field
 from enum import Enum, auto
 
 from src.entity import Entity, Ghost
@@ -13,10 +13,9 @@ class MazeActionType(Enum):
     GAME_OVER = auto()
 
 
-@dataclass(slots=True)
-class MazeAction:
-    type: MazeActionType
-    score: int = 0
+class MazeAction(BaseModel):
+    type: MazeActionType = Field(...)
+    score: int = Field(default=0)
 
 
 class MazeController:
@@ -37,7 +36,7 @@ class MazeController:
         if ghost_action.type != MazeActionType.NONE:
             return ghost_action
 
-        return MazeAction(MazeActionType.NONE)
+        return MazeAction(type=MazeActionType.NONE)
 
     def _update_timers(self, state: MazeState, dt: float) -> None:
         state.timer += dt
@@ -120,7 +119,8 @@ class MazeController:
             if ghost.target_cell is None:
                 continue
 
-            target_screen_pos = state.geometry.maze_to_screen(ghost.target_cell)
+            target_screen_pos = state.geometry.maze_to_screen(
+                ghost.target_cell)
             reached = ghost.move_to_target(dt, target_screen_pos)
             if not reached:
                 continue
@@ -205,8 +205,8 @@ class MazeController:
 
             if not state.collectibles:
                 return self._finish_level(state, MazeActionType.VICTORY)
-            return MazeAction(MazeActionType.NONE)
-        return MazeAction(MazeActionType.NONE)
+            return MazeAction(type=MazeActionType.NONE)
+        return MazeAction(type=MazeActionType.NONE)
 
     def _resolve_ghost_collisions(self, state: MazeState) -> MazeAction:
         for ghost in state.ghosts:
@@ -216,11 +216,11 @@ class MazeController:
                 ghost.change_state(Ghost.State.EATEN)
                 ghost.update()
                 state.score += state.config.points_per_ghost
-                return MazeAction(MazeActionType.NONE)
+                return MazeAction(type=MazeActionType.NONE)
             if ghost.state == Ghost.State.EATEN:
                 continue
             return self._finish_level(state, MazeActionType.GAME_OVER)
-        return MazeAction(MazeActionType.NONE)
+        return MazeAction(type=MazeActionType.NONE)
 
     def _finish_level(
         self, state: MazeState, action_type: MazeActionType

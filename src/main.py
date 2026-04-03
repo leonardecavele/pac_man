@@ -13,8 +13,8 @@ def main() -> int:
     game: Game = Game(
         maze=maze,
         config=config,
-        width=1000,
-        height=1200,
+        width=700,
+        height=900,
         title="Pac_Man",
         fps=120,
     )

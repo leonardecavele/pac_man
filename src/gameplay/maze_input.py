@@ -1,4 +1,4 @@
-from dataclasses import dataclass
+from pydantic import BaseModel, Field
 
 import pyray as rl
 
@@ -33,9 +33,8 @@ LEFT_KEYS: list[int] = [
 ]
 
 
-@dataclass(slots=True)
-class MazeInputState:
-    direction: vec2i | None = None
+class MazeInputState(BaseModel):
+    direction: vec2i | None = Field(default=None)
 
 
 class MazeInputReader:
