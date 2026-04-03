@@ -1,4 +1,5 @@
 from enum import Enum, IntFlag
+from abc import ABC
 
 from pydantic import BaseModel, Field
 from mazegenerator import MazeGenerator
@@ -6,7 +7,13 @@ from mazegenerator import MazeGenerator
 from src.type import vec2i, brd
 
 
-class Maze:
+class Maze(ABC):
+    def __init__(self, height: int, width: int, maze: brd, og: bool) -> None:
+        self.height: int = height
+        self.width: int = width
+        self.maze: brd = maze
+        self.og: bool = og
+
     class Direction(Enum):
         TOP = (0, -1)
         RIGHT = (1, 0)
@@ -19,8 +26,9 @@ class Maze:
             RIGHT = 1 << 1
             BOT = 1 << 2
             LEFT = 1 << 3
+            GHOST_HOUSE = 1 << 4
 
-        value: int = Field(..., ge=0, le=15)
+        value: int = Field(..., ge=0, le=31)
         pos: vec2i = Field(...)
 
         @property
@@ -38,22 +46,6 @@ class Maze:
         @property
         def left(self) -> bool:
             return bool(self.value & Maze.Cell.Walls.LEFT)
-
-    def __init__(self, height: int, width: int, seed: int) -> None:
-        maze_generator: MazeGenerator = MazeGenerator(
-            (height, width), seed=seed
-        )
-
-        self.maze: brd = []
-        for y in range(height):
-            self.maze.append([])
-            for x in range(width):
-                self.maze[y].append(
-                    Maze.Cell(value=maze_generator.maze[y][x], pos=(x, y))
-                )
-
-        self.height = height
-        self.width = width
 
     @staticmethod
     def direction_to_wall(direction: "Maze.Direction") -> "Maze.Cell.Walls":
@@ -78,3 +70,48 @@ class Maze:
                 return Maze.Direction.BOT
             case Maze.Cell.Walls.LEFT:
                 return Maze.Direction.LEFT
+
+
+class OriginalMaze(Maze):
+    CLASSIC_MAP: list[list[int]] = [
+        [9, 5, 5, 1, 5, 3, 15, 9, 5, 3, 15, 9, 5, 1, 5, 5, 3],
+        [8, 5, 5, 2, 15, 12, 5, 2, 15, 8, 5, 6, 15, 8, 5, 5, 2],
+        [10, 15, 9, 4, 5, 1, 5, 6, 15, 12, 5, 1, 5, 4, 3, 15, 10],
+        [8, 5, 4, 1, 5, 0, 5, 5, 21, 5, 5, 0, 5, 1, 4, 5, 2],
+        [8, 5, 5, 2, 15, 10, 15, 13, 21, 7, 15, 10, 15, 8, 5, 5, 2],
+        [12, 3, 15, 10, 15, 8, 5, 5, 5, 5, 5, 2, 15, 10, 15, 9, 6],
+        [9, 6, 15, 10, 15, 12, 5, 3, 15, 9, 5, 6, 15, 10, 15, 12, 3],
+        [8, 5, 1, 4, 5, 1, 5, 0, 5, 0, 5, 1, 5, 4, 1, 5, 2],
+        [10, 15, 12, 5, 5, 2, 15, 12, 5, 6, 15, 8, 5, 5, 6, 15, 10],
+        [12, 5, 5, 5, 5, 4, 5, 5, 5, 5, 5, 4, 5, 5, 5, 5, 6],
+    ]
+
+    def __init__(self):
+        height: int = len(self.CLASSIC_MAP)
+        width: int = len(self.CLASSIC_MAP[0])
+
+        maze: brd = []
+        for y in range(height):
+            row: list[Maze.Cell] = []
+            for x in range(width):
+                row.append(
+                    Maze.Cell(value=self.CLASSIC_MAP[y][x], pos=(x, y))
+                )
+            maze.append(row)
+        super().__init__(height, width, maze, True)
+
+
+class RandomMaze(Maze):
+    def __init__(self, height: int, width: int, seed: int) -> None:
+        maze_generator = MazeGenerator((height, width), seed=seed)
+
+        maze: brd = []
+        for y in range(height):
+            row: list[Maze.Cell] = []
+            for x in range(width):
+                row.append(
+                    Maze.Cell(value=maze_generator.maze[y][x], pos=(x, y))
+                )
+            maze.append(row)
+
+        super().__init__(height, width, maze, False)
