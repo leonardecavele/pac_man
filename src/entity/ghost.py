@@ -56,6 +56,19 @@ class Ghost(Entity, ABC):
             idx = self.tick // 30 % 2
             self.sprite = self.textures["fleeing"][idx]
             return
+        if not self.released:
+            phase = self.tick // 30 % 4
+
+            if phase == 0:
+                self.sprite = self.textures[self.identifier + "_down"][0]
+            elif phase == 1:
+                self.sprite = self.textures[self.identifier + "_down"][1]
+            elif phase == 2:
+                self.sprite = self.textures[self.identifier + "_up"][0]
+            else:
+                self.sprite = self.textures[self.identifier + "_up"][1]
+            return
+
         dx, dy = self.direction
         idx = self.tick // 30 % 2
         if (dx == 1):

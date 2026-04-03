@@ -233,7 +233,9 @@ class MazeController:
         state.reset()
         return MazeAction(type=action_type, score=final_score)
 
-    def _collides(self, state: MazeState, first: Entity, second: Entity) -> bool:
+    def _collides(
+        self, state: MazeState, first: Entity, second: Entity
+    ) -> bool:
         size: int = state.geometry.cell_size // 2
         return (
             abs(first.screen_pos[0] - second.screen_pos[0]) < size
