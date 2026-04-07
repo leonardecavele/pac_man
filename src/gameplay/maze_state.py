@@ -20,7 +20,7 @@ class MazeState:
         self,
         maze: Maze,
         config: Config,
-        textures: dict[str, list[rl.Texture2D]],
+        textures: dict[str, dict[str, list[rl.Texture2D]] | list[rl.Texture2D]],
         geometry: "MazeGeometry",
         cell_size: int
     ) -> None:
@@ -86,7 +86,7 @@ class MazeState:
         self.pac_man = Pac_man(
             screen_pos=self.geometry.maze_to_screen(pac_man_spawn),
             maze_pos=pac_man_spawn,
-            sprite=self.textures["pac_man_dying"][0],
+            sprite=self.textures["pac_man"]["dying"][0],
             m=self.maze,
             default_velocity_px=self.default_velocity_px,
             textures=self.textures
@@ -95,7 +95,7 @@ class MazeState:
         blinky = Blinky(
             screen_pos=self.geometry.maze_to_screen(blinky_spawn),
             maze_pos=blinky_spawn,
-            sprite=self.textures["blinky_right"][0],
+            sprite=self.textures["blinky"]["right"][0],
             m=self.maze,
             pac_man=self.pac_man,
             textures=self.textures,
@@ -106,7 +106,7 @@ class MazeState:
         inky = Inky(
             screen_pos=self.geometry.maze_to_screen(inky_spawn),
             maze_pos=inky_spawn,
-            sprite=self.textures["inky_right"][0],
+            sprite=self.textures["inky"]["right"][0],
             m=self.maze,
             pac_man=self.pac_man,
             blinky=blinky,
@@ -118,7 +118,7 @@ class MazeState:
         pinky = Pinky(
             screen_pos=self.geometry.maze_to_screen(pinky_spawn),
             maze_pos=pinky_spawn,
-            sprite=self.textures["pinky_right"][0],
+            sprite=self.textures["pinky"]["right"][0],
             m=self.maze,
             pac_man=self.pac_man,
             textures=self.textures,
@@ -129,7 +129,7 @@ class MazeState:
         clyde = Clyde(
             screen_pos=self.geometry.maze_to_screen(clyde_spawn),
             maze_pos=clyde_spawn,
-            sprite=self.textures["clyde_right"][0],
+            sprite=self.textures["clyde"]["right"][0],
             m=self.maze,
             pac_man=self.pac_man,
             textures=self.textures,

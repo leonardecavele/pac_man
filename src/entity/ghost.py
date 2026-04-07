@@ -32,7 +32,7 @@ class Ghost(Entity, ABC):
         house_pos: vec2i,
         corner_pos: vec2i,
         default_velocity_px: int,
-        textures: dict[str, list[rl.Texture2D]]
+        textures: dict[str, dict[str, list[rl.Texture2D]] | list[rl.Texture2D]]
     ) -> None:
         super().__init__(
             screen_pos, maze_pos, sprite, m, default_velocity_px
@@ -60,21 +60,21 @@ class Ghost(Entity, ABC):
             phase = self.tick // 30 % 2
 
             if phase == 0:
-                self.sprite = self.textures[self.identifier + "_down"][0]
+                self.sprite = self.textures[self.identifier]["down"][0]
             elif phase == 1:
-                self.sprite = self.textures[self.identifier + "_up"][1]
+                self.sprite = self.textures[self.identifier]["up"][1]
             return
 
         dx, dy = self.direction
         idx = self.tick // 30 % 2
         if (dx == 1):
-            self.sprite = self.textures[self.identifier + "_right"][idx]
+            self.sprite = self.textures[self.identifier]["right"][idx]
         elif (dx == -1):
-            self.sprite = self.textures[self.identifier + "_left"][idx]
+            self.sprite = self.textures[self.identifier]["left"][idx]
         elif (dy == 1):
-            self.sprite = self.textures[self.identifier + "_down"][idx]
+            self.sprite = self.textures[self.identifier]["down"][idx]
         elif (dy == -1):
-            self.sprite = self.textures[self.identifier + "_up"][idx]
+            self.sprite = self.textures[self.identifier]["up"][idx]
 
     def change_state(self, new_state: "Ghost.State") -> None:
         self.flip = (

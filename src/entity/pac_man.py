@@ -17,13 +17,13 @@ class Pac_man(Entity):
         sprite: str,
         m: Maze,
         default_velocity_px: int,
-        textures: dict[str, list[rl.Texture2D]]
+        textures: dict[str, dict[str, list[rl.Texture2D]] | list[rl.Texture2D]]
     ) -> None:
         super().__init__(screen_pos, maze_pos, sprite, m, default_velocity_px)
         self.input: vec2i | None = None
         self.velocity_px = int(self.default_velocity_px * 0.80)
         self.turn_window: float = 4.5
-        self.textures: dict[str, list[rl.Texture2D]] = textures
+        self.textures = textures
 
     def try_corner(self, maze_to_screen: Callable[[vec2i], vec2i]) -> bool:
         if self.target_cell is None or self.input is None:
@@ -75,15 +75,15 @@ class Pac_man(Entity):
         dx, dy = self.direction
         idx = self.tick // 30 % 2
         if (dx == 0 and dy == 0):
-            self.sprite = self.textures["pac_man_dying"][0]
+            self.sprite = self.textures["pac_man"]["dying"][0]
         elif (dx == 1):
-            self.sprite = self.textures["pac_man_right"][idx]
+            self.sprite = self.textures["pac_man"]["right"][idx]
         elif (dx == -1):
-            self.sprite = self.textures["pac_man_left"][idx]
+            self.sprite = self.textures["pac_man"]["left"][idx]
         elif (dy == 1):
-            self.sprite = self.textures["pac_man_down"][idx]
+            self.sprite = self.textures["pac_man"]["down"][idx]
         elif (dy == -1):
-            self.sprite = self.textures["pac_man_up"][idx]
+            self.sprite = self.textures["pac_man"]["up"][idx]
 
     def update(self, dt: float = 0.0) -> None:
         if self.target_cell is not None:
