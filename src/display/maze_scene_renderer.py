@@ -53,7 +53,18 @@ class MazeSceneRenderer:
 
     def _draw_entity(self, entity, sprite: rl.Texture2D) -> None:
         x, y = self.geometry.get_draw_pos(entity.screen_pos)
-        rl.draw_texture(sprite, x, y, rl.WHITE)
+
+        source = rl.Rectangle(0, 0, sprite.width, sprite.height)
+        dest = rl.Rectangle(x, y, self.geometry.cell_size - 1, self.geometry.cell_size - 1)
+
+        rl.draw_texture_pro(
+            sprite,
+            source,
+            dest,
+            rl.Vector2(0, 0),
+            0.0,
+            rl.WHITE,
+        )
 
     def _ghost_sprite(self, ghost: Ghost) -> rl.Texture2D:
         return ghost.sprite

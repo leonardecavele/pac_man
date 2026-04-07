@@ -12,36 +12,49 @@ class Game:
         self,
         maze: Maze,
         config: Config,
-        width: int = 720,
-        height: int = 720,
+        screen_ratio: float = 0.20,
         title: str = "pac_man",
         fps: int = 60,
         tick_rate: float = 8.0,
     ) -> None:
-        self.width = width
-        self.height = height
-        self.fps = fps
         self.title = title
-        rl.init_window(self.width, self.height, self.title)
-        rl.set_target_fps(self.fps)
+        self.fps = fps
         self.maze: Maze = maze
         self.config: Config = config
+
+        rl.init_window(150, 150, self.title)
+
+        monitor: int = rl.get_current_monitor()
+        monitor_width: int = rl.get_monitor_width(monitor)
+        monitor_height: int = rl.get_monitor_height(monitor)
+
+        self.width = int(monitor_width * screen_ratio)
+        self.height = int(monitor_height * screen_ratio)
+
+        rl.set_window_size(self.width, self.height)
+        rl.set_target_fps(self.fps)
+
         self._compute_cell_gap_size()
-        self.textures: dict[str, rl.Texture2D] = Textures(self.cell_size)._load_textures()
+
+        self.textures: dict[str, rl.Texture2D] = Textures(
+            self.cell_size
+        )._load_textures()
+
         self.views: dict[str, View] = {
             "maze": MazeView(
-                maze=maze,
-                width=width,
-                height=height,
+                maze=self.maze,
+                width=self.width,
+                height=self.height,
                 config=self.config,
                 textures=self.textures,
                 gap=self.gap,
                 cell_size=self.cell_size,
             ),
-            "main_menu": MenuView(width=width, height=height),
-            "end": EndView(width=width, height=height),
+            "main_menu": MenuView(width=self.width, height=self.height),
+            "end": EndView(width=self.width, height=self.height),
         }
-        self.current_view = self.views["main_menu"]
+
+        self.current_view: View = self.views["main_menu"]
         self.tick_rate: float = tick_rate
         self.tick_interval: float = 1.0 / self.tick_rate
 

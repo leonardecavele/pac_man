@@ -38,11 +38,19 @@ class Textures:
         return (textures)
 
     def _get_sprite(self, x: int, y: int) -> rl.Texture2D:
-        image = rl.image_from_image(self.sheet, rl.Rectangle(
-            x * self.tile_size, y * self.tile_size,
-            self.tile_size, self.tile_size
-        ))
-        return (rl.load_texture_from_image(image))
+        image = rl.image_from_image(
+            self.sheet,
+            rl.Rectangle(
+                x * self.tile_size,
+                y * self.tile_size,
+                self.tile_size,
+                self.tile_size,
+            )
+        )
+        texture = rl.load_texture_from_image(image)
+        rl.set_texture_filter(texture, rl.TEXTURE_FILTER_POINT)
+        rl.unload_image(image)
+        return texture
 
     # -- PACMAN --
     def _load_pacman_texture_right(self) -> list[rl.Texture2D]:

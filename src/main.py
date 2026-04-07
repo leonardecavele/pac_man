@@ -12,24 +12,22 @@ def main() -> int:
     parser = Parser("config.json")
     config = parser.run()
 
-    maze: Maze = RandomMaze(12, 12, 13)
-    game: Game = Game(
-        maze=maze,
-        config=config,
-        width=700,
-        height=900,
-        title="Pac_Man",
-        fps=120,
-    )
-    #maze: Maze = OriginalMaze()
+    #maze: Maze = RandomMaze(12, 12, 13)
     #game: Game = Game(
     #    maze=maze,
     #    config=config,
-    #    width=1050,
-    #    height=1050,
+    #    screen_ratio=0.42,
     #    title="Pac_Man",
     #    fps=120,
     #)
+    maze: Maze = OriginalMaze()
+    game: Game = Game(
+        maze=maze,
+        config=config,
+        screen_ratio=0.42,
+        title="Pac_Man",
+        fps=120,
+    )
 
     game.run()
     return ErrorCode.NO_ERROR
