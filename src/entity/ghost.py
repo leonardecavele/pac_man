@@ -115,12 +115,6 @@ class Ghost(Entity, ABC):
         if current_is_ghost_house and next_is_ghost_house:
             return True
 
-        if self.state & self.State.EATEN and next_is_ghost_house:
-            return True
-
-        if self.exiting_house and current_is_ghost_house:
-            return True
-
         return False
 
     def a_star_direction(self, target: vec2i) -> vec2i | None:

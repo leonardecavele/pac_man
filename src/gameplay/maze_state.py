@@ -154,6 +154,14 @@ class MazeState:
             for x in range(self.maze.width):
                 if self.maze.maze[y][x].value == 15:
                     continue
+                if self.maze.og:
+                    if (
+                        (x, y) == (7, 4)
+                        or (x, y) == (8, 4)
+                        or (x, y) == (9, 4)
+                    ):
+                        continue
+
                 common_args = {
                     "screen_pos": self.geometry.maze_to_screen((x, y)),
                     "maze_pos": (x, y),
