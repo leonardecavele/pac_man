@@ -1,7 +1,7 @@
 from pydantic import BaseModel, Field
 from enum import Enum, auto
 
-from src.entity import Entity, Ghost
+from src.entity import Entity, Ghost, SuperPacgum
 
 from .maze_input import MazeInputState
 from .maze_state import MazeState
@@ -22,6 +22,10 @@ class MazeController:
     def update(
         self, state: MazeState, dt: float, inputs: MazeInputState
     ) -> MazeAction:
+        if state.freeze_time > 0.0:
+            state.freeze_time -= dt
+            return MazeAction(type=MazeActionType.NONE)
+
         self._update_timers(state, dt)
         self._apply_input(state, inputs)
         self._update_collectibles(state, dt)
@@ -206,7 +210,8 @@ class MazeController:
             state.collectibles.remove(collectible)
             collectible.on_collect(state)
             self._update_elroy_state(state)
-
+            if isinstance(collectible, SuperPacgum):
+                state.freeze(0.05)
             if not state.collectibles:
                 return self._finish_level(state, MazeActionType.VICTORY)
             return MazeAction(type=MazeActionType.NONE)
@@ -220,6 +225,7 @@ class MazeController:
                 ghost.change_state(Ghost.State.EATEN)
                 ghost.update()
                 state.score += state.config.points_per_ghost
+                state.freeze(0.75)
                 return MazeAction(type=MazeActionType.NONE)
             if ghost.state == Ghost.State.EATEN:
                 continue

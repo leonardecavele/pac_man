@@ -28,6 +28,7 @@ class MazeState:
         self.config = config
         self.textures = textures
         self.geometry = geometry
+        self.freeze_time: float = 0.0
         self.fright_duration: float = 6.0
         self.default_velocity_px: int = DEFAULT_VELOCITY_CELLS * cell_size
         self.ghost_behavior: dict[float, Ghost.State] = {
@@ -215,6 +216,9 @@ class MazeState:
             if ghost.state == Ghost.State.FRIGHTENED:
                 ghost.load_save()
                 ghost.update()
+
+    def freeze(self, duration: float) -> None:
+        self.freeze_time = duration
 
     def collectible_ratio_remaining(self) -> float:
         if self.initial_collectible_count == 0:
