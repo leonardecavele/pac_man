@@ -13,14 +13,15 @@ class Textures:
         self.sheet = rl.load_image("assets/Sprite_Sheet.png")
 
         textures = {
-            "pacgum": self._load_pacgum_texture(),
-            "super_pacgum": self._load_superpacgum_texture(),
+            "pacgum": self._load_pacgum_textures(),
+            "super_pacgum": self._load_superpacgum_textures(),
             "pac_man": self._load_pac_man_textures(),
             "blinky": self._load_blinky_textures(),
             "pinky": self._load_pinky_textures(),
             "inky": self._load_inky_textures(),
             "clyde": self._load_clyde_textures(),
-            "fleeing": self._load_fleeing_texture(),
+            "fleeing": self._load_fleeing_textures(),
+            "eaten": self._load_eaten_textures(),
         }
 
         rl.unload_image(self.sheet)
@@ -109,10 +110,18 @@ class Textures:
             down=[(6, 7), (7, 7)],
         )
 
-    def _load_fleeing_texture(self) -> list[rl.Texture2D]:
+    def _load_fleeing_textures(self) -> list[rl.Texture2D]:
         return self._load([(8, 4), (9, 4)])
 
-    def _load_pacgum_texture(self) -> rl.Texture2D:
+    def _load_eaten_textures(self) -> dict[str, list[rl.Texture2D]]:
+        return self._load_directional_textures(
+            right=[(8, 5)],
+            left=[(9, 5)],
+            up=[(10, 5)],
+            down=[(11, 5)]
+        )
+
+    def _load_pacgum_textures(self) -> rl.Texture2D:
         image = rl.gen_image_color(
             self.cell_size - 1,
             self.cell_size - 1,
@@ -129,7 +138,7 @@ class Textures:
         rl.unload_image(image)
         return texture
 
-    def _load_superpacgum_texture(self) -> rl.Texture2D:
+    def _load_superpacgum_textures(self) -> rl.Texture2D:
         image = rl.gen_image_color(
             self.cell_size - 1,
             self.cell_size - 1,

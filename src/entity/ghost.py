@@ -52,10 +52,24 @@ class Ghost(Entity, ABC):
 
     def animate(self):
         self.tick += 1
+        dx, dy = self.direction
+
         if (self.state == Ghost.State.FRIGHTENED):
             idx = self.tick // 30 % 2
             self.sprite = self.textures["fleeing"][idx]
             return
+
+        if (self.state == Ghost.State.EATEN):
+            if (dx == 1):
+                self.sprite = self.textures["eaten"]["right"][0]
+            elif (dx == -1):
+                self.sprite = self.textures["eaten"]["left"][0]
+            elif (dy == 1):
+                self.sprite = self.textures["eaten"]["down"][0]
+            elif (dy == -1):
+                self.sprite = self.textures["eaten"]["up"][0]
+            return
+
         if self.maze.og and not self.released:
             phase = self.tick // 30 % 2
 
@@ -65,7 +79,6 @@ class Ghost(Entity, ABC):
                 self.sprite = self.textures[self.identifier]["up"][1]
             return
 
-        dx, dy = self.direction
         idx = self.tick // 30 % 2
         if (dx == 1):
             self.sprite = self.textures[self.identifier]["right"][idx]
