@@ -73,7 +73,7 @@ class Pac_man(Entity):
     def animate(self):
         self.tick += 1
         dx, dy = self.direction
-        idx = self.tick // 15 % 2
+        idx = self.tick // 8 % 2
         if (dx == 0 and dy == 0):
             self.sprite = self.textures["pac_man"]["dying"][0]
         elif (dx == 1):
