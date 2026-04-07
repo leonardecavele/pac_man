@@ -24,6 +24,7 @@ class MazeController:
     ) -> MazeAction:
         if state.freeze_time > 0.0:
             state.freeze_time -= dt
+            self._update_collectibles(state, dt)
             return MazeAction(type=MazeActionType.NONE)
 
         self._update_timers(state, dt)
