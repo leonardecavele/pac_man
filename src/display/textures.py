@@ -131,8 +131,8 @@ class Textures:
             image,
             self.cell_size // 2,
             self.cell_size // 2,
-            self.cell_size // 10,
-            rl.WHITE,
+            self.cell_size // 12,
+            rl.BEIGE,
         )
         texture = rl.load_texture_from_image(image)
         rl.unload_image(image)
@@ -149,7 +149,7 @@ class Textures:
             self.cell_size // 2,
             self.cell_size // 2,
             self.cell_size // 5,
-            rl.WHITE,
+            rl.BEIGE,
         )
         texture = rl.load_texture_from_image(image)
         rl.unload_image(image)
