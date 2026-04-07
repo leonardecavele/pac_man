@@ -1,16 +1,14 @@
 import pyray as rl
-
 from src.display import Textures
 from src.display.views import EndView, MazeView, MenuView
 from src.display.views.view import View, ViewEventType
-from src.maze import Maze
+from src.maze import Maze, OriginalMaze, RandomMaze
 from src.parsing.config import Config
 
 
 class Game:
     def __init__(
         self,
-        maze: Maze,
         config: Config,
         screen_ratio: float = 0.20,
         title: str = "pac_man",
@@ -19,7 +17,6 @@ class Game:
     ) -> None:
         self.title = title
         self.fps = fps
-        self.maze: Maze = maze
         self.config: Config = config
 
         rl.init_window(150, 150, self.title)
@@ -34,22 +31,7 @@ class Game:
         rl.set_window_size(self.width, self.height)
         rl.set_target_fps(self.fps)
 
-        self._compute_cell_gap_size()
-
-        self.textures: dict[str, rl.Texture2D] = Textures(
-            self.cell_size
-        )._load_textures()
-
         self.views: dict[str, View] = {
-            "maze": MazeView(
-                maze=self.maze,
-                width=self.width,
-                height=self.height,
-                config=self.config,
-                textures=self.textures,
-                gap=self.gap,
-                cell_size=self.cell_size,
-            ),
             "main_menu": MenuView(width=self.width, height=self.height),
             "end": EndView(width=self.width, height=self.height),
         }
@@ -77,7 +59,25 @@ class Game:
 
             if event.type == ViewEventType.QUIT:
                 break
-            if event.type == ViewEventType.CHANGE_VIEW:
+            if event.type == ViewEventType.START_GAME:
+                if event.message == "random":
+                    self.maze = RandomMaze(12, 12, 13)
+                elif event.message == "classic":
+                    self.maze: Maze = OriginalMaze()
+                self._compute_cell_gap_size()
+                self.textures: dict[str, rl.Texture2D] = Textures(
+                    self.cell_size
+                )._load_textures()
+                maze_view: View = MazeView(
+                    maze=self.maze,
+                    width=self.width,
+                    height=self.height,
+                    config=self.config,
+                    textures=self.textures,
+                    gap=self.gap,
+                    cell_size=self.cell_size
+                )
+                self.views[event.message] = maze_view
                 self.current_view = self.views[event.message]
                 continue
             if event.type == ViewEventType.END:
