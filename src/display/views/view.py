@@ -6,6 +6,7 @@ from pydantic import BaseModel, Field
 class ViewEventType(Enum):
     NONE = auto()
     START_GAME = auto()
+    CHANGE_VIEW = auto()
     QUIT = auto()
     END = auto()
 

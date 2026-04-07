@@ -27,7 +27,7 @@ class Pacgum(Collectible):
 class SuperPacgum(Collectible):
     def __init__(self, *args, points: int, **kwargs) -> None:
         super().__init__(*args, points=points, **kwargs)
-        self.blink_interval: float = 0.40
+        self.blink_interval: float = 0.15
         self._elapsed: float = 0.0
 
     def update(self, dt: float = 0.0) -> None:
