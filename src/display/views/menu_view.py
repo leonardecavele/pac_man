@@ -53,8 +53,10 @@ class MenuView(View):
         self.random_btn.draw()
         self.inst_btn.draw()
         self.exit_btn.draw()
-        if (self.state == State.BTN_ANIM):
+        if self.state == State.BTN_ANIM:
             self._draw_btn_anim()
+        elif self.state == State.CLOSE_ANIM:
+            self._draw_close_anim()
 
     def _draw_btn_anim(self):
         src = rl.Rectangle(0, 0, 32, 32)
@@ -67,11 +69,22 @@ class MenuView(View):
             rl.BLACK)
         rl.draw_texture_pro(texture, src, dst, rl.Vector2(0, 0), 0, rl.WHITE)
 
+    def _draw_close_anim(self):
+        src = rl.Rectangle(0, 0, 32, 32)
+        dst = rl.Rectangle(
+            self.anim_pos[0], self.anim_pos[1], self.height, self.height)
+        texture = self.textures["pac_man"]["right"][self.anim_frame // 8 % 2]
+        rl.draw_rectangle(
+            0, 0,
+            int(self.anim_pos[0]) + self.height // 2, self.height,
+            rl.BLACK)
+        rl.draw_texture_pro(texture, src, dst, rl.Vector2(0, 0), 0, rl.WHITE)
+
     def update(self, dt: float) -> ViewEvent:
         match self.state:
             case State.NORMAL:
                 return (self._update_normal(dt))
-            case State.BTN_ANIM:
+            case State.BTN_ANIM | State.CLOSE_ANIM:
                 return (self._update_anim(dt))
         return (ViewEvent(type=ViewEventType.NONE))
 
@@ -171,7 +184,13 @@ class MenuView(View):
                 self.pending_event = ViewEvent(type=ViewEventType.NONE)
                 return (ViewEvent(type=ViewEventType.NONE))
             if (self.exit_btn.contains(mouse.x, mouse.y)):
-                return (ViewEvent(type=ViewEventType.QUIT))
+                self.anim_timer = 0
+                self.state = State.CLOSE_ANIM
+                self.anim_pos = [-self.height, 0]
+                self.anim_size = self.width + self.height * 2
+                self.anim_frame = 0
+                self.pending_event = ViewEvent(type=ViewEventType.QUIT)
+                return (ViewEvent(type=ViewEventType.NONE))
 
         return (ViewEvent(type=ViewEventType.NONE))
 
