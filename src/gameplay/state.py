@@ -7,7 +7,7 @@ from src.entity import (
 )
 from src.maze import Maze
 from src.parsing import Config
-from src.type import vec2i
+from src.type import vec2i, Direction
 
 if TYPE_CHECKING:
     from .helper import GameGeometry
@@ -58,6 +58,9 @@ class GameState:
         self.global_reset()
         self.entity_reset()
 
+        self.start: bool = True
+        self.freeze(2)
+
     def global_reset(self) -> None:
         self.HP = self.config.lives
         self.score: int = 0
@@ -102,18 +105,19 @@ class GameState:
         blinky = Blinky(
             screen_pos=self.geometry.maze_to_screen(blinky_spawn),
             maze_pos=blinky_spawn,
-            sprite=self.textures["blinky"]["right"][0],
+            sprite=self.textures["blinky"]["left"][0],
             m=self.maze,
             pac_man=self.pac_man,
             textures=self.textures,
             house_pos=blinky_spawn,
             default_velocity_px=self.default_velocity_px
         )
+        blinky.direction = Direction.LEFT.value
 
         inky = Inky(
             screen_pos=self.geometry.maze_to_screen(inky_spawn),
             maze_pos=inky_spawn,
-            sprite=self.textures["inky"]["right"][0],
+            sprite=self.textures["inky"]["up"][0],
             m=self.maze,
             pac_man=self.pac_man,
             blinky=blinky,
@@ -121,38 +125,49 @@ class GameState:
             house_pos=inky_spawn,
             default_velocity_px=self.default_velocity_px
         )
+        inky.direction = Direction.TOP.value
 
         pinky = Pinky(
             screen_pos=self.geometry.maze_to_screen(pinky_spawn),
             maze_pos=pinky_spawn,
-            sprite=self.textures["pinky"]["right"][0],
+            sprite=self.textures["pinky"]["down"][0],
             m=self.maze,
             pac_man=self.pac_man,
             textures=self.textures,
             house_pos=pinky_spawn,
             default_velocity_px=self.default_velocity_px
         )
+        pinky.direction = Direction.BOT.value
 
         clyde = Clyde(
             screen_pos=self.geometry.maze_to_screen(clyde_spawn),
             maze_pos=clyde_spawn,
-            sprite=self.textures["clyde"]["right"][0],
+            sprite=self.textures["clyde"]["up"][0],
             m=self.maze,
             pac_man=self.pac_man,
             textures=self.textures,
             house_pos=clyde_spawn,
             default_velocity_px=self.default_velocity_px
         )
+        clyde.direction = Direction.TOP.value
 
         self.ghosts: list[Ghost] = [blinky, inky, pinky, clyde]
 
         for ghost in self.ghosts:
-            ghost.house_exit = ghost.house
+            if self.maze.og:
+                ghost.house_exit = house_exit
+            else:
+                ghost.house_exit = ghost.house
             ghost.released = False
             ghost.exiting_house = False
-            ghost.direction = (0, 0)
             ghost.change_state(self.current_ghost_mode)
-            ghost.update()
+            ghost.flip = False
+
+        blinky.released = True
+        blinky.exiting_house = False
+        blinky.direction = Direction.LEFT.value
+        blinky.origin_cell = blinky.maze_pos
+        blinky.target_cell = (blinky.maze_pos[0] - 1, blinky.maze_pos[1])
 
     def _gen_collectibles(self) -> list[Collectible]:
         pacgums: list[Collectible] = []

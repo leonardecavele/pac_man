@@ -31,6 +31,8 @@ class GameController:
             state.ghosts = []
             self._update_pac_man(state, dt)
             if not state.pac_man.dying:
+                state.start = True
+                state.freeze(2)
                 if state.HP < 1:
                     return self._finish_level(state, GameActionType.GAME_OVER)
                 self._retry_level(state)
@@ -126,15 +128,12 @@ class GameController:
                     continue
                 ghost.released = True
                 ghost.exiting_house = True
-                ghost.direction = (0, 0)
                 ghost.origin_cell = None
                 ghost.target_cell = None
 
             if ghost.exiting_house:
                 self._update_ghost_house_exit(state, ghost, dt)
                 continue
-
-            ghost.update(dt)
 
             if ghost.target_cell is None:
                 continue
