@@ -6,26 +6,30 @@ from src.display.components import Button
 
 class MenuView(View):
     def __init__(self, width: int, height: int):
-        self.classic_btn = Button(1, 45, "CLASSIC", 40, lambda: None)
-        self.classic_btn.x = width // 2 - self.classic_btn.w // 2
-        self.classic_btn.y = (height // 2) - self.classic_btn.h
+        self.width = width
+        self.height = height
+        col1 = width // 20
+        self.font_size = self.height // 16
+        self.classic_btn = Button(
+            col1, 45, "CLASSIC", self.font_size, lambda: None)
+        self.random_btn = Button(
+            col1, 45, "RANDOM", self.font_size, lambda: None)
+        self.inst_btn = Button(col1, 45, "INSTRUCTIONS",
+                               self.font_size, lambda: None)
+        self.exit_btn = Button(col1, 45, "EXIT", self.font_size, lambda: None)
 
-        self.random_btn = Button(1, 45, "RANDOM", 40, lambda: None)
-        self.random_btn.x = width // 2 - self.random_btn.w // 2
-        self.random_btn.y = (height // 2)
-
-        self.exit_btn = Button(1, 45, "EXIT", 40, lambda: None)
-        self.exit_btn.x = width // 2 - self.exit_btn.w // 2
-        self.exit_btn.y = (height // 2) + self.classic_btn.h
-
-        self.btns: list[Button] = []
+        btn_h = self.classic_btn.h
+        start_y = (height - 3 * btn_h) // 2
+        self.classic_btn.y = start_y
+        self.random_btn.y = start_y + btn_h
+        self.inst_btn.y = start_y + 2 * btn_h
+        self.exit_btn.y = start_y + 3 * btn_h
 
     def draw(self):
         rl.clear_background(rl.BLACK)
-        for btn in self.btns:
-            btn.draw()
         self.classic_btn.draw()
         self.random_btn.draw()
+        self.inst_btn.draw()
         self.exit_btn.draw()
 
     def update(self, dt: float) -> ViewEvent:
@@ -44,14 +48,20 @@ class MenuView(View):
 
         # color
         if (self.classic_btn.contains(mouse.x, mouse.y)):
-            self.classic_btn.color = rl.YELLOW
+            self.classic_btn.color = rl.BLUE
         else:
             self.classic_btn.color = rl.WHITE
 
         if (self.random_btn.contains(mouse.x, mouse.y)):
-            self.random_btn.color = rl.BLUE
+            self.random_btn.color = rl.PINK
         else:
             self.random_btn.color = rl.WHITE
+
+        if (self.inst_btn.contains(mouse.x, mouse.y)):
+            self.inst_btn.color = rl.ORANGE
+        else:
+            self.inst_btn.color = rl.WHITE
+
         if (self.exit_btn.contains(mouse.x, mouse.y)):
             self.exit_btn.color = rl.RED
         else:
@@ -59,9 +69,6 @@ class MenuView(View):
 
         # button pressed
         if (rl.is_mouse_button_pressed(rl.MOUSE_LEFT_BUTTON)):
-            for btn in self.btns:
-                if (btn.contains(mouse.x, mouse.y)):
-                    btn.action()
             if (self.classic_btn.contains(mouse.x, mouse.y)):
                 return (
                     ViewEvent(
