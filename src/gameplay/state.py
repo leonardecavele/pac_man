@@ -162,6 +162,8 @@ class GameState:
             ghost.exiting_house = False
             ghost.change_state(self.current_ghost_mode)
             ghost.flip = False
+            ghost.origin_cell = None
+            ghost.target_cell = None
 
         blinky.released = True
         blinky.exiting_house = False

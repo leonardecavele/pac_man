@@ -161,7 +161,10 @@ class Ghost(Entity, ABC):
         start_x, start_y = self.maze_pos
         goal_x, goal_y = target
 
-        if not (0 <= goal_x < self.maze.width and 0 <= goal_y < self.maze.height):
+        if not (
+            0 <= goal_x < self.maze.width
+            and 0 <= goal_y < self.maze.height
+        ):
             return None
 
         start_pos: vec2i = (start_x, start_y)
@@ -188,7 +191,10 @@ class Ghost(Entity, ABC):
 
             if (x, y) == goal_pos:
                 current_pos: vec2i = (x, y)
-                while current_pos in parent and parent[current_pos] != start_pos:
+                while (
+                    current_pos in parent
+                    and parent[current_pos] != start_pos
+                ):
                     current_pos = parent[current_pos]
 
                 if current_pos not in parent:

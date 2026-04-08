@@ -116,16 +116,17 @@ class GameController:
         pac_man.origin_cell = None
         pac_man.target_cell = None
 
-
     def _update_ghosts(self, state: GameState, dt: float) -> None:
         for ghost in state.ghosts:
             ghost.animate()
+
             if not ghost.released:
                 release_time = state.ghost_release_schedule.get(
                     ghost.identifier, 0.0
                 )
                 if state.ghost_schedule_time < release_time:
                     continue
+
                 ghost.released = True
                 ghost.exiting_house = True
                 ghost.origin_cell = None
@@ -136,10 +137,12 @@ class GameController:
                 continue
 
             if ghost.target_cell is None:
+                ghost.update()
+
+            if ghost.target_cell is None:
                 continue
 
-            target_screen_pos = state.geometry.maze_to_screen(
-                ghost.target_cell)
+            target_screen_pos = state.geometry.maze_to_screen(ghost.target_cell)
             reached = ghost.move_to_target(dt, target_screen_pos)
             if not reached:
                 continue
@@ -154,6 +157,41 @@ class GameController:
                 if target is not None and ghost.maze_pos == target:
                     ghost.load_save()
 
+            ghost.update()
+
+
+    def _update_ghost_house_exit(
+        self, state: GameState, ghost: Ghost, dt: float
+    ) -> None:
+        if ghost.target_cell is None:
+            next_direction = ghost.a_star_direction(ghost.house_exit)
+
+            if next_direction is None:
+                ghost.exiting_house = False
+                ghost.direction = (0, 0)
+                ghost.update()
+                return
+
+            ghost.direction = next_direction
+            ghost.origin_cell = ghost.maze_pos
+            ghost.target_cell = (
+                ghost.maze_pos[0] + next_direction[0],
+                ghost.maze_pos[1] + next_direction[1],
+            )
+
+        target_screen_pos = state.geometry.maze_to_screen(ghost.target_cell)
+        reached = ghost.move_to_target(dt, target_screen_pos)
+        if not reached:
+            return
+
+        ghost.screen_pos = target_screen_pos
+        ghost.maze_pos = ghost.target_cell
+        ghost.origin_cell = None
+        ghost.target_cell = None
+
+        if ghost.maze_pos == ghost.house_exit:
+            ghost.exiting_house = False
+            ghost.direction = (0, 0)
             ghost.update()
 
     def _update_elroy_state(self, state: GameState) -> None:
@@ -185,38 +223,6 @@ class GameController:
             if blinky.state in (Ghost.State.ELROY1, Ghost.State.ELROY2):
                 blinky.change_state(state.current_ghost_mode)
                 blinky.update()
-
-    def _update_ghost_house_exit(
-        self, state: GameState, ghost: Ghost, dt: float
-    ) -> None:
-        if ghost.target_cell is None:
-            next_direction = ghost.a_star_direction(ghost.house_exit)
-            if next_direction is None:
-                ghost.exiting_house = False
-                ghost.update()
-                return
-
-            ghost.direction = next_direction
-            ghost.origin_cell = ghost.maze_pos
-            ghost.target_cell = (
-                ghost.maze_pos[0] + next_direction[0],
-                ghost.maze_pos[1] + next_direction[1],
-            )
-
-        target_screen_pos = state.geometry.maze_to_screen(ghost.target_cell)
-        reached = ghost.move_to_target(dt, target_screen_pos)
-        if not reached:
-            return
-
-        ghost.screen_pos = target_screen_pos
-        ghost.maze_pos = ghost.target_cell
-        ghost.origin_cell = None
-        ghost.target_cell = None
-
-        if ghost.maze_pos == ghost.house_exit:
-            ghost.exiting_house = False
-            ghost.direction = (0, 0)
-            ghost.update()
 
     def _resolve_collectible_collisions(self, state: GameState) -> GameAction:
         for collectible in state.collectibles[:]:
