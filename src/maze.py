@@ -4,7 +4,7 @@ from abc import ABC
 from pydantic import BaseModel, Field
 from mazegenerator import MazeGenerator
 
-from src.type import vec2i, brd
+from src.type import vec2i, brd, Direction
 
 
 class Maze(ABC):
@@ -13,12 +13,6 @@ class Maze(ABC):
         self.width: int = width
         self.maze: brd = maze
         self.og: bool = og
-
-    class Direction(Enum):
-        TOP = (0, -1)
-        RIGHT = (1, 0)
-        BOT = (0, 1)
-        LEFT = (-1, 0)
 
     class Cell(BaseModel):
         class Walls(IntFlag):
@@ -48,30 +42,30 @@ class Maze(ABC):
             return bool(self.value & Maze.Cell.Walls.LEFT)
 
     @staticmethod
-    def direction_to_wall(direction: "Maze.Direction") -> "Maze.Cell.Walls":
+    def direction_to_wall(direction: "Direction") -> "Maze.Cell.Walls":
         match direction:
-            case Maze.Direction.TOP:
+            case Direction.TOP:
                 return Maze.Cell.Walls.TOP
-            case Maze.Direction.RIGHT:
+            case Direction.RIGHT:
                 return Maze.Cell.Walls.RIGHT
-            case Maze.Direction.BOT:
+            case Direction.BOT:
                 return Maze.Cell.Walls.BOT
-            case Maze.Direction.LEFT:
+            case Direction.LEFT:
                 return Maze.Cell.Walls.LEFT
 
     @staticmethod
-    def wall_to_direction(wall: "Maze.Cell.Walls") -> "Maze.Direction":
+    def wall_to_direction(wall: "Maze.Cell.Walls") -> "Direction":
         match wall:
             case Maze.Cell.Walls.TOP:
-                return Maze.Direction.TOP
+                return Direction.TOP
             case Maze.Cell.Walls.RIGHT:
-                return Maze.Direction.RIGHT
+                return Direction.RIGHT
             case Maze.Cell.Walls.BOT:
-                return Maze.Direction.BOT
+                return Direction.BOT
             case Maze.Cell.Walls.LEFT:
-                return Maze.Direction.LEFT
+                return Direction.LEFT
             case _:
-                return (Maze.Direction.BOT)
+                return (Direction.BOT)
 
 
 class ClassicMaze(Maze):

@@ -10,7 +10,7 @@ from .entity import Entity
 from .pac_man import Pac_man
 
 from src.maze import Maze
-from src.type import vec2i, vec2f
+from src.type import vec2i, vec2f, Direction
 
 
 class Ghost(Entity, ABC):
@@ -159,7 +159,7 @@ class Ghost(Entity, ABC):
         if start_pos == goal_pos:
             return None
 
-        back: Maze.Direction | None = self.back_direction
+        back: Direction | None = self.back_direction
         visited: set[vec2i] = set()
         parent: dict[vec2i, vec2i] = {}
         queue: list[tuple[int, int, Maze.Cell]] = []
@@ -194,7 +194,7 @@ class Ghost(Entity, ABC):
 
             current_cell = self.maze.maze[y][x]
 
-            for direction in Maze.Direction:
+            for direction in Direction:
                 if (
                     (x, y) == start_pos
                     and back is not None
@@ -276,13 +276,13 @@ class Ghost(Entity, ABC):
 
         self.direction = best_direction.value
 
-    def legal_directions(self, x: int, y: int) -> list[Maze.Direction]:
+    def legal_directions(self, x: int, y: int) -> list[Direction]:
         back = self.back_direction
-        directions: list[Maze.Direction] = []
+        directions: list[Direction] = []
 
         current_cell = self.maze.maze[y][x]
 
-        for direction in Maze.Direction:
+        for direction in Direction:
             if back is not None and direction == back:
                 continue
 

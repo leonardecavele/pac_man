@@ -3,7 +3,7 @@ from pydantic import BaseModel, Field
 import pyray as rl
 
 from src.maze import Maze
-from src.type import vec2i
+from src.type import vec2i, Direction
 
 
 UP_KEYS: list[int] = [
@@ -40,11 +40,11 @@ class GameInputState(BaseModel):
 class GameInputReader:
     def read(self) -> GameInputState:
         if any(rl.is_key_down(key) for key in UP_KEYS):
-            return GameInputState(direction=Maze.Direction.TOP.value)
+            return GameInputState(direction=Direction.TOP.value)
         if any(rl.is_key_down(key) for key in RIGHT_KEYS):
-            return GameInputState(direction=Maze.Direction.RIGHT.value)
+            return GameInputState(direction=Direction.RIGHT.value)
         if any(rl.is_key_down(key) for key in DOWN_KEYS):
-            return GameInputState(direction=Maze.Direction.BOT.value)
+            return GameInputState(direction=Direction.BOT.value)
         if any(rl.is_key_down(key) for key in LEFT_KEYS):
-            return GameInputState(direction=Maze.Direction.LEFT.value)
+            return GameInputState(direction=Direction.LEFT.value)
         return GameInputState()

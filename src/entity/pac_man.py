@@ -6,7 +6,7 @@ from collections.abc import Callable
 from .entity import Entity
 
 from src.maze import Maze
-from src.type import vec2i, vec2f
+from src.type import vec2i, vec2f, Direction
 
 
 class Pac_man(Entity):
@@ -90,7 +90,7 @@ class Pac_man(Entity):
             if (
                 self.input is not None
                 and self.back_direction is not None
-                and Maze.Direction(self.input) == self.back_direction
+                and Direction(self.input) == self.back_direction
                 and self.origin_cell is not None
             ):
                 self.direction = self.input

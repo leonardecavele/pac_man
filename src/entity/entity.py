@@ -5,7 +5,7 @@ from abc import ABC, abstractmethod
 import pyray as rl
 
 from src.maze import Maze
-from src.type import vec2i, vec2f
+from src.type import vec2i, vec2f, Direction
 
 
 class Entity(ABC):
@@ -56,21 +56,21 @@ class Entity(ABC):
     def valid_direction_from(self, pos: vec2i, direction: vec2i) -> bool:
         x, y = pos
 
-        if direction == Maze.Direction.TOP.value:
+        if direction == Direction.TOP.value:
             return not self.maze.maze[y][x].top
-        if direction == Maze.Direction.RIGHT.value:
+        if direction == Direction.RIGHT.value:
             return not self.maze.maze[y][x].right
-        if direction == Maze.Direction.BOT.value:
+        if direction == Direction.BOT.value:
             return not self.maze.maze[y][x].bot
-        if direction == Maze.Direction.LEFT.value:
+        if direction == Direction.LEFT.value:
             return not self.maze.maze[y][x].left
         return False
 
     @property
-    def back_direction(self) -> Maze.Direction | None:
+    def back_direction(self) -> Direction | None:
         if self.direction == (0, 0):
             return None
-        return Maze.Direction((-self.direction[0], -self.direction[1]))
+        return Direction((-self.direction[0], -self.direction[1]))
 
     @abstractmethod
     def update(self, dt: float = 0.0) -> None:
