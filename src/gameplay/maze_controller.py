@@ -50,6 +50,8 @@ class MazeController:
             state.fright_time += dt
             if state.fright_time >= state.fright_duration:
                 state.end_fright_mode()
+            if (state.fright_time >= state.fright_duration - 1):
+                state.blink_fright_mode()
             return
 
         state.ghost_schedule_time += dt
