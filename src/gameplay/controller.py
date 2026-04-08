@@ -32,6 +32,7 @@ class GameController:
             self._update_pac_man(state, dt)
             if not state.pac_man.dying:
                 state.start = True
+                state.timer = 0
                 state.freeze(2)
                 if state.HP < 1:
                     return self._finish_level(state, GameActionType.GAME_OVER)
@@ -142,7 +143,8 @@ class GameController:
             if ghost.target_cell is None:
                 continue
 
-            target_screen_pos = state.geometry.maze_to_screen(ghost.target_cell)
+            target_screen_pos = state.geometry.maze_to_screen(
+                ghost.target_cell)
             reached = ghost.move_to_target(dt, target_screen_pos)
             if not reached:
                 continue
