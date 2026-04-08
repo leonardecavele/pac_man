@@ -50,7 +50,7 @@ class GameController:
             state.fright_time += dt
             if state.fright_time >= state.fright_duration:
                 state.end_fright_mode()
-            if (state.fright_time >= state.fright_duration - 1):
+            elif (state.fright_time >= state.fright_duration - 2.25):
                 state.blink_fright_mode()
             return
 

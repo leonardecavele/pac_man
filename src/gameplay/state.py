@@ -204,7 +204,7 @@ class GameState:
             if ghost.state == Ghost.State.EATEN:
                 continue
 
-            if ghost.state != Ghost.State.FRIGHTENED:
+            if ghost.state != (Ghost.State.FRIGHTENED | Ghost.State.BLINK):
                 ghost.save_state()
 
             ghost.change_state(Ghost.State.FRIGHTENED)
@@ -219,7 +219,7 @@ class GameState:
         self.fright = False
         self.fright_time = 0.0
         for ghost in self.ghosts:
-            if ghost.state == Ghost.State.FRIGHTENED:
+            if ghost.state & (Ghost.State.FRIGHTENED | Ghost.State.BLINK):
                 ghost.load_save()
                 ghost.update()
 

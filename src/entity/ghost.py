@@ -101,6 +101,7 @@ class Ghost(Entity, ABC):
                 self.State.CHASE,
                 self.State.SCATTER,
                 self.State.FRIGHTENED,
+                self.State.BLINK,
             )
         )
 
