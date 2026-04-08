@@ -75,11 +75,20 @@ class GameView(View):
             self.margin[0] + self.maze_pixel_w // 10 * 9,
             self.margin[1] - self.font_size - 5,
             self.font_size, rl.WHITE)
+        src = rl.Rectangle(0, 0, 32, 32)
         for i in range(self.state.HP):
-            rl.draw_texture(self.textures["pac_man"]["left"][1],
-                            self.margin[0] + self.maze_pixel_w // 20 + i * 32,
-                            self.margin[1] + self.maze_pixel_h + 5,
-                            rl.WHITE)
+            dst = rl.Rectangle(self.margin[0] + self.maze_pixel_w // 20
+                               + i * self.geometry.cell_size,
+                               self.margin[1] + self.maze_pixel_h + 5,
+                               self.geometry.cell_size, self.geometry.cell_size)
+            rl.draw_texture_pro(
+                self.textures["pac_man"]["left"][1],
+                src,
+                dst,
+                rl.Vector2(0, 0),
+                0.0,
+                rl.WHITE
+            )
 
     def update(self, dt: float) -> ViewEvent:
         action = self.controller.update(
