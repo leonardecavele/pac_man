@@ -1,4 +1,5 @@
 import pyray as rl
+from pathlib import Path
 
 from .view import View, ViewEvent, ViewEventType
 from src.display.components import TextInput, Button
@@ -58,7 +59,9 @@ class EndView(View):
         try:
             if (not len(self.text_input.value)):
                 return (False)
-            with open("leaderboard.pm", "a") as file:
+            cache_dir = Path.home() / ".cache" / "pacman"
+            cache_dir.mkdir(parents=True, exist_ok=True)
+            with open(cache_dir / "leaderboard.pm", "a") as file:
                 file.write(f"{self.text_input.value}:{self.score}\n")
             self.text_input.value = ""
         except (FileNotFoundError, PermissionError):

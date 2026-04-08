@@ -11,6 +11,11 @@ class Textures:
         self,
     ) -> dict[str, dict[str, list[rl.Texture2D]] | list[rl.Texture2D]]:
         self.sheet = rl.load_image("assets/Sprite_Sheet.png")
+        rl.image_color_replace(
+            self.sheet,
+            rl.BLACK,
+            rl.Color(0, 0, 0, 0)
+        )
 
         textures = {
             "pacgum": self._load_pacgum_textures(),
