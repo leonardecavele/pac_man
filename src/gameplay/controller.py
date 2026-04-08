@@ -159,7 +159,6 @@ class GameController:
 
             ghost.update()
 
-
     def _update_ghost_house_exit(
         self, state: GameState, ghost: Ghost, dt: float
     ) -> None:
