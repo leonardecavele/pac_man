@@ -4,8 +4,7 @@ import pyray as rl
 
 from src.display.maze_renderer import MazeRenderer
 from src.entity import Collectible, Ghost
-from src.gameplay.maze_geometry import MazeGeometry
-from src.gameplay.maze_state import MazeState
+from src.gameplay import MazeGeometry, MazeState
 
 
 class MazeSceneRenderer:
@@ -21,7 +20,8 @@ class MazeSceneRenderer:
         self.width = width
         self.height = height
         self.maze_image = rl.gen_image_color(self.width, self.height, rl.BLACK)
-        MazeRenderer(self.maze_image, self.state.maze, self.geometry.cell_size, self.geometry.gap)
+        MazeRenderer(self.maze_image, self.state.maze,
+                     self.geometry.cell_size, self.geometry.gap)
         self.maze_texture = rl.load_texture_from_image(self.maze_image)
 
     def draw(self) -> None:
@@ -37,7 +37,8 @@ class MazeSceneRenderer:
         rl.draw_text(
             f"Score: {self.state.score} - Timer: {math.floor(self.state.timer)}",
             self.geometry.gap,
-            (self.state.maze.height + 1) * (self.geometry.cell_size + self.geometry.gap),
+            (self.state.maze.height + 1) *
+            (self.geometry.cell_size + self.geometry.gap),
             30,
             rl.WHITE,
         )
@@ -55,7 +56,8 @@ class MazeSceneRenderer:
         x, y = self.geometry.get_draw_pos(entity.screen_pos)
 
         source = rl.Rectangle(0, 0, sprite.width, sprite.height)
-        dest = rl.Rectangle(x, y, self.geometry.cell_size - 1, self.geometry.cell_size - 1)
+        dest = rl.Rectangle(x, y, self.geometry.cell_size -
+                            1, self.geometry.cell_size - 1)
 
         rl.draw_texture_pro(
             sprite,

@@ -1,7 +1,7 @@
-from .maze_controller import MazeAction, MazeActionType, MazeController
-from .maze_geometry import MazeGeometry
-from .maze_input import MazeInputReader, MazeInputState
-from .maze_state import MazeState
+from .controller import MazeAction, MazeActionType, MazeController
+from .helper import MazeGeometry
+from .input import MazeInputReader, MazeInputState
+from .state import MazeState
 
 __all__ = [
     "MazeAction",

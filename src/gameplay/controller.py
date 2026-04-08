@@ -3,8 +3,8 @@ from enum import Enum, auto
 
 from src.entity import Entity, Ghost, SuperPacgum
 
-from .maze_input import MazeInputState
-from .maze_state import MazeState
+from .input import MazeInputState
+from .state import MazeState
 
 
 class MazeActionType(Enum):

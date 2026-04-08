@@ -58,6 +58,7 @@ class MazeState:
         self.reset()
 
     def reset(self) -> None:
+        self.HP = self.config.lives
         self.score: int = 0
         self.timer: float = 0.0
         self.fright: bool = False
