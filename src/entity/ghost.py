@@ -111,7 +111,7 @@ class Ghost(Entity, ABC):
                 self.velocity_px = int(self.default_velocity_px * 0.85)
             case self.State.EATEN:
                 self.velocity_px = int((self.default_velocity_px * 0.80) * 2)
-            case self.State.FRIGHTENED:
+            case self.State.FRIGHTENED | self.State.BLINK:
                 self.velocity_px = self.default_velocity_px // 2
             case _:
                 self.velocity_px = int(self.default_velocity_px * 0.75)
