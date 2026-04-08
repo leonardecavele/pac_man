@@ -22,6 +22,11 @@ class GameController:
     def update(
         self, state: GameState, dt: float, inputs: GameInputState
     ) -> GameAction:
+        if state.freeze_time > 0.0:
+            state.freeze_time -= dt
+            self._update_collectibles(state, dt)
+            return GameAction(type=GameActionType.NONE)
+
         if state.pac_man.dying:
             state.ghosts = []
             self._update_pac_man(state, dt)
@@ -29,11 +34,6 @@ class GameController:
                 if state.HP < 1:
                     return self._finish_level(state, GameActionType.GAME_OVER)
                 self._retry_level(state)
-            return GameAction(type=GameActionType.NONE)
-
-        if state.freeze_time > 0.0:
-            state.freeze_time -= dt
-            self._update_collectibles(state, dt)
             return GameAction(type=GameActionType.NONE)
 
         self._update_timers(state, dt)
@@ -245,6 +245,7 @@ class GameController:
                 return GameAction(type=GameActionType.NONE)
             if ghost.state == Ghost.State.EATEN:
                 continue
+            state.freeze(0.75)
             return GameAction(type=GameActionType.GAME_OVER)
         return GameAction(type=GameActionType.NONE)
 
