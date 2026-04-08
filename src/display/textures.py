@@ -27,6 +27,7 @@ class Textures:
             "clyde": self._load_clyde_textures(),
             "fleeing": self._load_fleeing_textures(),
             "eaten": self._load_eaten_textures(),
+            "blink": self._load_blink_textures()
         }
 
         rl.unload_image(self.sheet)
@@ -117,6 +118,9 @@ class Textures:
 
     def _load_fleeing_textures(self) -> list[rl.Texture2D]:
         return self._load([(8, 4), (9, 4)])
+
+    def _load_blink_textures(self) -> list[rl.Texture2D]:
+        return self._load([(9, 4), (10, 4), (8, 4), (11, 4)])
 
     def _load_eaten_textures(self) -> dict[str, list[rl.Texture2D]]:
         return self._load_directional_textures(

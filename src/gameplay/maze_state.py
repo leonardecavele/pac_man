@@ -209,6 +209,11 @@ class MazeState:
             ghost.change_state(Ghost.State.FRIGHTENED)
             ghost.update()
 
+    def blink_fright_mode(self) -> None:
+        for ghost in self.ghosts:
+            if ghost.state == Ghost.State.FRIGHTENED:
+                ghost.change_state(Ghost.State.BLINK)
+
     def end_fright_mode(self) -> None:
         self.fright = False
         self.fright_time = 0.0

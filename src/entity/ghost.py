@@ -21,6 +21,7 @@ class Ghost(Entity, ABC):
         CHASE = 1 << 3
         ELROY1 = 1 << 4
         ELROY2 = 1 << 5
+        BLINK = 1 << 6
 
     def __init__(
         self,
@@ -57,6 +58,10 @@ class Ghost(Entity, ABC):
         if (self.state == Ghost.State.FRIGHTENED):
             idx = self.tick // 30 % 2
             self.sprite = self.textures["fleeing"][idx]
+            return
+        if (self.state == Ghost.State.BLINK):
+            idx = self.tick // 30 % 4
+            self.sprite = self.textures["blink"][idx]
             return
 
         if (self.state == Ghost.State.EATEN):
@@ -346,7 +351,7 @@ class Ghost(Entity, ABC):
             return (x, y + 1)
         if self.state & self.State.EATEN:
             return self.house
-        if self.state & self.State.FRIGHTENED:
+        if self.state & self.State.FRIGHTENED or self.state & self.State.BLINK:
             return None
         if self.is_chasing():
             return self.compute_chase_target()
