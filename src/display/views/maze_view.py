@@ -1,13 +1,15 @@
 import pyray as rl
+import math
 
-from src.display.maze_scene_renderer import MazeSceneRenderer
 from src.gameplay import (
     MazeActionType,
     MazeController,
     MazeGeometry,
     MazeInputReader,
-    MazeState,
+    MazeState
 )
+from src.entity import Collectible, Ghost
+from src.display.maze_renderer import MazeRenderer
 from src.maze import Maze
 from src.parsing.config import Config
 
@@ -25,6 +27,8 @@ class MazeView(View):
         width: int = 720,
         height: int = 720,
     ) -> None:
+        self.width = width
+        self.height = height
         self.geometry = MazeGeometry(maze=maze, gap=gap, cell_size=cell_size)
         self.state = MazeState(
             maze=maze,
@@ -35,18 +39,33 @@ class MazeView(View):
         )
         self.controller = MazeController()
         self.input_reader = MazeInputReader()
-        self.renderer = MazeSceneRenderer(
-            maze_state=self.state,
-            geometry=self.geometry,
-            width=width,
-            height=height,
-        )
+        self.maze_image = rl.gen_image_color(self.width, self.height, rl.BLACK)
+        MazeRenderer(self.maze_image, self.state.maze,
+                     self.geometry.cell_size, self.geometry.gap)
+        self.maze_texture = rl.load_texture_from_image(self.maze_image)
 
     def draw(self) -> None:
-        self.renderer.draw()
+        rl.clear_background(rl.BLACK)
+        rl.draw_texture(self.maze_texture, 0, 0, rl.WHITE)
+
+        for collectible in self.state.collectibles:
+            self._draw_collectible(collectible)
+        for ghost in self.state.ghosts:
+            self._draw_entity(ghost, ghost.sprite)
+        self._draw_entity(self.state.pac_man, self.state.pac_man.sprite)
+
+        rl.draw_text(
+            f"Score: {self.state.score} - Timer: {math.floor(self.state.timer)}",
+            self.geometry.gap,
+            (self.state.maze.height + 1) *
+            (self.geometry.cell_size + self.geometry.gap),
+            30,
+            rl.WHITE,
+        )
 
     def update(self, dt: float) -> ViewEvent:
-        action = self.controller.update(self.state, dt, self.input_reader.read())
+        action = self.controller.update(
+            self.state, dt, self.input_reader.read())
 
         if action.type == MazeActionType.VICTORY:
             return ViewEvent(type=ViewEventType.END, message=f"victory:{action.score}")
@@ -55,4 +74,26 @@ class MazeView(View):
         return ViewEvent(type=ViewEventType.NONE)
 
     def close(self) -> None:
-        self.renderer.close()
+        rl.unload_texture(self.maze_texture)
+        rl.unload_image(self.maze_image)
+
+    def _draw_collectible(self, collectible: Collectible) -> None:
+        if not collectible.visible:
+            return
+        self._draw_entity(collectible, collectible.sprite)
+
+    def _draw_entity(self, entity, sprite: rl.Texture2D) -> None:
+        x, y = self.geometry.get_draw_pos(entity.screen_pos)
+
+        source = rl.Rectangle(0, 0, sprite.width, sprite.height)
+        dest = rl.Rectangle(x, y, self.geometry.cell_size -
+                            1, self.geometry.cell_size - 1)
+
+        rl.draw_texture_pro(
+            sprite,
+            source,
+            dest,
+            rl.Vector2(0, 0),
+            0.0,
+            rl.WHITE,
+        )
