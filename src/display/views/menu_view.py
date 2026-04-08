@@ -1,7 +1,14 @@
 import pyray as rl
+import math
+from enum import Enum, auto
 
 from .view import View, ViewEvent, ViewEventType
 from src.display.components import Button
+
+
+class State(Enum):
+    NORMAL = auto()
+    ANIMATING = auto()
 
 
 class MenuView(View):
@@ -26,6 +33,13 @@ class MenuView(View):
         self.random_btn.y = start_y + btn_h
         self.inst_btn.y = start_y + 2 * btn_h
         self.exit_btn.y = start_y + 3 * btn_h
+        self.state = State.NORMAL
+        self.anim_pos = [0.0, 0.0]
+        self.anim_time = 1
+        self.pending_event: ViewEvent
+        self.anim_size = 0
+        self.anim_timer = 0.0
+        self.anim_frame = 0
 
     def draw(self):
         rl.clear_background(rl.BLACK)
@@ -38,8 +52,39 @@ class MenuView(View):
         self.random_btn.draw()
         self.inst_btn.draw()
         self.exit_btn.draw()
+        if (self.state == State.ANIMATING):
+            self._draw_anim()
+
+    def _draw_anim(self):
+        src = rl.Rectangle(0, 0, 32, 32)
+        dst = rl.Rectangle(
+            self.anim_pos[0], self.anim_pos[1], self.font_size, self.font_size)
+        texture = self.textures["pac_man"]["right"][self.anim_frame // 8 % 2]
+        rl.draw_rectangle(
+            0, int(self.anim_pos[1]),
+            int(self.anim_pos[0]) + self.font_size // 2, self.font_size,
+            rl.BLACK)
+        rl.draw_texture_pro(texture, src, dst, rl.Vector2(0, 0), 0, rl.WHITE)
 
     def update(self, dt: float) -> ViewEvent:
+        match self.state:
+            case State.NORMAL:
+                return (self._update_normal(dt))
+            case State.ANIMATING:
+                return (self._update_anim(dt))
+        return (ViewEvent(type=ViewEventType.NONE))
+
+    def _update_anim(self, dt: float) -> ViewEvent:
+        self.anim_frame += 1
+        self.anim_timer += dt
+        if (self.anim_timer >= self.anim_time):
+            self.state = State.NORMAL
+            return (self.pending_event)
+        self.anim_pos[0] += dt * (self.anim_size +
+                                  self.font_size) / self.anim_time
+        return (ViewEvent(type=ViewEventType.NONE))
+
+    def _update_normal(self, dt: float) -> ViewEvent:
         if (rl.is_key_pressed(rl.KEY_C)):
             return (
                 ViewEvent(type=ViewEventType.START_GAME, message="classic")
@@ -94,17 +139,36 @@ class MenuView(View):
         # button pressed
         if (rl.is_mouse_button_pressed(rl.MOUSE_LEFT_BUTTON)):
             if (self.classic_btn.contains(mouse.x, mouse.y)):
-                return (
-                    ViewEvent(
-                        type=ViewEventType.START_GAME, message="classic"
-                    )
+                self.anim_timer = 0
+                self.state = State.ANIMATING
+                self.anim_pos = [dst.x, dst.y]
+                self.anim_size = rl.measure_text(
+                    self.classic_btn.label, self.classic_btn.font_size)
+                self.anim_frame = 0
+                self.pending_event = ViewEvent(
+                    type=ViewEventType.START_GAME, message="classic"
                 )
+                return (ViewEvent(type=ViewEventType.NONE))
             if (self.random_btn.contains(mouse.x, mouse.y)):
-                return (
-                    ViewEvent(
-                        type=ViewEventType.START_GAME, message="random"
-                    )
+                self.anim_timer = 0
+                self.state = State.ANIMATING
+                self.anim_pos = [dst.x, dst.y]
+                self.anim_size = rl.measure_text(
+                    self.random_btn.label, self.random_btn.font_size)
+                self.anim_frame = 0
+                self.pending_event = ViewEvent(
+                    type=ViewEventType.START_GAME, message="classic"
                 )
+                return (ViewEvent(type=ViewEventType.NONE))
+            if (self.inst_btn.contains(mouse.x, mouse.y)):
+                self.anim_timer = 0
+                self.state = State.ANIMATING
+                self.anim_pos = [dst.x, dst.y]
+                self.anim_size = rl.measure_text(
+                    self.inst_btn.label, self.inst_btn.font_size)
+                self.anim_frame = 0
+                self.pending_event = ViewEvent(type=ViewEventType.NONE)
+                return (ViewEvent(type=ViewEventType.NONE))
             if (self.exit_btn.contains(mouse.x, mouse.y)):
                 return (ViewEvent(type=ViewEventType.QUIT))
 
