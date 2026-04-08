@@ -17,14 +17,18 @@ class Pac_man(Entity):
         sprite: str,
         m: Maze,
         default_velocity_px: int,
-        textures: dict[str, dict[str, list[rl.Texture2D]] | list[rl.Texture2D]]
+        textures: dict[str, dict[str, list[rl.Texture2D]] | list[rl.Texture2D]],
     ) -> None:
         super().__init__(screen_pos, maze_pos, sprite, m, default_velocity_px)
         self.input: vec2i | None = None
         self.velocity_px = int(self.default_velocity_px * 0.80)
         self.turn_window: float = 4.5
         self.textures = textures
+
         self.dying: bool = False
+        self.dying_frame: int = 0
+        self.dying_timer: float = 0.0
+        self.dying_frame_duration: float = 0.08
 
     def try_corner(self, maze_to_screen: Callable[[vec2i], vec2i]) -> bool:
         if self.target_cell is None or self.input is None:
@@ -71,24 +75,41 @@ class Pac_man(Entity):
         self.update()
         return True
 
-    def animate(self):
+    def animate(self, dt: float) -> None:
+        if self.dying:
+            self.dying_timer += dt
+
+            while self.dying_timer >= self.dying_frame_duration:
+                self.dying_timer -= self.dying_frame_duration
+                if self.dying_frame < 14:
+                    self.dying_frame += 1
+                else:
+                    self.dying = False
+
+            self.sprite = self.textures["pac_man"]["dying"][self.dying_frame]
+            return
+
         self.tick += 1
         dx, dy = self.direction
-        idx = self.tick // 8 % 2
-        if (dx == 0 and dy == 0 and self.tick == 1):
+        idx: int = self.tick // 8 % 2
+
+        if dx == 0 and dy == 0 and self.tick == 1:
             self.sprite = self.textures["pac_man"]["dying"][0]
-        elif (dx == 1):
+        elif dx == 1:
             self.sprite = self.textures["pac_man"]["right"][idx]
-        elif (dx == -1):
+        elif dx == -1:
             self.sprite = self.textures["pac_man"]["left"][idx]
-        elif (dy == 1):
+        elif dy == 1:
             self.sprite = self.textures["pac_man"]["down"][idx]
-        elif (dy == -1):
+        elif dy == -1:
             self.sprite = self.textures["pac_man"]["up"][idx]
 
     def update(self, dt: float = 0.0) -> None:
         if self.dying:
             self.direction = (0, 0)
+            self.origin_cell = None
+            self.target_cell = None
+            return
 
         if self.target_cell is not None:
             if (

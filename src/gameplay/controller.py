@@ -23,7 +23,12 @@ class GameController:
         self, state: GameState, dt: float, inputs: GameInputState
     ) -> GameAction:
         if state.pac_man.dying:
-            self._update_pac_man
+            state.ghosts = []
+            self._update_pac_man(state, dt)
+            if not state.pac_man.dying:
+                if state.HP < 1:
+                    return self._finish_level(state, GameActionType.GAME_OVER)
+                self._retry_level(state)
             return GameAction(type=GameActionType.NONE)
 
         if state.freeze_time > 0.0:
@@ -45,9 +50,6 @@ class GameController:
         if ghost_action.type != GameActionType.NONE:
             state.pac_man.dying = True
             state.HP -= 1
-            self._retry_level(state)
-            if state.HP < 1:
-                return self._finish_level(state, ghost_action.type)
 
         return GameAction(type=GameActionType.NONE)
 
@@ -91,8 +93,8 @@ class GameController:
 
     def _update_pac_man(self, state: GameState, dt: float) -> None:
         pac_man = state.pac_man
-        pac_man.animate()
-        pac_man.update(dt)
+        pac_man.animate(dt)
+        pac_man.update()
 
         if pac_man.target_cell is not None:
             pac_man.try_corner(state.geometry.maze_to_screen)
@@ -110,7 +112,6 @@ class GameController:
         pac_man.origin_cell = None
         pac_man.target_cell = None
 
-        pac_man.update()
 
     def _update_ghosts(self, state: GameState, dt: float) -> None:
         for ghost in state.ghosts:
