@@ -225,7 +225,7 @@ class GameState:
             if ghost.state == Ghost.State.EATEN:
                 continue
 
-            if ghost.state != (Ghost.State.FRIGHTENED | Ghost.State.BLINK):
+            if not ghost.state & (Ghost.State.FRIGHTENED | Ghost.State.BLINK):
                 ghost.save_state()
 
             ghost.change_state(Ghost.State.FRIGHTENED)
@@ -233,7 +233,7 @@ class GameState:
 
     def blink_fright_mode(self) -> None:
         for ghost in self.ghosts:
-            if ghost.state == Ghost.State.FRIGHTENED:
+            if ghost.state & Ghost.State.FRIGHTENED:
                 ghost.change_state(Ghost.State.BLINK)
 
     def end_fright_mode(self) -> None:
