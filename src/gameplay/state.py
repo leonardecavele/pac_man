@@ -55,12 +55,18 @@ class GameState:
                 "inky": 0.0,
                 "clyde": 0.0,
             }
-        self.reset()
+        self.global_reset()
+        self.entity_reset()
 
-    def reset(self) -> None:
+    def global_reset(self) -> None:
         self.HP = self.config.lives
         self.score: int = 0
         self.timer: float = 0.0
+
+        self.collectibles: list[Collectible] = self._gen_collectibles()
+        self.initial_collectible_count: int = len(self.collectibles)
+
+    def entity_reset(self) -> None:
         self.fright: bool = False
         self.fright_time: float = 0.0
         self.ghost_schedule_time: float = 0.0
@@ -139,8 +145,6 @@ class GameState:
         )
 
         self.ghosts: list[Ghost] = [blinky, inky, pinky, clyde]
-        self.collectibles: list[Collectible] = self._gen_collectibles()
-        self.initial_collectible_count: int = len(self.collectibles)
 
         for ghost in self.ghosts:
             ghost.house_exit = ghost.house

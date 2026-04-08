@@ -24,6 +24,7 @@ class Pac_man(Entity):
         self.velocity_px = int(self.default_velocity_px * 0.80)
         self.turn_window: float = 4.5
         self.textures = textures
+        self.dying: bool = False
 
     def try_corner(self, maze_to_screen: Callable[[vec2i], vec2i]) -> bool:
         if self.target_cell is None or self.input is None:
@@ -86,6 +87,9 @@ class Pac_man(Entity):
             self.sprite = self.textures["pac_man"]["up"][idx]
 
     def update(self, dt: float = 0.0) -> None:
+        if self.dying:
+            self.direction = (0, 0)
+
         if self.target_cell is not None:
             if (
                 self.input is not None

@@ -22,6 +22,10 @@ class GameController:
     def update(
         self, state: GameState, dt: float, inputs: GameInputState
     ) -> GameAction:
+        if state.pac_man.dying:
+            self._update_pac_man
+            return GameAction(type=GameActionType.NONE)
+
         if state.freeze_time > 0.0:
             state.freeze_time -= dt
             self._update_collectibles(state, dt)
@@ -39,7 +43,11 @@ class GameController:
 
         ghost_action = self._resolve_ghost_collisions(state)
         if ghost_action.type != GameActionType.NONE:
-            return ghost_action
+            state.pac_man.dying = True
+            state.HP -= 1
+            self._retry_level(state)
+            if state.HP < 1:
+                return self._finish_level(state, ghost_action.type)
 
         return GameAction(type=GameActionType.NONE)
 
@@ -232,14 +240,17 @@ class GameController:
                 return GameAction(type=GameActionType.NONE)
             if ghost.state == Ghost.State.EATEN:
                 continue
-            return self._finish_level(state, GameActionType.GAME_OVER)
+            return GameAction(type=GameActionType.GAME_OVER)
         return GameAction(type=GameActionType.NONE)
+
+    def _retry_level(self, state: GameState) -> None:
+        state.entity_reset()
 
     def _finish_level(
         self, state: GameState, action_type: GameActionType
     ) -> GameAction:
         final_score = state.score
-        state.reset()
+        state.global_reset()
         return GameAction(type=action_type, score=final_score)
 
     def _collides(

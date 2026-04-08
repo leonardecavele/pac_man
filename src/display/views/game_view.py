@@ -68,9 +68,13 @@ class GameView(View):
             self.state, dt, self.input_reader.read())
 
         if action.type == GameActionType.VICTORY:
-            return ViewEvent(type=ViewEventType.END, message=f"victory:{action.score}")
+            return ViewEvent(
+                type=ViewEventType.END, message=f"victory:{action.score}"
+            )
         if action.type == GameActionType.GAME_OVER:
-            return ViewEvent(type=ViewEventType.END, message=f"game_over:{action.score}")
+            return ViewEvent(
+                type=ViewEventType.END, message=f"game_over:{action.score}"
+            )
         return ViewEvent(type=ViewEventType.NONE)
 
     def close(self) -> None:
