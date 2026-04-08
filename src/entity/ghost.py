@@ -131,7 +131,11 @@ class Ghost(Entity, ABC):
             next_cell.value & Maze.Cell.Walls.GHOST_HOUSE
         )
 
-        if current_is_ghost_house and next_is_ghost_house:
+        if (
+            current_is_ghost_house
+            and next_is_ghost_house
+            and not self.state & (self.State.FRIGHTENED | self.State.BLINK)
+        ):
             return True
 
         return False
