@@ -8,7 +8,8 @@ from src.display.components import Button
 
 class State(Enum):
     NORMAL = auto()
-    ANIMATING = auto()
+    BTN_ANIM = auto()
+    CLOSE_ANIM = auto()
 
 
 class MenuView(View):
@@ -52,10 +53,10 @@ class MenuView(View):
         self.random_btn.draw()
         self.inst_btn.draw()
         self.exit_btn.draw()
-        if (self.state == State.ANIMATING):
-            self._draw_anim()
+        if (self.state == State.BTN_ANIM):
+            self._draw_btn_anim()
 
-    def _draw_anim(self):
+    def _draw_btn_anim(self):
         src = rl.Rectangle(0, 0, 32, 32)
         dst = rl.Rectangle(
             self.anim_pos[0], self.anim_pos[1], self.font_size, self.font_size)
@@ -70,7 +71,7 @@ class MenuView(View):
         match self.state:
             case State.NORMAL:
                 return (self._update_normal(dt))
-            case State.ANIMATING:
+            case State.BTN_ANIM:
                 return (self._update_anim(dt))
         return (ViewEvent(type=ViewEventType.NONE))
 
@@ -140,7 +141,7 @@ class MenuView(View):
         if (rl.is_mouse_button_pressed(rl.MOUSE_LEFT_BUTTON)):
             if (self.classic_btn.contains(mouse.x, mouse.y)):
                 self.anim_timer = 0
-                self.state = State.ANIMATING
+                self.state = State.BTN_ANIM
                 self.anim_pos = [dst.x, dst.y]
                 self.anim_size = rl.measure_text(
                     self.classic_btn.label, self.classic_btn.font_size)
@@ -151,7 +152,7 @@ class MenuView(View):
                 return (ViewEvent(type=ViewEventType.NONE))
             if (self.random_btn.contains(mouse.x, mouse.y)):
                 self.anim_timer = 0
-                self.state = State.ANIMATING
+                self.state = State.BTN_ANIM
                 self.anim_pos = [dst.x, dst.y]
                 self.anim_size = rl.measure_text(
                     self.random_btn.label, self.random_btn.font_size)
@@ -162,7 +163,7 @@ class MenuView(View):
                 return (ViewEvent(type=ViewEventType.NONE))
             if (self.inst_btn.contains(mouse.x, mouse.y)):
                 self.anim_timer = 0
-                self.state = State.ANIMATING
+                self.state = State.BTN_ANIM
                 self.anim_pos = [dst.x, dst.y]
                 self.anim_size = rl.measure_text(
                     self.inst_btn.label, self.inst_btn.font_size)
