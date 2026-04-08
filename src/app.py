@@ -43,10 +43,12 @@ class App:
 
     def _compute_cell_gap_size(self) -> None:
         self.gap = 18
+        margin = int(self.height * 0.2)
         while self.gap >= 0:
             self.cell_size = min(
-                (self.width - (self.maze.width + 1) * self.gap) // self.maze.width,
-                (self.height - (self.maze.height + 1)
+                (self.width - margin - (self.maze.width + 1)
+                 * self.gap) // self.maze.width,
+                (self.height - margin - (self.maze.height + 1)
                  * self.gap) // self.maze.height,
             ) - 1
             if self.gap >= self.cell_size:
