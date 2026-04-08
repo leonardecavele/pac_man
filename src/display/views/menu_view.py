@@ -8,11 +8,11 @@ class MenuView(View):
     def __init__(self, width: int, height: int):
         self.classic_btn = Button(1, 45, "CLASSIC", 40, lambda: None)
         self.classic_btn.x = width // 2 - self.classic_btn.w // 2
-        self.classic_btn.y = (height // 2)
+        self.classic_btn.y = (height // 2) - self.classic_btn.h
 
         self.random_btn = Button(1, 45, "RANDOM", 40, lambda: None)
         self.random_btn.x = width // 2 - self.random_btn.w // 2
-        self.random_btn.y = (height // 2) - self.classic_btn.h
+        self.random_btn.y = (height // 2)
 
         self.exit_btn = Button(1, 45, "EXIT", 40, lambda: None)
         self.exit_btn.x = width // 2 - self.exit_btn.w // 2
@@ -49,7 +49,7 @@ class MenuView(View):
             self.classic_btn.color = rl.WHITE
 
         if (self.random_btn.contains(mouse.x, mouse.y)):
-            self.random_btn.color = rl.YELLOW
+            self.random_btn.color = rl.BLUE
         else:
             self.random_btn.color = rl.WHITE
         if (self.exit_btn.contains(mouse.x, mouse.y)):
