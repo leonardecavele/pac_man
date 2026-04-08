@@ -45,7 +45,8 @@ class Game:
         while self.gap >= 0:
             self.cell_size = min(
                 (self.width - (self.maze.width + 1) * self.gap) // self.maze.width,
-                (self.height - (self.maze.height + 1) * self.gap) // self.maze.height,
+                (self.height - (self.maze.height + 1)
+                 * self.gap) // self.maze.height,
             ) - 1
             if self.gap >= self.cell_size:
                 self.gap -= 2
@@ -59,11 +60,13 @@ class Game:
 
             if event.type == ViewEventType.QUIT:
                 break
+            if (event.type == ViewEventType.CHANGE_VIEW):
+                self.current_view = self.views[event.message]
             if event.type == ViewEventType.START_GAME:
                 if event.message == "random":
                     self.maze = RandomMaze(12, 12, 13)
                 elif event.message == "classic":
-                    self.maze: Maze = OriginalMaze()
+                    self.maze = OriginalMaze()
                 self._compute_cell_gap_size()
                 self.textures: dict[str, rl.Texture2D] = Textures(
                     self.cell_size
