@@ -71,7 +71,9 @@ class GameController:
 
         state.current_ghost_mode = next_mode
         for ghost in state.ghosts:
-            if ghost.state in (Ghost.State.FRIGHTENED, Ghost.State.EATEN):
+            if ghost.state in (
+                Ghost.State.FRIGHTENED, Ghost.State.EATEN, Ghost.State.BLINK
+            ):
                 ghost.saved_state = next_mode
                 continue
             ghost.change_state(next_mode)
@@ -162,8 +164,10 @@ class GameController:
         blinky = state.ghosts[0]
         ratio = state.collectible_ratio_remaining()
 
-        if blinky.state in (Ghost.State.FRIGHTENED, Ghost.State.EATEN):
-            if blinky.state == Ghost.State.FRIGHTENED:
+        if blinky.state in (
+            Ghost.State.FRIGHTENED, Ghost.State.EATEN, Ghost.State.BLINK
+        ):
+            if blinky.state & (Ghost.State.FRIGHTENED | Ghost.State.BLINK):
                 if ratio <= 0.10:
                     blinky.saved_state = Ghost.State.ELROY2
                 elif ratio <= 0.25:
@@ -233,7 +237,7 @@ class GameController:
         for ghost in state.ghosts:
             if not self._collides(state, ghost, state.pac_man):
                 continue
-            if ghost.state == Ghost.State.FRIGHTENED:
+            if ghost.state & (Ghost.State.FRIGHTENED | Ghost.State.BLINK):
                 ghost.change_state(Ghost.State.EATEN)
                 ghost.update()
                 state.score += state.config.points_per_ghost
