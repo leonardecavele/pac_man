@@ -43,7 +43,8 @@ class EndView(View):
         if (rl.is_mouse_button_pressed(rl.MOUSE_LEFT_BUTTON)):
             mouse = rl.get_mouse_position()
             if (self.submit_btn.contains(mouse.x, mouse.y)):
-                self._save_score()
+                if (not self._save_score()):
+                    return (ViewEvent(type=ViewEventType.NONE))
                 return (
                     ViewEvent(type=ViewEventType.CHANGE_VIEW,
                               message="main_menu")
@@ -53,12 +54,13 @@ class EndView(View):
     def close(self) -> None:
         return
 
-    def _save_score(self):
+    def _save_score(self) -> bool:
         try:
             if (not len(self.text_input.value)):
-                return
+                return (False)
             with open("leaderboard.pm", "a") as file:
                 file.write(f"{self.text_input.value}:{self.score}\n")
             self.text_input.value = ""
         except (FileNotFoundError, PermissionError):
-            return
+            return (False)
+        return (True)
