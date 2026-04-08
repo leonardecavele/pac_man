@@ -1,12 +1,12 @@
 import pyray as rl
 from src.display import Textures
-from src.display.views import EndView, MazeView, MenuView
+from src.display.views import EndView, GameView, MenuView
 from src.display.views.view import View, ViewEventType
-from src.maze import Maze, OriginalMaze, RandomMaze
+from src.maze import Maze, ClassicMaze, RandomMaze
 from src.parsing.config import Config
 
 
-class Game:
+class App:
     def __init__(
         self,
         config: Config,
@@ -15,6 +15,7 @@ class Game:
         fps: int = 60,
         tick_rate: float = 8.0,
     ) -> None:
+        self.maze: Maze
         self.title = title
         self.fps = fps
         self.config: Config = config
@@ -66,12 +67,12 @@ class Game:
                 if event.message == "random":
                     self.maze = RandomMaze(12, 12, 13)
                 elif event.message == "classic":
-                    self.maze = OriginalMaze()
+                    self.maze = ClassicMaze()
                 self._compute_cell_gap_size()
                 self.textures: dict[str, rl.Texture2D] = Textures(
                     self.cell_size
                 )._load_textures()
-                maze_view: View = MazeView(
+                game_view: View = GameView(
                     maze=self.maze,
                     width=self.width,
                     height=self.height,
@@ -80,7 +81,7 @@ class Game:
                     gap=self.gap,
                     cell_size=self.cell_size
                 )
-                self.views[event.message] = maze_view
+                self.views[event.message] = game_view
                 self.current_view = self.views[event.message]
                 continue
             if event.type == ViewEventType.END:

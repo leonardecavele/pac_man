@@ -5,7 +5,7 @@ from src.maze import Maze
 from src.type import vec2i, vec2f
 
 
-class MazeGeometry:
+class GameGeometry:
     def __init__(self, maze: Maze, gap: int, cell_size: int) -> None:
         self.maze = maze
         self.gap = gap
@@ -26,8 +26,10 @@ class MazeGeometry:
         raw_x: float = (sx - self.gap - self.cell_size / 2) / step
         raw_y: float = (sy - self.gap - self.cell_size / 2) / step
 
-        mx: int = math.floor(raw_x) if dx > 0 else math.ceil(raw_x) if dx < 0 else round(raw_x)
-        my: int = math.floor(raw_y) if dy > 0 else math.ceil(raw_y) if dy < 0 else round(raw_y)
+        mx: int = math.floor(raw_x) if dx > 0 else math.ceil(
+            raw_x) if dx < 0 else round(raw_x)
+        my: int = math.floor(raw_y) if dy > 0 else math.ceil(
+            raw_y) if dy < 0 else round(raw_y)
 
         entity.maze_pos = (
             max(0, min(mx, self.maze.width - 1)),

@@ -1,14 +1,14 @@
-from .controller import MazeAction, MazeActionType, MazeController
-from .helper import MazeGeometry
-from .input import MazeInputReader, MazeInputState
-from .state import MazeState
+from .controller import GameAction, GameActionType, GameController
+from .helper import GameGeometry
+from .input import GameInputReader, GameInputState
+from .state import GameState
 
 __all__ = [
-    "MazeAction",
-    "MazeActionType",
-    "MazeController",
-    "MazeGeometry",
-    "MazeInputReader",
-    "MazeInputState",
-    "MazeState",
+    "GameAction",
+    "GameActionType",
+    "GameController",
+    "GameGeometry",
+    "GameInputReader",
+    "GameInputState",
+    "GameState",
 ]

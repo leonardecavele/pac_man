@@ -2,13 +2,13 @@ import pyray as rl
 import math
 
 from src.gameplay import (
-    MazeActionType,
-    MazeController,
-    MazeGeometry,
-    MazeInputReader,
-    MazeState
+    GameActionType,
+    GameController,
+    GameGeometry,
+    GameInputReader,
+    GameState
 )
-from src.entity import Collectible, Ghost
+from src.entity import Collectible
 from src.display.maze_renderer import MazeRenderer
 from src.maze import Maze
 from src.parsing.config import Config
@@ -16,7 +16,7 @@ from src.parsing.config import Config
 from .view import View, ViewEvent, ViewEventType
 
 
-class MazeView(View):
+class GameView(View):
     def __init__(
         self,
         maze: Maze,
@@ -29,16 +29,16 @@ class MazeView(View):
     ) -> None:
         self.width = width
         self.height = height
-        self.geometry = MazeGeometry(maze=maze, gap=gap, cell_size=cell_size)
-        self.state = MazeState(
+        self.geometry = GameGeometry(maze=maze, gap=gap, cell_size=cell_size)
+        self.state = GameState(
             maze=maze,
             config=config,
             textures=textures,
             geometry=self.geometry,
             cell_size=cell_size
         )
-        self.controller = MazeController()
-        self.input_reader = MazeInputReader()
+        self.controller = GameController()
+        self.input_reader = GameInputReader()
         self.maze_image = rl.gen_image_color(self.width, self.height, rl.BLACK)
         MazeRenderer(self.maze_image, self.state.maze,
                      self.geometry.cell_size, self.geometry.gap)
@@ -67,9 +67,9 @@ class MazeView(View):
         action = self.controller.update(
             self.state, dt, self.input_reader.read())
 
-        if action.type == MazeActionType.VICTORY:
+        if action.type == GameActionType.VICTORY:
             return ViewEvent(type=ViewEventType.END, message=f"victory:{action.score}")
-        if action.type == MazeActionType.GAME_OVER:
+        if action.type == GameActionType.GAME_OVER:
             return ViewEvent(type=ViewEventType.END, message=f"game_over:{action.score}")
         return ViewEvent(type=ViewEventType.NONE)
 

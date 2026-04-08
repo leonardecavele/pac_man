@@ -70,9 +70,11 @@ class Maze(ABC):
                 return Maze.Direction.BOT
             case Maze.Cell.Walls.LEFT:
                 return Maze.Direction.LEFT
+            case _:
+                return (Maze.Direction.BOT)
 
 
-class OriginalMaze(Maze):
+class ClassicMaze(Maze):
     CLASSIC_MAP: list[list[int]] = [
         [9, 5, 5, 1, 5, 3, 15, 9, 5, 3, 15, 9, 5, 1, 5, 5, 3],
         [8, 5, 5, 2, 15, 12, 5, 2, 15, 8, 5, 6, 15, 8, 5, 5, 2],

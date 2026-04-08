@@ -3,29 +3,29 @@ from enum import Enum, auto
 
 from src.entity import Entity, Ghost, SuperPacgum
 
-from .input import MazeInputState
-from .state import MazeState
+from .input import GameInputState
+from .state import GameState
 
 
-class MazeActionType(Enum):
+class GameActionType(Enum):
     NONE = auto()
     VICTORY = auto()
     GAME_OVER = auto()
 
 
-class MazeAction(BaseModel):
-    type: MazeActionType = Field(...)
+class GameAction(BaseModel):
+    type: GameActionType = Field(...)
     score: int = Field(default=0)
 
 
-class MazeController:
+class GameController:
     def update(
-        self, state: MazeState, dt: float, inputs: MazeInputState
-    ) -> MazeAction:
+        self, state: GameState, dt: float, inputs: GameInputState
+    ) -> GameAction:
         if state.freeze_time > 0.0:
             state.freeze_time -= dt
             self._update_collectibles(state, dt)
-            return MazeAction(type=MazeActionType.NONE)
+            return GameAction(type=GameActionType.NONE)
 
         self._update_timers(state, dt)
         self._apply_input(state, inputs)
@@ -34,16 +34,16 @@ class MazeController:
         self._update_ghosts(state, dt)
 
         collectible_action = self._resolve_collectible_collisions(state)
-        if collectible_action.type != MazeActionType.NONE:
+        if collectible_action.type != GameActionType.NONE:
             return collectible_action
 
         ghost_action = self._resolve_ghost_collisions(state)
-        if ghost_action.type != MazeActionType.NONE:
+        if ghost_action.type != GameActionType.NONE:
             return ghost_action
 
-        return MazeAction(type=MazeActionType.NONE)
+        return GameAction(type=GameActionType.NONE)
 
-    def _update_timers(self, state: MazeState, dt: float) -> None:
+    def _update_timers(self, state: GameState, dt: float) -> None:
         state.timer += dt
 
         if state.fright:
@@ -67,21 +67,21 @@ class MazeController:
             ghost.change_state(next_mode)
             ghost.update()
 
-    def _ghost_mode_at(self, state: MazeState) -> Ghost.State:
+    def _ghost_mode_at(self, state: GameState) -> Ghost.State:
         for time_limit, ghost_state in state.ghost_behavior.items():
             if state.ghost_schedule_time <= time_limit:
                 return ghost_state
         return Ghost.State.CHASE
 
-    def _apply_input(self, state: MazeState, inputs: MazeInputState) -> None:
+    def _apply_input(self, state: GameState, inputs: GameInputState) -> None:
         if inputs.direction is not None:
             state.pac_man.input = inputs.direction
 
-    def _update_collectibles(self, state: MazeState, dt: float) -> None:
+    def _update_collectibles(self, state: GameState, dt: float) -> None:
         for collectible in state.collectibles:
             collectible.update(dt)
 
-    def _update_pac_man(self, state: MazeState, dt: float) -> None:
+    def _update_pac_man(self, state: GameState, dt: float) -> None:
         pac_man = state.pac_man
         pac_man.animate()
         pac_man.update(dt)
@@ -104,7 +104,7 @@ class MazeController:
 
         pac_man.update()
 
-    def _update_ghosts(self, state: MazeState, dt: float) -> None:
+    def _update_ghosts(self, state: GameState, dt: float) -> None:
         for ghost in state.ghosts:
             ghost.animate()
             if not ghost.released:
@@ -146,7 +146,7 @@ class MazeController:
 
             ghost.update()
 
-    def _update_elroy_state(self, state: MazeState) -> None:
+    def _update_elroy_state(self, state: GameState) -> None:
         if not state.ghosts:
             return
 
@@ -175,7 +175,7 @@ class MazeController:
                 blinky.update()
 
     def _update_ghost_house_exit(
-        self, state: MazeState, ghost: Ghost, dt: float
+        self, state: GameState, ghost: Ghost, dt: float
     ) -> None:
         if ghost.target_cell is None:
             next_direction = ghost.a_star_direction(ghost.house_exit)
@@ -206,7 +206,7 @@ class MazeController:
             ghost.direction = (0, 0)
             ghost.update()
 
-    def _resolve_collectible_collisions(self, state: MazeState) -> MazeAction:
+    def _resolve_collectible_collisions(self, state: GameState) -> GameAction:
         for collectible in state.collectibles[:]:
             if not self._collides(state, collectible, state.pac_man):
                 continue
@@ -216,11 +216,11 @@ class MazeController:
             if isinstance(collectible, SuperPacgum):
                 state.freeze(0.05)
             if not state.collectibles:
-                return self._finish_level(state, MazeActionType.VICTORY)
-            return MazeAction(type=MazeActionType.NONE)
-        return MazeAction(type=MazeActionType.NONE)
+                return self._finish_level(state, GameActionType.VICTORY)
+            return GameAction(type=GameActionType.NONE)
+        return GameAction(type=GameActionType.NONE)
 
-    def _resolve_ghost_collisions(self, state: MazeState) -> MazeAction:
+    def _resolve_ghost_collisions(self, state: GameState) -> GameAction:
         for ghost in state.ghosts:
             if not self._collides(state, ghost, state.pac_man):
                 continue
@@ -229,21 +229,21 @@ class MazeController:
                 ghost.update()
                 state.score += state.config.points_per_ghost
                 state.freeze(0.75)
-                return MazeAction(type=MazeActionType.NONE)
+                return GameAction(type=GameActionType.NONE)
             if ghost.state == Ghost.State.EATEN:
                 continue
-            return self._finish_level(state, MazeActionType.GAME_OVER)
-        return MazeAction(type=MazeActionType.NONE)
+            return self._finish_level(state, GameActionType.GAME_OVER)
+        return GameAction(type=GameActionType.NONE)
 
     def _finish_level(
-        self, state: MazeState, action_type: MazeActionType
-    ) -> MazeAction:
+        self, state: GameState, action_type: GameActionType
+    ) -> GameAction:
         final_score = state.score
         state.reset()
-        return MazeAction(type=action_type, score=final_score)
+        return GameAction(type=action_type, score=final_score)
 
     def _collides(
-        self, state: MazeState, first: Entity, second: Entity
+        self, state: GameState, first: Entity, second: Entity
     ) -> bool:
         size: int = state.geometry.cell_size // 2
         return (

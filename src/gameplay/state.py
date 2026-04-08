@@ -15,7 +15,7 @@ if TYPE_CHECKING:
 DEFAULT_VELOCITY_CELLS: int = 6
 
 
-class MazeState:
+class GameState:
     def __init__(
         self,
         maze: Maze,

@@ -33,18 +33,18 @@ LEFT_KEYS: list[int] = [
 ]
 
 
-class MazeInputState(BaseModel):
+class GameInputState(BaseModel):
     direction: vec2i | None = Field(default=None)
 
 
-class MazeInputReader:
-    def read(self) -> MazeInputState:
+class GameInputReader:
+    def read(self) -> GameInputState:
         if any(rl.is_key_down(key) for key in UP_KEYS):
-            return MazeInputState(direction=Maze.Direction.TOP.value)
+            return GameInputState(direction=Maze.Direction.TOP.value)
         if any(rl.is_key_down(key) for key in RIGHT_KEYS):
-            return MazeInputState(direction=Maze.Direction.RIGHT.value)
+            return GameInputState(direction=Maze.Direction.RIGHT.value)
         if any(rl.is_key_down(key) for key in DOWN_KEYS):
-            return MazeInputState(direction=Maze.Direction.BOT.value)
+            return GameInputState(direction=Maze.Direction.BOT.value)
         if any(rl.is_key_down(key) for key in LEFT_KEYS):
-            return MazeInputState(direction=Maze.Direction.LEFT.value)
-        return MazeInputState()
+            return GameInputState(direction=Maze.Direction.LEFT.value)
+        return GameInputState()
