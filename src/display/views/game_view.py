@@ -9,9 +9,9 @@ from src.gameplay import (
     GameState
 )
 from src.entity import Collectible
-from src.display.maze_renderer import MazeRenderer
+from src.display import MazeRenderer
 from src.maze import Maze
-from src.parsing.config import Config
+from src.parsing import Config
 
 from .view import View, ViewEvent, ViewEventType
 

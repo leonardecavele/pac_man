@@ -1,9 +1,9 @@
 import pyray as rl
+
 from src.display import Textures
-from src.display.views import EndView, GameView, MenuView
-from src.display.views.view import View, ViewEventType
+from src.display.views import EndView, GameView, MenuView, View, ViewEventType
 from src.maze import Maze, ClassicMaze, RandomMaze
-from src.parsing.config import Config
+from src.parsing import Config
 
 
 class App:

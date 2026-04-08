@@ -6,11 +6,11 @@ from src.entity import (
     Blinky, Clyde, Collectible, Ghost, Inky, Pac_man, Pacgum, Pinky, SuperPacgum
 )
 from src.maze import Maze
-from src.parsing.config import Config
+from src.parsing import Config
 from src.type import vec2i
 
 if TYPE_CHECKING:
-    from .maze_geometry import MazeGeometry
+    from .helper import GameGeometry
 
 DEFAULT_VELOCITY_CELLS: int = 6
 
@@ -21,7 +21,7 @@ class GameState:
         maze: Maze,
         config: Config,
         textures: dict[str, dict[str, list[rl.Texture2D]] | list[rl.Texture2D]],
-        geometry: "MazeGeometry",
+        geometry: "GameGeometry",
         cell_size: int
     ) -> None:
         self.maze = maze

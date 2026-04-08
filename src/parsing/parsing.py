@@ -2,7 +2,7 @@ import json
 from pydantic import ValidationError
 
 from src.error import ErrorCode
-from src.parsing.config import Config
+from src.parsing import Config
 
 
 class Parser:

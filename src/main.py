@@ -2,7 +2,7 @@ import sys
 
 from src.app import App
 from src.error import ErrorCode
-from src.parsing.parsing import Parser
+from src.parsing import Parser
 
 
 def main() -> int:
