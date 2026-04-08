@@ -32,8 +32,12 @@ class App:
         rl.set_window_size(self.width, self.height)
         rl.set_target_fps(self.fps)
 
+        self.textures: dict[str, rl.Texture2D] = Textures(
+            18
+        )._load_textures()
         self.views: dict[str, View] = {
-            "main_menu": MenuView(width=self.width, height=self.height),
+            "main_menu": MenuView(
+                width=self.width, height=self.height, textures=self.textures),
             "end": EndView(width=self.width, height=self.height),
         }
 
@@ -71,9 +75,6 @@ class App:
                 elif event.message == "classic":
                     self.maze = ClassicMaze()
                 self._compute_cell_gap_size()
-                self.textures: dict[str, rl.Texture2D] = Textures(
-                    self.cell_size
-                )._load_textures()
                 game_view: View = GameView(
                     maze=self.maze,
                     width=self.width,
