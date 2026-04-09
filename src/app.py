@@ -20,6 +20,7 @@ class App:
         self.fps = fps
         self.config: Config = config
 
+        rl.set_trace_log_level(rl.LOG_NONE)
         rl.init_window(150, 150, self.title)
 
         monitor: int = rl.get_current_monitor()

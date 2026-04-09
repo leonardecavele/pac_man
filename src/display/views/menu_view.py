@@ -1,6 +1,7 @@
 import pyray as rl
 import math
 from enum import Enum, auto
+from pathlib import Path
 
 from .view import View, ViewEvent, ViewEventType
 from src.display.components import Button
@@ -42,6 +43,19 @@ class MenuView(View):
         self.anim_timer = 0.0
         self.anim_frame = 0
         self.anim_width = self.width
+        self._get_leaderboard()
+
+    def _get_leaderboard(self) -> None:
+        self.leaderboard: list[tuple[str, int]] = []
+        try:
+            cache_dir = Path.home() / ".cache" / "pacman"
+            with open(cache_dir / "leaderboard.pm", "r") as file:
+                for line in file:
+                    user, score = line.split(":")
+                    self.leaderboard.append((user, int(score)))
+        except (FileNotFoundError, PermissionError):
+            return
+        self.leaderboard.sort(key=lambda c: c[1], reverse=True)
 
     def draw(self):
         rl.clear_background(rl.BLACK)
@@ -58,6 +72,14 @@ class MenuView(View):
             self._draw_btn_anim()
         elif self.state == State.CLOSE_ANIM:
             self._draw_close_anim()
+        if (len(self.leaderboard)):
+            tmp = self.font_size // 2
+            x = self.width - rl.measure_text(
+                "O" * (10 + len(str(self.leaderboard[0][1])) + 1), tmp)
+            y = self.height // 2 - (len(self.leaderboard) // 2) * tmp
+            for i in range(min(10, len(self.leaderboard))):
+                rl.draw_text(f"{self.leaderboard[i][0]}: {self.leaderboard[i][1]}",
+                             x, y + tmp * i, tmp, rl.WHITE)
 
     def _draw_btn_anim(self):
         src = rl.Rectangle(0, 0, 32, 32)
