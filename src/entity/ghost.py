@@ -111,6 +111,11 @@ class Ghost(Entity, ABC):
             )
         )
 
+        self.update_velocity(new_state)
+
+        self.state = new_state
+
+    def update_velocity(self, new_state):
         match new_state:
             case self.State.ELROY1:
                 self.velocity_px = int(self.default_velocity_px * 0.80)
@@ -122,8 +127,6 @@ class Ghost(Entity, ABC):
                 self.velocity_px = self.default_velocity_px // 2
             case _:
                 self.velocity_px = int(self.default_velocity_px * 0.75)
-
-        self.state = new_state
 
     def can_cross_wall(
         self,

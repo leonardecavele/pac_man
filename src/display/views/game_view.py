@@ -24,6 +24,8 @@ class GameView(View):
         width: int = 720,
         height: int = 720,
     ) -> None:
+        self.maze = maze
+        self.config = config
         self.textures = textures
         self.width = width
         self.height = height
@@ -33,8 +35,7 @@ class GameView(View):
             maze=maze,
             config=config,
             textures=textures,
-            geometry=self.geometry,
-            cell_size=self.geometry.cell_size
+            geometry=self.geometry
         )
         self.maze_pixel_w = (self.state.maze.width *
                              (self.geometry.cell_size + self.geometry.gap)
@@ -134,4 +135,22 @@ class GameView(View):
         )
 
     def resize(self) -> None:
-        return
+        self.width = rl.get_screen_width()
+        self.height = rl.get_screen_height()
+        self.geometry = GameGeometry(
+            width=self.width, height=self.height, maze=self.maze)
+        self.state.resize(self.geometry)
+        self.maze_pixel_w = (self.state.maze.width *
+                             (self.geometry.cell_size + self.geometry.gap)
+                             + self.geometry.gap)
+        self.maze_pixel_h = (self.state.maze.height
+                             * (self.geometry.cell_size + self.geometry.gap)
+                             + self.geometry.gap)
+        self.margin = (self.width // 2 - self.maze_pixel_w // 2,
+                       self.height // 2 - self.maze_pixel_h // 2)
+        self.font_size = self.margin[1] // 2
+        self.maze_image = rl.gen_image_color(
+            self.width - 50, self.height - 50, rl.BLACK)
+        MazeRenderer(self.maze_image, self.state.maze,
+                     self.geometry.cell_size, self.geometry.gap)
+        self.maze_texture = rl.load_texture_from_image(self.maze_image)
