@@ -55,6 +55,9 @@ class EndView(View):
     def close(self) -> None:
         return
 
+    def resize(self) -> None:
+        return
+
     def _save_score(self) -> bool:
         try:
             if (not len(self.text_input.value)):

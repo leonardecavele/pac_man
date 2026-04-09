@@ -33,7 +33,7 @@ class App:
         rl.set_window_position(monitor_width // 2 - self.width // 2,
                                monitor_height // 2 - self.height // 2)
         rl.set_target_fps(self.fps)
-        # rl.set_window_state(rl.FLAG_WINDOW_RESIZABLE)
+        rl.set_window_state(rl.FLAG_WINDOW_RESIZABLE)
 
         self.textures: dict[str, rl.Texture2D] = Textures(
             18
@@ -65,6 +65,8 @@ class App:
 
     def run(self) -> None:
         while not rl.window_should_close():
+            if (rl.is_window_resized()):
+                self.current_view.resize()
             dt: float = rl.get_frame_time()
             event = self.current_view.update(dt)
 

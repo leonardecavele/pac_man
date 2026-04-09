@@ -133,3 +133,6 @@ class GameView(View):
             0.0,
             rl.WHITE,
         )
+
+    def resize(self) -> None:
+        return

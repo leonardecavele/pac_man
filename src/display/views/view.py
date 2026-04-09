@@ -31,3 +31,7 @@ class View(ABC):
     @abstractmethod
     def close(self) -> None:
         pass
+
+    @abstractmethod
+    def resize(self) -> None:
+        pass
