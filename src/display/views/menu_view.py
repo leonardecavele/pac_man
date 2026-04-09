@@ -43,7 +43,6 @@ class MenuView(View):
         self.anim_timer = 0.0
         self.anim_frame = 0
         self.anim_width = self.width
-        self._get_leaderboard()
 
     def _get_leaderboard(self) -> None:
         self.leaderboard: list[tuple[str, int]] = []
@@ -110,6 +109,7 @@ class MenuView(View):
         rl.draw_texture_pro(texture, src, dst, rl.Vector2(0, 0), 0, rl.WHITE)
 
     def update(self, dt: float) -> ViewEvent:
+        self._get_leaderboard()
         match self.state:
             case State.NORMAL:
                 return (self._update_normal(dt))
