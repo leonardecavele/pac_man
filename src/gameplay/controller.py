@@ -25,6 +25,7 @@ class GameController:
         if state.freeze_time > 0.0:
             state.freeze_time -= dt
             self._update_collectibles(state, dt)
+            self._apply_input(state, inputs)
             return GameAction(type=GameActionType.NONE)
 
         if state.pac_man.dying:
