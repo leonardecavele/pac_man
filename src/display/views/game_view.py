@@ -1,4 +1,5 @@
 import pyray as rl
+from enum import Enum, auto
 
 from src.gameplay import (
     GameActionType,
@@ -15,6 +16,11 @@ from src.parsing import Config
 from .view import View, ViewEvent, ViewEventType
 
 
+class State(Enum):
+    RUNNING = auto()
+    PAUSE = auto()
+
+
 class GameView(View):
     def __init__(
         self,
@@ -24,6 +30,7 @@ class GameView(View):
         width: int = 720,
         height: int = 720,
     ) -> None:
+        self.gamestate = State.RUNNING
         self.maze = maze
         self.config = config
         self.textures = textures
@@ -55,6 +62,14 @@ class GameView(View):
         self.maze_texture = rl.load_texture_from_image(self.maze_image)
 
     def draw(self) -> None:
+        self._draw_running()
+        if (self.gamestate == State.PAUSE):
+            self._draw_pause()
+
+    def _draw_pause(self) -> None:
+        rl.draw_text("PAUSE", 5, 5, self.font_size, rl.WHITE)
+
+    def _draw_running(self) -> None:
         rl.clear_background(rl.BLACK)
         rl.draw_texture(self.maze_texture, self.margin[0], self.margin[1],
                         rl.WHITE)
@@ -90,6 +105,24 @@ class GameView(View):
             )
 
     def update(self, dt: float) -> ViewEvent:
+        if (self.gamestate == State.RUNNING):
+            return (self._update_running(dt))
+        elif (self.gamestate == State.PAUSE):
+            return (self._update_pause(dt))
+        return ViewEvent(type=ViewEventType.NONE)
+
+    def _update_pause(self, dt: float) -> ViewEvent:
+        if (rl.is_key_pressed(rl.KEY_ESCAPE)):
+            print("Running")
+            self.gamestate = State.RUNNING
+            return ViewEvent(type=ViewEventType.NONE)
+        return ViewEvent(type=ViewEventType.NONE)
+
+    def _update_running(self, dt: float) -> ViewEvent:
+        if (rl.is_key_pressed(rl.KEY_ESCAPE)):
+            print("Pause")
+            self.gamestate = State.PAUSE
+            return ViewEvent(type=ViewEventType.NONE)
         action = self.controller.update(
             self.state, dt, self.input_reader.read())
 
