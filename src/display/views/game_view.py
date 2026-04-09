@@ -21,21 +21,20 @@ class GameView(View):
         maze: Maze,
         config: Config,
         textures: dict[str, rl.Texture2D],
-        gap: int,
-        cell_size: int,
         width: int = 720,
         height: int = 720,
     ) -> None:
         self.textures = textures
         self.width = width
         self.height = height
-        self.geometry = GameGeometry(maze=maze, gap=gap, cell_size=cell_size)
+        self.geometry = GameGeometry(
+            width=width, height=height, maze=maze)
         self.state = GameState(
             maze=maze,
             config=config,
             textures=textures,
             geometry=self.geometry,
-            cell_size=cell_size
+            cell_size=self.geometry.cell_size
         )
         self.maze_pixel_w = (self.state.maze.width *
                              (self.geometry.cell_size + self.geometry.gap)

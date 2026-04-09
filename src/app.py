@@ -48,21 +48,6 @@ class App:
         self.tick_rate: float = tick_rate
         self.tick_interval: float = 1.0 / self.tick_rate
 
-    def _compute_cell_gap_size(self) -> None:
-        self.gap = 18
-        margin = int(self.height * 0.2)
-        while self.gap >= 0:
-            self.cell_size = min(
-                (self.width - margin - (self.maze.width + 1)
-                 * self.gap) // self.maze.width,
-                (self.height - margin - (self.maze.height + 1)
-                 * self.gap) // self.maze.height,
-            ) - 1
-            if self.gap >= self.cell_size:
-                self.gap -= 2
-                continue
-            break
-
     def run(self) -> None:
         while not rl.window_should_close():
             if (rl.is_window_resized()):
@@ -79,15 +64,12 @@ class App:
                     self.maze = RandomMaze(12, 12, 13)
                 elif event.message == "classic":
                     self.maze = ClassicMaze()
-                self._compute_cell_gap_size()
                 game_view: View = GameView(
                     maze=self.maze,
                     width=self.width,
                     height=self.height,
                     config=self.config,
                     textures=self.textures,
-                    gap=self.gap,
-                    cell_size=self.cell_size
                 )
                 self.views[event.message] = game_view
                 self.current_view = self.views[event.message]
