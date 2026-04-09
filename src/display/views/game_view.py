@@ -11,6 +11,7 @@ from src.gameplay import (
 from src.entity import Collectible
 from src.display import MazeRenderer
 from src.maze import Maze
+from src.display.components import Button
 from src.parsing import Config
 
 from .view import View, ViewEvent, ViewEventType
@@ -60,14 +61,40 @@ class GameView(View):
         MazeRenderer(self.maze_image, self.state.maze,
                      self.geometry.cell_size, self.geometry.gap)
         self.maze_texture = rl.load_texture_from_image(self.maze_image)
+        self.pause_btns = [
+            Button(0, 0, "RESUME", self.font_size, lambda: None),
+            Button(0, 0, "QUIT", self.font_size, lambda: None),
+        ]
+        self._set_pause_btn_positions()
 
     def draw(self) -> None:
         self._draw_running()
         if (self.gamestate == State.PAUSE):
             self._draw_pause()
 
+    def _set_pause_btn_positions(self) -> None:
+        menu_height = self.height // 10 * 7
+        menu_top = self.height // 2 - menu_height // 2
+        for btn in self.pause_btns:
+            btn.font_size = self.font_size
+            btn.w = rl.measure_text(btn.label, self.font_size)
+            btn.h = self.font_size
+        self.pause_btns[0].x = self.width // 2 - self.pause_btns[0].w // 2
+        self.pause_btns[0].y = menu_top + menu_height * 55 // 100
+        self.pause_btns[1].x = self.width // 2 - self.pause_btns[1].w // 2
+        self.pause_btns[1].y = menu_top + menu_height * 70 // 100
+
     def _draw_pause(self) -> None:
-        rl.draw_text("PAUSE", 5, 5, self.font_size, rl.WHITE)
+        menu_width = self.width // 3
+        menu_height = self.height // 10 * 7
+        rl.draw_rectangle(self.width // 2 - menu_width // 2,
+                          self.height // 2 - menu_height // 2,
+                          menu_width, menu_height, rl.BLACK)
+        rl.draw_text("PAUSE", menu_width + menu_width // 2 -
+                     rl.measure_text("PAUSE", self.font_size) // 2,
+                     menu_height // 10 * 3, self.font_size, rl.WHITE)
+        for btn in self.pause_btns:
+            btn.draw()
 
     def _draw_running(self) -> None:
         rl.clear_background(rl.BLACK)
@@ -113,14 +140,18 @@ class GameView(View):
 
     def _update_pause(self, dt: float) -> ViewEvent:
         if (rl.is_key_pressed(rl.KEY_ESCAPE)):
-            print("Running")
             self.gamestate = State.RUNNING
             return ViewEvent(type=ViewEventType.NONE)
+        if (rl.is_mouse_button_pressed(rl.MOUSE_LEFT_BUTTON)):
+            mouse = rl.get_mouse_position()
+            if self.pause_btns[0].contains(mouse.x, mouse.y):
+                self.gamestate = State.RUNNING
+            elif self.pause_btns[1].contains(mouse.x, mouse.y):
+                return ViewEvent(type=ViewEventType.CHANGE_VIEW, message="main_menu")
         return ViewEvent(type=ViewEventType.NONE)
 
     def _update_running(self, dt: float) -> ViewEvent:
         if (rl.is_key_pressed(rl.KEY_ESCAPE)):
-            print("Pause")
             self.gamestate = State.PAUSE
             return ViewEvent(type=ViewEventType.NONE)
         action = self.controller.update(
@@ -187,3 +218,4 @@ class GameView(View):
         MazeRenderer(self.maze_image, self.state.maze,
                      self.geometry.cell_size, self.geometry.gap)
         self.maze_texture = rl.load_texture_from_image(self.maze_image)
+        self._set_pause_btn_positions()
