@@ -6,10 +6,26 @@ from src.type import vec2i, vec2f
 
 
 class GameGeometry:
-    def __init__(self, maze: Maze, gap: int, cell_size: int) -> None:
+    def __init__(self, width: int, height: int, maze: Maze) -> None:
         self.maze = maze
-        self.gap = gap
-        self.cell_size = cell_size
+        self.width = width
+        self.height = height
+        self._compute_cell_gap_size()
+
+    def _compute_cell_gap_size(self) -> None:
+        self.gap = 18
+        margin = int(self.height * 0.2)
+        while self.gap >= 0:
+            self.cell_size = min(
+                (self.width - margin - (self.maze.width + 1)
+                 * self.gap) // self.maze.width,
+                (self.height - margin - (self.maze.height + 1)
+                 * self.gap) // self.maze.height,
+            ) - 1
+            if self.gap >= self.cell_size:
+                self.gap -= 2
+                continue
+            break
 
     def maze_to_screen(self, pos: vec2i) -> vec2i:
         x, y = pos

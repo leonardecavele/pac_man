@@ -21,8 +21,7 @@ class GameState:
         maze: Maze,
         config: Config,
         textures: dict[str, dict[str, list[rl.Texture2D]] | list[rl.Texture2D]],
-        geometry: "GameGeometry",
-        cell_size: int
+        geometry: "GameGeometry"
     ) -> None:
         self.maze = maze
         self.config = config
@@ -30,7 +29,8 @@ class GameState:
         self.geometry = geometry
         self.freeze_time: float = 0.0
         self.fright_duration: float = 6.0
-        self.default_velocity_px: int = DEFAULT_VELOCITY_CELLS * cell_size
+        self.default_velocity_px: int = DEFAULT_VELOCITY_CELLS * \
+            self.geometry.cell_size
         self.ghost_behavior: dict[float, Ghost.State] = {
             7: Ghost.State.SCATTER,
             27: Ghost.State.CHASE,
@@ -251,3 +251,14 @@ class GameState:
         if self.initial_collectible_count == 0:
             return 0.0
         return len(self.collectibles) / self.initial_collectible_count
+
+    def resize(self, geometry: "GameGeometry") -> None:
+        self.geometry = geometry
+        self.default_velocity_px = DEFAULT_VELOCITY_CELLS * \
+            self.geometry.cell_size
+        for c in self.collectibles + self.ghosts + [self.pac_man]:
+            c.screen_pos = self.geometry.maze_to_screen(c.maze_pos)
+            c.default_velocity_px = self.default_velocity_px
+            if (isinstance(c, Ghost)):
+                c.update_velocity(c.state)
+        self.pac_man.velocity_px = int(self.pac_man.default_velocity_px * .8)

@@ -28,5 +28,6 @@ class Button:
             self.y <= my < self.y + self.h
         )
 
-    def draw(self):
-        rl.draw_text(self.label, self.x, self.y, self.font_size, self.color)
+    def draw(self, offset_x: int = 0):
+        rl.draw_text(self.label, self.x - offset_x,
+                     self.y, self.font_size, self.color)
