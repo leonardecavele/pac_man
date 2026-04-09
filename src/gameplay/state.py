@@ -206,7 +206,44 @@ class GameState:
                         **common_args,
                     )
                 )
+                self._put_mid_pacgums(x, y, pacgums)
         return pacgums
+
+    def _put_mid_pacgums(self, x: int, y: int,
+                         pacgums: list[Collectible]) -> None:
+        cell = self.maze.maze[y][x]
+        if (not cell.top):
+            pacgums.append(Pacgum(
+                sprite=self.textures["pacgum"],
+                points=self.config.points_per_pacgum,
+                maze=self.maze,
+                maze_pos=(x, y - .5),
+                screen_pos=self.geometry.maze_to_screen((x, y - .5))
+            ))
+        if (not cell.bot):
+            pacgums.append(Pacgum(
+                sprite=self.textures["pacgum"],
+                points=self.config.points_per_pacgum,
+                maze=self.maze,
+                maze_pos=(x, y + .5),
+                screen_pos=self.geometry.maze_to_screen((x, y + .5))
+            ))
+        if (not cell.left):
+            pacgums.append(Pacgum(
+                sprite=self.textures["pacgum"],
+                points=self.config.points_per_pacgum,
+                maze=self.maze,
+                maze_pos=(x - .5, y),
+                screen_pos=self.geometry.maze_to_screen((x - .5, y))
+            ))
+        if (not cell.right):
+            pacgums.append(Pacgum(
+                sprite=self.textures["pacgum"],
+                points=self.config.points_per_pacgum,
+                maze=self.maze,
+                maze_pos=(x + .5, y),
+                screen_pos=self.geometry.maze_to_screen((x + .5, y))
+            ))
 
     def _is_corner(self, pos: vec2i) -> bool:
         x, y = pos
