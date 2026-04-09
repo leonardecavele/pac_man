@@ -17,13 +17,15 @@ class MazeRenderer:
         border = rl.Rectangle(
             0, 0, (self.cell_size + self.gap) * self.maze.width + self.gap,
             (self.cell_size + self.gap) * self.maze.height + self.gap)
-        rl.image_draw_rectangle_lines(self.maze_image, border, 1, WALL_COLOR)
+        #rl.image_draw_rectangle_lines(self.maze_image, border, 1, WALL_COLOR)
         x, y = 0, 0
         for line in range(self.maze.height):
             for c in range(self.maze.width):
-                self._put_cell(self.maze.maze[line][c],
-                               x * (self.cell_size + self.gap) + self.gap,
-                               y * (self.cell_size + self.gap) + self.gap)
+                self._put_cell(
+                    self.maze.maze[line][c],
+                    x * (self.cell_size + self.gap) + self.gap,
+                    y * (self.cell_size + self.gap) + self.gap
+                )
                 x += 1
             x = 0
             y += 1
@@ -43,20 +45,25 @@ class MazeRenderer:
         if c.top and c.bot and c.left and c.right:
             rl.image_draw_rectangle(self.maze_image, x, y,
                                     self.cell_size + 1, self.cell_size + 1,
-                                    rl.BLACK)
+                                    rl.GRAY)
             return
         if c.top:
-            rl.image_draw_line(self.maze_image, x, y,
-                               x + self.cell_size, y, WALL_COLOR)
+            rl.image_draw_rectangle(
+                self.maze_image, x, y - self.gap // 4, self.cell_size,
+                self.gap // 4, WALL_COLOR
+            )
         if c.right:
-            rl.image_draw_line(self.maze_image, x + self.cell_size, y,
-                               x + self.cell_size, y + self.cell_size, WALL_COLOR)
+            rl.image_draw_rectangle(
+                self.maze_image, x + self.cell_size, y, 0, 0, rl.GREEN
+            )
+            #rl.image_draw_line(self.maze_image, x + self.cell_size, y,
+            #                   x + self.cell_size, y + self.cell_size, rl.GREEN)
         if c.bot:
             rl.image_draw_line(self.maze_image, x, y + self.cell_size,
-                               x + self.cell_size, y + self.cell_size, WALL_COLOR)
+                               x + self.cell_size, y + self.cell_size, rl.PINK)
         if c.left:
             rl.image_draw_line(self.maze_image, x, y,
-                               x, y + self.cell_size, WALL_COLOR)
+                               x, y + self.cell_size, rl.GRAY)
 
     def _put_links(self, c: Maze.Cell, x: int, y: int) -> None:
         c_top, c_right, c_bot, c_left = self._get_neighbors(c)
