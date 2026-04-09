@@ -42,6 +42,7 @@ class MazeRenderer:
 
     def _put_cell(self, c: Maze.Cell, x: int, y: int) -> None:
         self._put_links(c, x, y)
+
         if c.top and c.bot and c.left and c.right:
             rl.image_draw_rectangle(
                 self.maze_image, x, y, self.cell_size + 1,
@@ -51,8 +52,8 @@ class MazeRenderer:
 
         if c.top:
             rl.image_draw_rectangle(
-                self.maze_image, x, y - self.gap // 4, self.cell_size,
-                self.gap // 4, rl.BEIGE
+                self.maze_image, x, y - self.gap // 4,
+                self.cell_size, self.gap // 4, rl.BEIGE
             )
         if c.right:
             rl.image_draw_rectangle(
@@ -73,104 +74,204 @@ class MazeRenderer:
     def _put_links(self, c: Maze.Cell, x: int, y: int) -> None:
         c_top, c_right, c_bot, c_left = self._get_neighbors(c)
         self._put_gap_lines(c, x, y, c_top, c_right, c_bot, c_left)
-        self._put_hemicircles(c, x, y, c_top, c_right, c_bot, c_left)
         self._put_corners(c, x, y, c_top, c_right, c_bot, c_left)
+        self._put_hemicircles(c, x, y, c_top, c_right, c_bot, c_left)
 
     def _put_gap_lines(self, c, x, y, c_top, c_right, c_bot, c_left):
         G = self.gap
         CS = self.cell_size
+        T = max(1, G // 4)
+
         if c.bot and c_right and not c.right and c_right.bot:
-            rl.image_draw_line(self.maze_image,
-                               x + CS, y + CS, x + CS + G, y + CS, WALL_COLOR)
+            rl.image_draw_rectangle(
+                self.maze_image, x + CS, y + CS,
+                G, T, WALL_COLOR
+            )
+
         if c.top and c_right and not c.right and c_right.top:
-            rl.image_draw_line(self.maze_image,
-                               x + CS, y, x + CS + G, y, WALL_COLOR)
+            rl.image_draw_rectangle(
+                self.maze_image, x + CS, y - T,
+                G, T, WALL_COLOR
+            )
+
         if c.left and c_bot and not c.bot and c_bot.left:
-            rl.image_draw_line(self.maze_image,
-                               x, y + CS, x, y + CS + G, WALL_COLOR)
+            rl.image_draw_rectangle(
+                self.maze_image, x - T, y + CS,
+                T, G, WALL_COLOR
+            )
+
         if c.right and c_bot and not c.bot and c_bot.right:
-            rl.image_draw_line(self.maze_image,
-                               x + CS, y + CS, x + CS, y + CS + G, WALL_COLOR)
+            rl.image_draw_rectangle(
+                self.maze_image, x + CS, y + CS,
+                T, G, WALL_COLOR
+            )
 
     def _put_hemicircles(self, c, x, y, c_top, c_right, c_bot, c_left):
         G = self.gap
         G2 = G // 2
         CS = self.cell_size
-        # right hemicircle
+        T = max(1, G // 4)
+
+        # right connector
         if (c.bot and c_bot and c_right and not c.right
                 and not c_right.bot and not c_bot.right):
-            rl.image_draw_circle_lines(self.maze_image,
-                                       x + CS, y + CS + G2, G2, WALL_COLOR)
-            rl.image_draw_rectangle(self.maze_image,
-                                    x + CS - G2, y + CS + 1, G2, G - 1,
-                                    rl.BLACK)
-        # left hemicircle
+            # barre verticale au milieu du carré du gap
+            rl.image_draw_rectangle(
+                self.maze_image,
+                x + CS + G2 - T // 2,
+                y + CS,
+                T,
+                G,
+                WALL_COLOR
+            )
+
+            # diagonale haut -> barre
+            rl.image_draw_line_ex(
+                self.maze_image,
+                rl.Vector2(x + CS, y + CS),
+                rl.Vector2(x + CS + G2, y + CS + G2),
+                T,
+                WALL_COLOR
+            )
+
+            # diagonale bas -> barre
+            rl.image_draw_line_ex(
+                self.maze_image,
+                rl.Vector2(x + CS, y + CS + G),
+                rl.Vector2(x + CS + G2, y + CS + G2),
+                T,
+                WALL_COLOR
+            )
+
+        # left connector
         if (c.top and c_top and c_left and not c.left
                 and not c_left.top and not c_top.left):
-            rl.image_draw_circle_lines(self.maze_image,
-                                       x, y - G2, G2, WALL_COLOR)
-            rl.image_draw_rectangle(self.maze_image,
-                                    x + 1, y - G + 1, G2, G - 1, rl.BLACK)
-        # bot hemicircle
+            rl.image_draw_rectangle(
+                self.maze_image,
+                x - G2 - T // 2,
+                y - G,
+                T,
+                G,
+                WALL_COLOR
+            )
+
+            rl.image_draw_line_ex(
+                self.maze_image,
+                rl.Vector2(x, y - G),
+                rl.Vector2(x - G2, y - G2),
+                T,
+                WALL_COLOR
+            )
+
+            rl.image_draw_line_ex(
+                self.maze_image,
+                rl.Vector2(x, y),
+                rl.Vector2(x - G2, y - G2),
+                T,
+                WALL_COLOR
+            )
+
+        # bottom connector
         if (c.left and c_left and c_bot and not c.bot
                 and not c_bot.left and not c_left.bot):
-            rl.image_draw_circle_lines(self.maze_image,
-                                       x - G2, y + CS, G2, WALL_COLOR)
-            rl.image_draw_rectangle(self.maze_image,
-                                    x - G + 1, y + CS - G2, G - 1, G2,
-                                    rl.BLACK)
-        # top hemicircle
+            rl.image_draw_rectangle(
+                self.maze_image,
+                x - G,
+                y + CS + G2 - T // 2,
+                G,
+                T,
+                WALL_COLOR
+            )
+
+            rl.image_draw_line_ex(
+                self.maze_image,
+                rl.Vector2(x - G, y + CS),
+                rl.Vector2(x - G2, y + CS + G2),
+                T,
+                WALL_COLOR
+            )
+
+            rl.image_draw_line_ex(
+                self.maze_image,
+                rl.Vector2(x, y + CS),
+                rl.Vector2(x - G2, y + CS + G2),
+                T,
+                WALL_COLOR
+            )
+
+        # top connector
         if (c.right and c_right and c_top and not c.top
                 and not c_top.right and not c_right.top):
-            rl.image_draw_circle_lines(self.maze_image,
-                                       x + CS + G2, y, G2, WALL_COLOR)
-            rl.image_draw_rectangle(self.maze_image,
-                                    x + CS + 1, y, G, G2 + 1, rl.BLACK)
+            rl.image_draw_rectangle(
+                self.maze_image,
+                x + CS,
+                y - G2 - T // 2,
+                G,
+                T,
+                WALL_COLOR
+            )
+
+            rl.image_draw_line_ex(
+                self.maze_image,
+                rl.Vector2(x + CS, y),
+                rl.Vector2(x + CS + G2, y - G2),
+                T,
+                WALL_COLOR
+            )
+
+            rl.image_draw_line_ex(
+                self.maze_image,
+                rl.Vector2(x + CS + G, y),
+                rl.Vector2(x + CS + G2, y - G2),
+                T,
+                WALL_COLOR
+            )
 
     def _put_corners(self, c, x, y, c_top, c_right, c_bot, c_left):
         G = self.gap
         CS = self.cell_size
+        T = max(1, G // 4)
+
         # bottom-right corner
         if (c_right and c_bot and c_right.left and not c_right.bot
                 and c_bot.top and not c_bot.right):
-            rl.image_draw_circle_lines(self.maze_image,
-                                       x + CS, y + CS, G, WALL_COLOR)
-            rl.image_draw_rectangle(self.maze_image,
-                                    x + CS + 1, y, G - 1, CS, rl.BLACK)
-            rl.image_draw_rectangle(self.maze_image,
-                                    x, y + CS + 1, CS, G - 1, rl.BLACK)
-            rl.image_draw_rectangle(self.maze_image,
-                                    x + CS - G, y + CS - G, G, G, rl.BLACK)
+            rl.image_draw_line_ex(
+                self.maze_image,
+                rl.Vector2(x + CS + G, y + CS + T / 2),
+                rl.Vector2(x + CS + T / 2, y + CS + G),
+                T,
+                WALL_COLOR
+            )
+
         # top-left corner
         if (c_top and c_left and c_top.bot and not c_top.left
                 and c_left.right and not c_left.top):
-            rl.image_draw_circle_lines(self.maze_image,
-                                       x, y, G, WALL_COLOR)
-            rl.image_draw_rectangle(self.maze_image,
-                                    x, y - G + 1, CS, G - 1, rl.BLACK)
-            rl.image_draw_rectangle(self.maze_image,
-                                    x - G + 1, y, G - 1, CS, rl.BLACK)
-            rl.image_draw_rectangle(self.maze_image,
-                                    x + 1, y + 1, G, G, rl.BLACK)
+            rl.image_draw_line_ex(
+                self.maze_image,
+                rl.Vector2(x - G, y - T / 2),
+                rl.Vector2(x - T / 2, y - G),
+                T,
+                WALL_COLOR
+            )
+
         # bottom-left corner
         if (c_left and c_bot and c_left.right and not c_left.bot
                 and c_bot.top and not c_bot.left):
-            rl.image_draw_circle_lines(self.maze_image,
-                                       x, y + CS, G, WALL_COLOR)
-            rl.image_draw_rectangle(self.maze_image,
-                                    x, y + CS + 1, CS, G - 1, rl.BLACK)
-            rl.image_draw_rectangle(self.maze_image,
-                                    x - G + 1, y, G - 1, CS, rl.BLACK)
-            rl.image_draw_rectangle(self.maze_image,
-                                    x + 1, y + CS - G, G, G, rl.BLACK)
+            rl.image_draw_line_ex(
+                self.maze_image,
+                rl.Vector2(x - G, y + CS + T / 2),
+                rl.Vector2(x - T / 2, y + CS + G),
+                T,
+                WALL_COLOR
+            )
+
         # top-right corner
         if (c_top and c_right and c_top.bot and not c_top.right
                 and c_right.left and not c_right.top):
-            rl.image_draw_circle_lines(self.maze_image,
-                                       x + CS, y, G, WALL_COLOR)
-            rl.image_draw_rectangle(self.maze_image,
-                                    x, y - G + 1, CS, G - 1, rl.BLACK)
-            rl.image_draw_rectangle(self.maze_image,
-                                    x + CS + 1, y, G - 1, CS, rl.BLACK)
-            rl.image_draw_rectangle(self.maze_image,
-                                    x + CS - G, y + 1, G, G, rl.BLACK)
+            rl.image_draw_line_ex(
+                self.maze_image,
+                rl.Vector2(x + CS + T / 2, y - G),
+                rl.Vector2(x + CS + G, y - T / 2),
+                T,
+                WALL_COLOR
+            )
