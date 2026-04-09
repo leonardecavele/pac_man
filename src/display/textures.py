@@ -132,15 +132,15 @@ class Textures:
 
     def _load_pacgum_textures(self) -> rl.Texture2D:
         image = rl.gen_image_color(
-            self.cell_size - 1,
-            self.cell_size - 1,
+            128 - 1,
+            128 - 1,
             rl.BLACK,
         )
         rl.image_draw_circle(
             image,
-            self.cell_size // 2,
-            self.cell_size // 2,
-            self.cell_size // 12,
+            128 // 2,
+            128 // 2,
+            128 // 12,
             rl.BEIGE,
         )
         texture = rl.load_texture_from_image(image)
@@ -149,15 +149,15 @@ class Textures:
 
     def _load_superpacgum_textures(self) -> rl.Texture2D:
         image = rl.gen_image_color(
-            self.cell_size - 1,
-            self.cell_size - 1,
+            128 - 1,
+            128 - 1,
             rl.BLACK,
         )
         rl.image_draw_circle(
             image,
-            self.cell_size // 2,
-            self.cell_size // 2,
-            self.cell_size // 5,
+            128 // 2,
+            128 // 2,
+            128 // 5,
             rl.BEIGE,
         )
         texture = rl.load_texture_from_image(image)
