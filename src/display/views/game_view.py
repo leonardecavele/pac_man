@@ -70,7 +70,7 @@ class GameView(View):
             self.margin[1] - self.font_size - 5,
             self.font_size, rl.WHITE)
         rl.draw_text(
-            str(int(self.state.timer)),
+            str(self.state.config.level_max_time - int(self.state.timer)),
             self.margin[0] + self.maze_pixel_w // 10 * 9,
             self.margin[1] - self.font_size - 5,
             self.font_size, rl.WHITE)
