@@ -11,13 +11,16 @@ class EndView(View):
         self.action = ""
         self.width = width
         self.height = height
-        self.font_size = 40
         self.text_input = TextInput(100, 100, 40)
+        self.submit_btn = Button(1, 1, "SUBMIT", 40, lambda: None)
+        self._set_positions()
+
+    def _set_positions(self) -> None:
+        self.font_size = self.height // 16
         self.text_input.x = self.width // 2 - self.text_input.w // 2
         self.text_input.y = self.height // 2 - self.text_input.h // 2
-        self.submit_btn = Button(1, 1, "SUBMIT", 40, lambda: None)
-        self.submit_btn.x = width // 2 - self.submit_btn.w // 2
-        self.submit_btn.y = height // 2 + self.text_input.h
+        self.submit_btn.x = self.width // 2 - self.submit_btn.w // 2
+        self.submit_btn.y = self.height // 2 + self.text_input.h
 
     def draw(self) -> None:
         rl.clear_background(rl.BLACK)
@@ -35,12 +38,6 @@ class EndView(View):
 
     def update(self, dt: float) -> ViewEvent:
         self.text_input.handle_input()
-        # if (rl.is_key_down(rl.KEY_ENTER)):
-        #     self._save_score()
-        #     return (
-        #         ViewEvent(type=ViewEventType.CHANGE_VIEW,
-        #                   message="main_menu")
-        #     )
         if (rl.is_mouse_button_pressed(rl.MOUSE_LEFT_BUTTON)):
             mouse = rl.get_mouse_position()
             if (self.submit_btn.contains(mouse.x, mouse.y)):
@@ -56,7 +53,9 @@ class EndView(View):
         return
 
     def resize(self) -> None:
-        return
+        self.width = rl.get_screen_width()
+        self.height = rl.get_screen_height()
+        self._set_positions()
 
     def _save_score(self) -> bool:
         try:
