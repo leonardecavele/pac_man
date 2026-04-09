@@ -30,10 +30,17 @@ class App:
         self.height = int(monitor_height * screen_ratio)
 
         rl.set_window_size(self.width, self.height)
+        rl.set_window_position(monitor_width // 2 - self.width // 2,
+                               monitor_height // 2 - self.height // 2)
         rl.set_target_fps(self.fps)
+        # rl.set_window_state(rl.FLAG_WINDOW_RESIZABLE)
 
+        self.textures: dict[str, rl.Texture2D] = Textures(
+            18
+        )._load_textures()
         self.views: dict[str, View] = {
-            "main_menu": MenuView(width=self.width, height=self.height),
+            "main_menu": MenuView(
+                width=self.width, height=self.height, textures=self.textures),
             "end": EndView(width=self.width, height=self.height),
         }
 
@@ -71,9 +78,6 @@ class App:
                 elif event.message == "classic":
                     self.maze = ClassicMaze()
                 self._compute_cell_gap_size()
-                self.textures: dict[str, rl.Texture2D] = Textures(
-                    self.cell_size
-                )._load_textures()
                 game_view: View = GameView(
                     maze=self.maze,
                     width=self.width,
