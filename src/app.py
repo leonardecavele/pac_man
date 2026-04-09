@@ -30,7 +30,10 @@ class App:
         self.height = int(monitor_height * screen_ratio)
 
         rl.set_window_size(self.width, self.height)
+        rl.set_window_position(monitor_width // 2 - self.width // 2,
+                               monitor_height // 2 - self.height // 2)
         rl.set_target_fps(self.fps)
+        # rl.set_window_state(rl.FLAG_WINDOW_RESIZABLE)
 
         self.textures: dict[str, rl.Texture2D] = Textures(
             18

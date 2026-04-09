@@ -41,6 +41,7 @@ class MenuView(View):
         self.anim_size = 0
         self.anim_timer = 0.0
         self.anim_frame = 0
+        self.anim_width = self.width
 
     def draw(self):
         rl.clear_background(rl.BLACK)
@@ -71,13 +72,19 @@ class MenuView(View):
 
     def _draw_close_anim(self):
         src = rl.Rectangle(0, 0, 32, 32)
-        dst = rl.Rectangle(
-            self.anim_pos[0], self.anim_pos[1], self.height, self.height)
+        if (self.anim_pos[0] < 0):
+            dst = rl.Rectangle(
+                self.anim_pos[0], self.anim_pos[1], self.height, self.height)
+        else:
+            dst = rl.Rectangle(
+                0, 0, self.height, self.height)
+            delta = 1 / 120 * (self.anim_size +
+                               self.font_size) / self.anim_time
+            self.anim_width -= delta
+            pos = rl.get_window_position()
+            rl.set_window_position(int(pos.x + delta), int(pos.y))
+            rl.set_window_size(int(self.anim_width), self.height)
         texture = self.textures["pac_man"]["right"][self.anim_frame // 8 % 2]
-        rl.draw_rectangle(
-            0, 0,
-            int(self.anim_pos[0]) + self.height // 2, self.height,
-            rl.BLACK)
         rl.draw_texture_pro(texture, src, dst, rl.Vector2(0, 0), 0, rl.WHITE)
 
     def update(self, dt: float) -> ViewEvent:
@@ -187,7 +194,7 @@ class MenuView(View):
                 self.anim_timer = 0
                 self.state = State.CLOSE_ANIM
                 self.anim_pos = [-self.height, 0]
-                self.anim_size = self.width + self.height * 2
+                self.anim_size = self.width + self.height
                 self.anim_frame = 0
                 self.pending_event = ViewEvent(type=ViewEventType.QUIT)
                 return (ViewEvent(type=ViewEventType.NONE))
