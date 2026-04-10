@@ -101,7 +101,8 @@ class MazeRenderer:
     def _put_links(self, c: Maze.Cell, x: int, y: int) -> None:
         c_top, c_right, c_bot, c_left = self._get_neighbors(c)
         self._put_gap_lines(c, x, y, c_top, c_right, c_bot, c_left)
-        self._put_arcs(c, x, y, c_top, c_right, c_bot, c_left)
+        self._put_hemicircles(c, x, y, c_top, c_right, c_bot, c_left)
+        self._put_corners(c, x, y, c_top, c_right, c_bot, c_left)
 
     def _put_gap_lines(self, c, x, y, c_top, c_right, c_bot, c_left):
         G = self.gap
@@ -132,152 +133,167 @@ class MazeRenderer:
                 T, G, WALL_COLOR
             )
 
-    def _draw_tri_arc(self, p1, p2, stem_center_x, stem_center_y, stem_len, vertical):
-        T = max(1, self.thickness)
-
-        if vertical:
-            rx = int(stem_center_x - T / 2)
-            ry = int(stem_center_y - stem_len / 2)
-
-            rl.image_draw_rectangle(
-                self.maze_image,
-                rx,
-                ry,
-                T,
-                stem_len,
-                WALL_COLOR
-            )
-
-            a = rl.Vector2(stem_center_x, ry)
-            b = rl.Vector2(stem_center_x, ry + stem_len)
-        else:
-            rx = int(stem_center_x - stem_len / 2)
-            ry = int(stem_center_y - T / 2)
-
-            rl.image_draw_rectangle(
-                self.maze_image,
-                rx,
-                ry,
-                stem_len,
-                T,
-                WALL_COLOR
-            )
-
-            a = rl.Vector2(rx, stem_center_y)
-            b = rl.Vector2(rx + stem_len, stem_center_y)
-
-        rl.image_draw_line_ex(self.maze_image, p1, a, T, WALL_COLOR)
-        rl.image_draw_line_ex(self.maze_image, p2, b, T, WALL_COLOR)
-
-
-    def _put_arcs(self, c, x, y, c_top, c_right, c_bot, c_left):
+    def _put_hemicircles(self, c, x, y, c_top, c_right, c_bot, c_left):
         G = self.gap
         G2 = G // 2
         CS = self.cell_size
+        T = max(1, self.thickness)
 
-        hemi_stem = max(1, G // 2)
-        corner_stem = max(1, G // 3)
-
-        # -------------------------
-        # hemicircles
-        # -------------------------
-
-        # right connector
+        # right hemicircle
         if (c.bot and c_bot and c_right and not c.right
                 and not c_right.bot and not c_bot.right):
-            self._draw_tri_arc(
-                rl.Vector2(x + CS, y + CS),
-                rl.Vector2(x + CS, y + CS + G),
-                x + CS + G2,
-                y + CS + G2,
-                hemi_stem,
-                True
+            self._draw_thick_circle_lines(
+                x + CS, y + CS + G2, G2, T, WALL_COLOR
+            )
+            rl.image_draw_rectangle(
+                self.maze_image,
+                x + CS - G2, y + CS + T,
+                G2, G - T,
+                rl.BLACK
             )
 
-        # left connector
+        # left hemicircle
         if (c.top and c_top and c_left and not c.left
                 and not c_left.top and not c_top.left):
-            self._draw_tri_arc(
-                rl.Vector2(x, y - G),
-                rl.Vector2(x, y),
-                x - G2,
-                y - G2,
-                hemi_stem,
-                True
+            self._draw_thick_circle_lines(
+                x, y - G2, G2, T, WALL_COLOR
+            )
+            rl.image_draw_rectangle(
+                self.maze_image,
+                x + T, y - G + T,
+                G2, G - T,
+                rl.BLACK
             )
 
-        # bottom connector
+        # bot hemicircle
         if (c.left and c_left and c_bot and not c.bot
                 and not c_bot.left and not c_left.bot):
-            self._draw_tri_arc(
-                rl.Vector2(x - G, y + CS),
-                rl.Vector2(x, y + CS),
-                x - G2,
-                y + CS + G2,
-                hemi_stem,
-                False
+            self._draw_thick_circle_lines(
+                x - G2, y + CS, G2, T, WALL_COLOR
+            )
+            rl.image_draw_rectangle(
+                self.maze_image,
+                x - G + T, y + CS - G2,
+                G - T, G2,
+                rl.BLACK
             )
 
-        # top connector
+        # top hemicircle
         if (c.right and c_right and c_top and not c.top
                 and not c_top.right and not c_right.top):
-            self._draw_tri_arc(
-                rl.Vector2(x + CS, y),
-                rl.Vector2(x + CS + G, y),
-                x + CS + G2,
-                y - G2,
-                hemi_stem,
-                False
+            self._draw_thick_circle_lines(
+                x + CS + G2, y, G2, T, WALL_COLOR
+            )
+            rl.image_draw_rectangle(
+                self.maze_image,
+                x + CS + T, y,
+                G - T, G2 + T,
+                rl.BLACK
             )
 
-        # -------------------------
-        # corners
-        # -------------------------
+    def _put_corners(self, c, x, y, c_top, c_right, c_bot, c_left):
+        G = self.gap
+        CS = self.cell_size
+        T = max(1, self.thickness)
+        EXTRA = T
 
         # bottom-right corner
         if (c_right and c_bot and c_right.left and not c_right.bot
                 and c_bot.top and not c_bot.right):
-            self._draw_tri_arc(
-                rl.Vector2(x + CS + G, y + CS),
-                rl.Vector2(x + CS, y + CS + G),
-                x + CS + G2,
-                y + CS + G2,
-                corner_stem,
-                True
+            self._draw_thick_circle_lines(
+                x + CS, y + CS, G, T, WALL_COLOR
+            )
+            rl.image_draw_rectangle(
+                self.maze_image,
+                x + CS + T - EXTRA, y,
+                G - T + EXTRA, CS, rl.BLACK
+            )
+            rl.image_draw_rectangle(
+                self.maze_image,
+                x, y + CS + T - EXTRA,
+                CS, G - T + EXTRA, rl.BLACK
+            )
+            rl.image_draw_rectangle(
+                self.maze_image,
+                x + CS - G + T - EXTRA, y + CS - G + T - EXTRA,
+                G + EXTRA, G + EXTRA, rl.BLACK
             )
 
         # top-left corner
         if (c_top and c_left and c_top.bot and not c_top.left
                 and c_left.right and not c_left.top):
-            self._draw_tri_arc(
-                rl.Vector2(x, y - G),
-                rl.Vector2(x - G, y),
-                x - G2,
-                y - G2,
-                corner_stem,
-                True
+            self._draw_thick_circle_lines(
+                x, y, G, T, WALL_COLOR
+            )
+            rl.image_draw_rectangle(
+                self.maze_image,
+                x, y - G + T,
+                CS, G - T + EXTRA, rl.BLACK
+            )
+            rl.image_draw_rectangle(
+                self.maze_image,
+                x - G + T, y,
+                G - T + EXTRA, CS, rl.BLACK
+            )
+            rl.image_draw_rectangle(
+                self.maze_image,
+                x + T, y + T,
+                G + EXTRA, G + EXTRA, rl.BLACK
             )
 
         # bottom-left corner
         if (c_left and c_bot and c_left.right and not c_left.bot
                 and c_bot.top and not c_bot.left):
-            self._draw_tri_arc(
-                rl.Vector2(x - G, y + CS),
-                rl.Vector2(x, y + CS + G),
-                x - G2,
-                y + CS + G2,
-                corner_stem,
-                False
+            self._draw_thick_circle_lines(
+                x, y + CS, G, T, WALL_COLOR
+            )
+            rl.image_draw_rectangle(
+                self.maze_image,
+                x, y + CS + T - EXTRA,
+                CS, G - T + EXTRA, rl.BLACK
+            )
+            rl.image_draw_rectangle(
+                self.maze_image,
+                x - G + T, y,
+                G - T + EXTRA, CS, rl.BLACK
+            )
+            rl.image_draw_rectangle(
+                self.maze_image,
+                x + T, y + CS - G + T - EXTRA,
+                G + EXTRA, G + EXTRA, rl.BLACK
             )
 
         # top-right corner
         if (c_top and c_right and c_top.bot and not c_top.right
                 and c_right.left and not c_right.top):
-            self._draw_tri_arc(
-                rl.Vector2(x + CS, y - G),
-                rl.Vector2(x + CS + G, y),
-                x + CS + G2,
-                y - G2,
-                corner_stem,
-                False
+            self._draw_thick_circle_lines(
+                x + CS, y, G, T, WALL_COLOR
+            )
+            rl.image_draw_rectangle(
+                self.maze_image,
+                x, y - G + T,
+                CS, G - T + EXTRA, rl.BLACK
+            )
+            rl.image_draw_rectangle(
+                self.maze_image,
+                x + CS + T - EXTRA, y,
+                G - T + EXTRA, CS, rl.BLACK
+            )
+            rl.image_draw_rectangle(
+                self.maze_image,
+                x + CS - G + T - EXTRA, y + T,
+                G + EXTRA, G + EXTRA, rl.BLACK
+            )
+
+    def _draw_thick_circle_lines(
+        self, center_x: int, center_y: int,
+        radius: int, thickness: int, color: rl.Color
+    ) -> None:
+        for i in range(thickness):
+            rl.image_draw_circle_lines(
+                self.maze_image,
+                center_x,
+                center_y,
+                max(0, radius - i),
+                rl.GREEN
             )
