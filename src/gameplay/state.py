@@ -32,6 +32,7 @@ class GameState:
         self.sounds = sounds
         self.geometry = geometry
         self.freeze_time: float = 0.0
+        self.start_time: float = 0.0
         self.last_pacgum_eat_time: float = 0.0
         self.fright_duration: float = 6.0
         self.default_velocity_px: int = DEFAULT_VELOCITY_CELLS * \
@@ -63,7 +64,6 @@ class GameState:
         self.global_reset()
         self.entity_reset()
 
-        self.start: bool = True
         self.sounds.play_sound("start_music")
 
     def global_reset(self) -> None:

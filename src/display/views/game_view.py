@@ -148,12 +148,8 @@ class GameView(View):
                                self.margin[1] + self.maze_pixel_h + 5,
                                self.geometry.cell_size, self.geometry.cell_size)
             rl.draw_texture_pro(
-                self.textures["pac_man"]["left"][1],
-                src,
-                dst,
-                rl.Vector2(0, 0),
-                0.0,
-                rl.WHITE
+                self.textures["pac_man"]["left"][1], src, dst,
+                rl.Vector2(0, 0), 0.0, rl.WHITE
             )
 
         if self.state.game_over:
@@ -186,16 +182,33 @@ class GameView(View):
             box_w = (over_x + text2_w) - game_x + padding_x * 2
             box_h = font_size + padding_y * 2
 
-            rl.draw_rectangle(
-                box_x,
-                box_y,
-                box_w,
-                box_h,
-                rl.BLACK,
-            )
+            rl.draw_rectangle(box_x, box_y, box_w, box_h, rl.BLACK)
 
             rl.draw_text(text1, game_x, text_y, font_size, rl.RED)
             rl.draw_text(text2, over_x, text_y, font_size, rl.RED)
+
+        if self.state.start_time > 0.0 or self.sounds.is_playing("start_music"):
+            spawn_x, spawn_y = self.geometry.maze_to_screen(
+                self.state.pac_man_spawn
+            )
+            spawn_x += self.margin[0]
+
+            text = "READY!"
+            font_size = int(self.geometry.cell_size * 0.5)
+            text_w = rl.measure_text(text, font_size)
+            text_y = int(spawn_y - self.geometry.cell_size * 1)
+            text_x = int(spawn_x - text_w / 2)
+
+            padding_x = 8
+            padding_y = 6
+
+            box_x = text_x - padding_x
+            box_y = text_y - padding_y
+            box_w = text_w + padding_x * 2
+            box_h = font_size + padding_y * 2
+
+            rl.draw_rectangle(box_x, box_y, box_w, box_h, rl.BLACK)
+            rl.draw_text(text, text_x, text_y, font_size, rl.YELLOW)
 
     def update(self, dt: float) -> ViewEvent:
         if (self.gamestate == State.RUNNING):

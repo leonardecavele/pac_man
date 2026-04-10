@@ -29,7 +29,13 @@ class GameController:
     ) -> GameAction:
         if state.timer - state.last_pacgum_eat_time > 0.10:
             self.sounds.munch_counter = 0
+
         if self.sounds.is_playing("start_music"):
+            self._apply_input(state, inputs)
+            return GameAction(type=GameActionType.NONE)
+
+        if state.start_time > 0.0:
+            state.start_time -= dt
             self._apply_input(state, inputs)
             return GameAction(type=GameActionType.NONE)
 
@@ -45,11 +51,10 @@ class GameController:
                 self.sounds.play_sound("dying")
             self._update_pac_man(state, dt)
             if not state.pac_man.dying:
-                state.start = True
-                state.timer = 0
-                state.freeze(2)
                 if state.HP < 1:
                     return self._finish_level(state, GameActionType.GAME_OVER)
+                state.start_time = 2.0
+                state.timer = 0
                 self._retry_level(state)
             return GameAction(type=GameActionType.NONE)
 
