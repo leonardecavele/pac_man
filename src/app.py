@@ -22,6 +22,7 @@ class App:
 
         rl.set_trace_log_level(rl.LOG_NONE)
         rl.init_window(150, 150, self.title)
+        rl.set_exit_key(rl.KEY_NULL)
 
         monitor: int = rl.get_current_monitor()
         monitor_width: int = rl.get_monitor_width(monitor)

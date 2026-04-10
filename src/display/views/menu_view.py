@@ -71,10 +71,6 @@ class MenuView(View):
         self.random_btn.draw(int(self.anim_offset))
         self.inst_btn.draw(int(self.anim_offset))
         self.exit_btn.draw(int(self.anim_offset))
-        if self.state == State.BTN_ANIM:
-            self._draw_btn_anim()
-        elif self.state == State.CLOSE_ANIM:
-            self._draw_close_anim()
         if (len(self.leaderboard)):
             tmp = self.font_size // 2
             x = self.width - rl.measure_text(
@@ -83,6 +79,10 @@ class MenuView(View):
             for i in range(min(10, len(self.leaderboard))):
                 rl.draw_text(f"{self.leaderboard[i][0]}: {self.leaderboard[i][1]}",
                              x, y + tmp * i, tmp, rl.WHITE)
+        if self.state == State.BTN_ANIM:
+            self._draw_btn_anim()
+        elif self.state == State.CLOSE_ANIM:
+            self._draw_close_anim()
 
     def _draw_btn_anim(self):
         src = rl.Rectangle(0, 0, 32, 32)
