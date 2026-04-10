@@ -53,13 +53,12 @@ class GameController:
         self._update_timers(state, dt)
         self._apply_input(state, inputs)
         self._update_pac_man(state, dt)
+        self._update_collectibles(state, dt)
+        self._update_ghosts(state, dt)
 
         collectible_action = self._resolve_collectible_collisions(state)
         if collectible_action.type != GameActionType.NONE:
             return collectible_action
-
-        self._update_collectibles(state, dt)
-        self._update_ghosts(state, dt)
 
         ghost_action = self._resolve_ghost_collisions(state)
         if ghost_action.type != GameActionType.NONE:
@@ -243,7 +242,7 @@ class GameController:
             if not self._collides(state, collectible, state.pac_man):
                 continue
             state.last_pacgum_eat_time = state.timer
-            self.sounds.play_munch()
+            self.sounds.play_munch(state.pac_man)
             state.collectibles.remove(collectible)
             collectible.on_collect(state)
             self._update_elroy_state(state)
@@ -263,6 +262,7 @@ class GameController:
                 ghost.change_state(Ghost.State.EATEN)
                 ghost.update()
                 state.score += state.config.points_per_ghost
+                self.sounds.play_sound("eating_ghost")
                 state.freeze(0.75)
                 return GameAction(type=GameActionType.NONE)
             if ghost.state == Ghost.State.EATEN:

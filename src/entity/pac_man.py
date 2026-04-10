@@ -1,4 +1,3 @@
-import math
 import pyray as rl
 
 from collections.abc import Callable
@@ -24,6 +23,7 @@ class Pac_man(Entity):
         self.velocity_px = int(self.default_velocity_px * 0.80)
         self.turn_window: float = 2
         self.textures = textures
+        self.prev_direction: vec2i = (0, 0)
 
         self.dying: bool = False
         self.dying_frame: int = 0
@@ -105,6 +105,8 @@ class Pac_man(Entity):
             self.sprite = self.textures["pac_man"]["up"][idx]
 
     def update(self, dt: float = 0.0) -> None:
+        self.prev_direction = self.direction
+
         if self.dying:
             self.direction = (0, 0)
             self.origin_cell = None
