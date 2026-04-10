@@ -215,7 +215,26 @@ class GameView(View):
     def _draw_collectible(self, collectible: Collectible) -> None:
         if not collectible.visible:
             return
-        self._draw_entity(collectible, collectible.sprite)
+
+        x, y = self.geometry.get_draw_pos(collectible.screen_pos)
+        x += self.margin[0]
+        y += self.margin[1]
+
+        source = rl.Rectangle(
+            0, 0, collectible.sprite.width, collectible.sprite.height
+        )
+        dest = rl.Rectangle(
+            x, y, self.geometry.cell_size - 20, self.geometry.cell_size - 20
+        )
+
+        rl.draw_texture_pro(
+            collectible.sprite,
+            source,
+            dest,
+            rl.Vector2(0, 0),
+            0.0,
+            rl.WHITE,
+        )
 
     def _draw_entity(self, entity, sprite: rl.Texture2D) -> None:
         x, y = self.geometry.get_draw_pos(entity.screen_pos)
