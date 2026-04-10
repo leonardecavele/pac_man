@@ -74,7 +74,7 @@ class Sounds:
 
         self.paused_sounds.clear()
 
-    def play_munch(self, pac_man: Pac_man) -> None:
+    def play_munch(self) -> None:
         # working corner munch implementation but we dislike it
 
         # is_turning: bool = (

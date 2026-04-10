@@ -248,7 +248,7 @@ class GameController:
             if not self._collides(state, collectible, state.pac_man):
                 continue
             state.last_pacgum_eat_time = state.timer
-            self.sounds.play_munch(state.pac_man)
+            self.sounds.play_munch()
             state.collectibles.remove(collectible)
             collectible.on_collect(state)
             self._update_elroy_state(state)

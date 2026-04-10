@@ -60,7 +60,7 @@ class Ghost(Entity, ABC):
             self.sprite = self.textures["fleeing"][idx]
             return
         if (self.state == Ghost.State.BLINK):
-            idx = self.tick // 30 % 4
+            idx = self.tick // 8 % 4
             self.sprite = self.textures["blink"][idx]
             return
 

@@ -45,7 +45,11 @@ class App:
         self.sounds: Sounds = Sounds()
         self.views: dict[str, View] = {
             "main_menu": MenuView(
-                width=self.width, height=self.height, textures=self.textures),
+                width=self.width,
+                height=self.height,
+                textures=self.textures,
+                sounds=self.sounds
+            ),
             "end": EndView(width=self.width, height=self.height),
         }
 
