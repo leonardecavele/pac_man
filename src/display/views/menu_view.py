@@ -24,7 +24,7 @@ class MenuView(View):
 
         self.state = State.NORMAL
         self.anim_pos = [0.0, 0.0]
-        self.anim_time = 1
+        self.anim_time = 0.5
         self.pending_event: ViewEvent
         self.anim_size = 0
         self.anim_timer = 0.0
