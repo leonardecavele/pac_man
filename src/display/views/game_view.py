@@ -13,6 +13,7 @@ from src.display import MazeRenderer
 from src.maze import Maze
 from src.display.components import Button
 from src.parsing import Config
+from src.display.maze_renderer import WALL_COLOR
 
 from .view import View, ViewEvent, ViewEventType
 
@@ -80,19 +81,24 @@ class GameView(View):
             btn.w = rl.measure_text(btn.label, self.font_size)
             btn.h = self.font_size
         self.pause_btns[0].x = self.width // 2 - self.pause_btns[0].w // 2
-        self.pause_btns[0].y = menu_top + menu_height * 40 // 100
+        self.pause_btns[0].y = menu_top + menu_height * 50 // 100
         self.pause_btns[1].x = self.width // 2 - self.pause_btns[1].w // 2
-        self.pause_btns[1].y = menu_top + menu_height * 60 // 100
+        self.pause_btns[1].y = menu_top + menu_height * 65 // 100
 
     def _draw_pause(self) -> None:
         menu_width = self.width // 3
         menu_height = self.height // 10 * 7
-        rl.draw_rectangle(self.width // 2 - menu_width // 2,
+        bg = rl.Rectangle(self.width // 2 - menu_width // 2 - 1,
+                          self.height // 2 - menu_height // 2 - 1,
+                          menu_width + 2, menu_height + 2)
+        rl.draw_rectangle_rounded(bg, .15, 256, rl.Color(0, 0, 0, 200))
+        bg = rl.Rectangle(self.width // 2 - menu_width // 2,
                           self.height // 2 - menu_height // 2,
-                          menu_width, menu_height, rl.BLACK)
+                          menu_width, menu_height)
+        rl.draw_rectangle_rounded_lines(bg, .15, 256, WALL_COLOR)
         rl.draw_text("PAUSE", menu_width + menu_width // 2 -
                      rl.measure_text("PAUSE", self.font_size) // 2,
-                     menu_height // 10 * 3, self.font_size, rl.WHITE)
+                     menu_height // 10 * 4, self.font_size, rl.WHITE)
         for btn in self.pause_btns:
             btn.draw()
 
