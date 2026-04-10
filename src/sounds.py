@@ -7,24 +7,20 @@ from src.entity import Pac_man
 
 class Sounds:
     SOUND_PATHS: dict[str, str] = {
-        "credit_sound": "assets/01. Credit Sound.flac",
-        "extend_sound": "assets/05. Extend Sound.flac",
-        "pac_man_eating_the_fruit": "assets/11. PAC-MAN - Eating The Fruit.flac",
-
-        "dying": "assets/dying.flac",
-        "ghost_normal_move": "assets/ghost_move.flac",
-        "ghost_spurt_move_1": "assets/ghost_spurt_move_1.flac",
-        "ghost_spurt_move_2": "assets/ghost_spurt_move_2.flac",
-        "ghost_spurt_move_3": "assets/ghost_spurt_move_3.flac",
-        "ghost_spurt_move_4": "assets/ghost_spurt_move_4.flac",
-        "frightened": "assets/frightened.flac",
-        "eating_ghost": "assets/eating_ghost.flac",
-        "start_music": "assets/start_music.flac",
-        "eaten": "assets/eaten.flac",
-        "coffee_break_music": "assets/coffee_break_music.flac",
-        "munch1": "assets/munch1.flac",
-        "munch2": "assets/munch2.flac",
-        "munch_corner": "assets/munch_corner.flac",
+        "dying": "assets/sounds/dying.flac",
+        "ghost_normal_move": "assets/sounds/ghost_move.flac",
+        "ghost_spurt_move_1": "assets/sounds/ghost_spurt_move_1.flac",
+        "ghost_spurt_move_2": "assets/sounds/ghost_spurt_move_2.flac",
+        "ghost_spurt_move_3": "assets/sounds/ghost_spurt_move_3.flac",
+        "ghost_spurt_move_4": "assets/sounds/ghost_spurt_move_4.flac",
+        "frightened": "assets/sounds/frightened.flac",
+        "eating_ghost": "assets/sounds/eating_ghost.flac",
+        "start_music": "assets/sounds/start_music.flac",
+        "eaten": "assets/sounds/eaten.flac",
+        "coffee_break_music": "assets/sounds/coffee_break_music.flac",
+        "munch1": "assets/sounds/munch1.flac",
+        "munch2": "assets/sounds/munch2.flac",
+        "munch_corner": "assets/sounds/munch_corner.flac",
     }
 
     def __init__(self) -> None:
