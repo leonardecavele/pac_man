@@ -3,7 +3,7 @@ name = "pac-man"
 version = "0.0.1"
 
 [tool.poetry.dependencies]
-python = ">=3.13"
+python = ">=3.12"
 raylib = "==5.5.0.4"
 mazegenerator = { path = "lib/mazegenerator-00001-py3-none-any.whl" }
 pydantic = "^2.12.5"

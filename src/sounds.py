@@ -21,11 +21,14 @@ class Sounds:
         "ghost_return_to_home": "assets/14. Ghost - Return to Home.flac",
         "coffee_break_music": "assets/16. Coffee Break Music.flac",
         "game_play": "assets/17. Game Play.flac",
+        "munch1": "assets/munch1.flac",
+        "munch2": "assets/munch2.flac"
     }
 
     def __init__(self) -> None:
         self.sounds: dict[str, rl.Sound] = {}
         self._load_sounds()
+        self.munch_counter: int = 0
 
     def _load_sounds(self) -> None:
         for name, path in self.SOUND_PATHS.items():
@@ -47,3 +50,19 @@ class Sounds:
         for sound in self.sounds.values():
             rl.unload_sound(sound)
         self.sounds.clear()
+
+    def is_playing(self, name: str) -> bool:
+        sound: rl.Sound | None = self.sounds.get(name)
+        if sound is None:
+            return False
+        return rl.is_sound_playing(sound)
+
+    def play_munch(self) -> None:
+        if self.munch_counter % 2 == 0:
+            munch: str = "munch1"
+        else:
+            munch = "munch2"
+
+        if not self.is_playing("munch1") and not self.is_playing("munch2"):
+            self.play_sound(munch)
+            self.munch_counter += 1

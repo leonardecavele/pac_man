@@ -4,6 +4,7 @@ from src.display import Textures
 from src.display.views import EndView, GameView, MenuView, View, ViewEventType
 from src.maze import Maze, ClassicMaze, RandomMaze
 from src.parsing import Config
+from src.sounds import Sounds
 
 
 class App:
@@ -22,6 +23,7 @@ class App:
 
         rl.set_trace_log_level(rl.LOG_NONE)
         rl.init_window(150, 150, self.title)
+        rl.init_audio_device()
 
         monitor: int = rl.get_current_monitor()
         monitor_width: int = rl.get_monitor_width(monitor)
@@ -39,6 +41,7 @@ class App:
         self.textures: dict[str, rl.Texture2D] = Textures(
             18
         )._load_textures()
+        self.sounds: Sounds = Sounds()
         self.views: dict[str, View] = {
             "main_menu": MenuView(
                 width=self.width, height=self.height, textures=self.textures),
@@ -71,6 +74,7 @@ class App:
                     height=self.height,
                     config=self.config,
                     textures=self.textures,
+                    sounds=self.sounds
                 )
                 self.views[event.message] = game_view
                 self.current_view = self.views[event.message]
@@ -88,6 +92,8 @@ class App:
             rl.end_drawing()
 
         self._close_view()
+        self.sounds.unload_sounds()
+        rl.close_audio_device()
         rl.close_window()
 
     def _close_view(self) -> None:
