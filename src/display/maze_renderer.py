@@ -136,7 +136,7 @@ class MazeRenderer:
     def _put_hemicircles(self, c, x, y, c_top, c_right, c_bot, c_left):
         G = self.gap
         G2 = G // 2
-        CS = self.cell_size
+        CS = self.cell_size - 1
         T = max(1, self.thickness)
 
         # right hemicircle
@@ -193,7 +193,7 @@ class MazeRenderer:
 
     def _put_corners(self, c, x, y, c_top, c_right, c_bot, c_left):
         G = self.gap
-        CS = self.cell_size
+        CS = self.cell_size - 1
         T = max(1, self.thickness)
         EXTRA = T
 
@@ -295,5 +295,5 @@ class MazeRenderer:
                 center_x,
                 center_y,
                 max(0, radius - i),
-                rl.GREEN
+                color
             )
