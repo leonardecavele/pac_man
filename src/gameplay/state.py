@@ -209,10 +209,17 @@ class GameState:
                 self._put_mid_pacgums(x, y, pacgums)
         return pacgums
 
+    def _no_pacgum(self, x: float, y: float,
+                   pacgums: list[Collectible]) -> bool:
+        for i in pacgums:
+            if (i.maze_pos[0] == x and i.maze_pos[1] == y):
+                return (False)
+        return (True)
+
     def _put_mid_pacgums(self, x: int, y: int,
                          pacgums: list[Collectible]) -> None:
         cell = self.maze.maze[y][x]
-        if (not cell.top):
+        if (not cell.top and self._no_pacgum(x, y - .5, pacgums)):
             pacgums.append(Pacgum(
                 sprite=self.textures["pacgum"],
                 points=self.config.points_per_pacgum,
@@ -220,7 +227,7 @@ class GameState:
                 maze_pos=(x, y - .5),
                 screen_pos=self.geometry.maze_to_screen((x, y - .5))
             ))
-        if (not cell.bot):
+        if (not cell.bot and self._no_pacgum(x, y + .5, pacgums)):
             pacgums.append(Pacgum(
                 sprite=self.textures["pacgum"],
                 points=self.config.points_per_pacgum,
@@ -228,7 +235,7 @@ class GameState:
                 maze_pos=(x, y + .5),
                 screen_pos=self.geometry.maze_to_screen((x, y + .5))
             ))
-        if (not cell.left):
+        if (not cell.left and self._no_pacgum(x - .5, y, pacgums)):
             pacgums.append(Pacgum(
                 sprite=self.textures["pacgum"],
                 points=self.config.points_per_pacgum,
@@ -236,7 +243,7 @@ class GameState:
                 maze_pos=(x - .5, y),
                 screen_pos=self.geometry.maze_to_screen((x - .5, y))
             ))
-        if (not cell.right):
+        if (not cell.right and self._no_pacgum(x + .5, y, pacgums)):
             pacgums.append(Pacgum(
                 sprite=self.textures["pacgum"],
                 points=self.config.points_per_pacgum,
