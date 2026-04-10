@@ -76,7 +76,7 @@ class Ghost(Entity, ABC):
             return
 
         if self.maze.og and not self.released:
-            phase = self.tick // 30 % 2
+            phase = self.tick // 9 % 2
 
             if isinstance(self, Pinky):
                 if phase == 0:
