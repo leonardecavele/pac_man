@@ -55,6 +55,7 @@ class GameController:
         self._update_pac_man(state, dt)
         self._update_collectibles(state, dt)
         self._update_ghosts(state, dt)
+        self._update_ghost_sound(state)
 
         collectible_action = self._resolve_collectible_collisions(state)
         if collectible_action.type != GameActionType.NONE:
@@ -267,6 +268,7 @@ class GameController:
                 return GameAction(type=GameActionType.NONE)
             if ghost.state == Ghost.State.EATEN:
                 continue
+            self.sounds.stop_ghost_sound()
             state.freeze(0.75)
             return GameAction(type=GameActionType.GAME_OVER)
         return GameAction(type=GameActionType.NONE)
@@ -289,3 +291,37 @@ class GameController:
             abs(first.screen_pos[0] - second.screen_pos[0]) < size
             and abs(first.screen_pos[1] - second.screen_pos[1]) < size
         )
+
+    def _update_ghost_sound(self, state: GameState) -> None:
+        eaten: bool = False
+        frightened: bool = False
+
+        for ghost in state.ghosts:
+            if ghost.state == Ghost.State.EATEN:
+                eaten = True
+            elif ghost.state in (Ghost.State.FRIGHTENED, Ghost.State.BLINK):
+                frightened = True
+
+        if eaten:
+            self.sounds.play_ghost_sound("eaten")
+            return
+
+        if frightened:
+            self.sounds.play_ghost_sound("frightened")
+            return
+
+        ratio = state.collectible_ratio_remaining()
+        if ratio <= 0.10:
+            self.sounds.play_ghost_sound("ghost_spurt_move_4")
+            return
+        elif ratio <= 0.25:
+            self.sounds.play_ghost_sound("ghost_spurt_move_3")
+            return
+        elif ratio <= 0.40:
+            self.sounds.play_ghost_sound("ghost_spurt_move_2")
+            return
+        elif ratio <= 0.55:
+            self.sounds.play_ghost_sound("ghost_spurt_move_1")
+            return
+        else:
+            self.sounds.play_ghost_sound("ghost_normal_move")
