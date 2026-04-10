@@ -181,7 +181,7 @@ class MenuView(View):
                     self.random_btn.label, self.random_btn.font_size)
                 self.anim_frame = 0
                 self.pending_event = ViewEvent(
-                    type=ViewEventType.START_GAME, message="classic"
+                    type=ViewEventType.START_GAME, message="random"
                 )
                 return (ViewEvent(type=ViewEventType.NONE))
             if (self.inst_btn.contains(mouse.x, mouse.y)):
