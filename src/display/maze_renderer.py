@@ -77,45 +77,63 @@ class MazeRenderer:
             )
             return
 
+        offset = ((self.gap - self.thickness) // 2) + self.thickness // 2
+
         if c.top:
+            draw_y = y - self.thickness
             if self._both_ghost_house(c, c_top):
                 color = WALL_COLOR_GHOST_HOUSE
-                y -= ((self.gap - self.thickness) // 2) + self.thickness // 2
+                draw_y -= offset
             else:
                 color = WALL_COLOR
+
             rl.image_draw_rectangle(
-                self.maze_image, x, y - self.thickness,
+                self.maze_image, x, draw_y,
                 self.cell_size, self.thickness, color
             )
 
         if c.right:
+            draw_x = x + self.cell_size
             if self._both_ghost_house(c, c_right):
                 color = WALL_COLOR_GHOST_HOUSE
             else:
                 color = WALL_COLOR
+
             rl.image_draw_rectangle(
-                self.maze_image, x + self.cell_size, y,
+                self.maze_image, draw_x, y,
                 self.thickness, self.cell_size, color
             )
 
         if c.bot:
+            draw_y = y + self.cell_size
             if self._both_ghost_house(c, c_bot):
                 color = WALL_COLOR_GHOST_HOUSE
-                y += ((self.gap - self.thickness) // 2) + self.thickness // 2
+                draw_y += offset
+                rl.image_draw_rectangle(
+                    self.maze_image, x + self.cell_size, y + self.cell_size,
+                    self.thickness, self.gap, WALL_COLOR
+                )
+                rl.image_draw_rectangle(
+                    self.maze_image, x - self.thickness, y + self.cell_size,
+                    self.thickness, self.gap, WALL_COLOR
+                )
             else:
                 color = WALL_COLOR
+
             rl.image_draw_rectangle(
-                self.maze_image, x, y + self.cell_size,
+                self.maze_image, x, draw_y,
                 self.cell_size, self.thickness, color
             )
 
         if c.left:
+            draw_x = x - self.thickness
             if self._both_ghost_house(c, c_left):
                 color = WALL_COLOR_GHOST_HOUSE
             else:
                 color = WALL_COLOR
+
             rl.image_draw_rectangle(
-                self.maze_image, x - self.thickness, y,
+                self.maze_image, draw_x, y,
                 self.thickness, self.cell_size, color
             )
 
