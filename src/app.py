@@ -97,3 +97,46 @@ class App:
     def _close_view(self) -> None:
         for view in self.views.values():
             view.close()
+
+        width = rl.get_screen_width()
+        height = rl.get_screen_height()
+        anim_pos_x = float(-height)
+        anim_timer = 0.0
+        anim_time = 1
+        anim_frame = 0
+        anim_start_x = rl.get_window_position().x
+        anim_original_width = width
+        image = rl.load_image_from_screen()
+        bg = rl.load_texture_from_image(image)
+        rl.unload_image(image)
+
+        while anim_timer < anim_time:
+            dt = rl.get_frame_time()
+            anim_timer += dt
+            delta = dt * (width + height) / anim_time
+            anim_pos_x += delta
+            anim_frame += 1
+
+            if anim_pos_x > 0:
+                new_width = max(1, anim_original_width - int(anim_pos_x))
+                new_x = int(anim_start_x + anim_pos_x)
+                rl.set_window_position(new_x, int(rl.get_window_position().y))
+                rl.set_window_size(new_width, height)
+
+            src = rl.Rectangle(0, 0, 32, 32)
+            texture = self.textures["pac_man"]["right"][anim_frame // 8 % 2]
+
+            rl.begin_drawing()
+            rl.clear_background(rl.BLACK)
+            bg_offset = -int(anim_pos_x) if anim_pos_x > 0 else 0
+            rl.draw_texture(bg, bg_offset, 0, rl.WHITE)
+            if anim_pos_x < 0:
+                dst = rl.Rectangle(anim_pos_x, 0, height, height)
+                rl.draw_rectangle(0, 0, int(anim_pos_x) +
+                                  height // 2, height, rl.BLACK)
+            else:
+                dst = rl.Rectangle(0, 0, height, height)
+                rl.draw_rectangle(0, 0, height // 2, height, rl.BLACK)
+            rl.draw_texture_pro(texture, src, dst,
+                                rl.Vector2(0, 0), 0, rl.WHITE)
+            rl.end_drawing()
