@@ -160,7 +160,7 @@ class MazeRenderer:
             )
             rl.image_draw_rectangle(
                 self.maze_image,
-                x + T, y - G + T,
+                x + T - 2, y - G + T,
                 G2, G - T,
                 rl.BLACK
             )
@@ -173,7 +173,7 @@ class MazeRenderer:
             )
             rl.image_draw_rectangle(
                 self.maze_image,
-                x - G + T, y + CS - G2,
+                x - G + T, y + CS - G2 + 1,
                 G - T, G2,
                 rl.BLACK
             )
@@ -186,7 +186,7 @@ class MazeRenderer:
             )
             rl.image_draw_rectangle(
                 self.maze_image,
-                x + CS + T, y,
+                x + CS + T, y - 1,
                 G - T, G2 + T,
                 rl.BLACK
             )
