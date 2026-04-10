@@ -30,29 +30,27 @@ class MazeRenderer:
             x = 0
             y += 1
 
+        self._put_open_area_joints()
+
     def _put_borders(self):
         total_width = (self.cell_size + self.gap) * self.maze.width + self.gap
         total_height = (self.cell_size + self.gap) * self.maze.height + self.gap
 
-        # top
         rl.image_draw_rectangle(
             self.maze_image, 0, 0,
             total_width, self.thickness, WALL_COLOR
         )
 
-        # bottom
         rl.image_draw_rectangle(
             self.maze_image, 0, total_height - self.thickness,
             total_width, self.thickness, WALL_COLOR
         )
 
-        # left
         rl.image_draw_rectangle(
             self.maze_image, 0, 0,
             self.thickness, total_height, WALL_COLOR
         )
 
-        # right
         rl.image_draw_rectangle(
             self.maze_image, total_width - self.thickness, 0,
             self.thickness, total_height, WALL_COLOR
@@ -109,12 +107,15 @@ class MazeRenderer:
             if self._both_ghost_house(c, c_bot):
                 color = WALL_COLOR_GHOST_HOUSE
                 draw_y += offset
+
                 rl.image_draw_rectangle(
-                    self.maze_image, x + self.cell_size, y + self.cell_size,
+                    self.maze_image,
+                    x + self.cell_size, y + self.cell_size,
                     self.thickness, self.gap, WALL_COLOR
                 )
                 rl.image_draw_rectangle(
-                    self.maze_image, x - self.thickness, y + self.cell_size,
+                    self.maze_image,
+                    x - self.thickness, y + self.cell_size,
                     self.thickness, self.gap, WALL_COLOR
                 )
             else:
@@ -177,7 +178,6 @@ class MazeRenderer:
         CS = self.cell_size
         T = max(1, self.thickness)
 
-        # right hemicircle
         if (c.bot and c_bot and c_right and not c.right
                 and not c_right.bot and not c_bot.right):
             self._draw_thick_circle_lines(
@@ -190,7 +190,6 @@ class MazeRenderer:
                 rl.BLACK
             )
 
-        # left hemicircle
         if (c.top and c_top and c_left and not c.left
                 and not c_left.top and not c_top.left):
             self._draw_thick_circle_lines(
@@ -203,7 +202,6 @@ class MazeRenderer:
                 rl.BLACK
             )
 
-        # bot hemicircle
         if (c.left and c_left and c_bot and not c.bot
                 and not c_bot.left and not c_left.bot):
             self._draw_thick_circle_lines(
@@ -216,7 +214,6 @@ class MazeRenderer:
                 rl.BLACK
             )
 
-        # top hemicircle
         if (c.right and c_right and c_top and not c.top
                 and not c_top.right and not c_right.top):
             self._draw_thick_circle_lines(
@@ -237,7 +234,6 @@ class MazeRenderer:
         T = max(1, self.thickness)
         EXTRA = T
 
-        # bottom-right corner
         if (c_right and c_bot and c_right.left and not c_right.bot
                 and c_bot.top and not c_bot.right):
             self._draw_thick_circle_lines(
@@ -259,7 +255,6 @@ class MazeRenderer:
                 G + EXTRA, G + EXTRA, rl.BLACK
             )
 
-        # top-left corner
         if (c_top and c_left and c_top.bot and not c_top.left
                 and c_left.right and not c_left.top):
             self._draw_thick_circle_lines(
@@ -281,7 +276,6 @@ class MazeRenderer:
                 G + EXTRA, G + EXTRA, rl.BLACK
             )
 
-        # bottom-left corner
         if (c_left and c_bot and c_left.right and not c_left.bot
                 and c_bot.top and not c_bot.left):
             self._draw_thick_circle_lines(
@@ -303,7 +297,6 @@ class MazeRenderer:
                 G + EXTRA, G + EXTRA, rl.BLACK
             )
 
-        # top-right corner
         if (c_top and c_right and c_top.bot and not c_top.right
                 and c_right.left and not c_right.top):
             self._draw_thick_circle_lines(
@@ -338,8 +331,60 @@ class MazeRenderer:
                 color
             )
 
-    def _both_ghost_house(self, a: Maze.Cell, b: Maze.Cell) -> bool:
+    def _both_ghost_house(self, a: Maze.Cell, b: Maze.Cell | None) -> bool:
+        if b is None:
+            return False
         return (
             bool(a.value & Maze.Cell.Walls.GHOST_HOUSE)
             and bool(b.value & Maze.Cell.Walls.GHOST_HOUSE)
         )
+
+    def _is_open_2x2(self, gx: int, gy: int) -> bool:
+        if gx + 1 >= self.maze.width or gy + 1 >= self.maze.height:
+            return False
+
+        a = self.maze.maze[gy][gx]
+        b = self.maze.maze[gy][gx + 1]
+        c = self.maze.maze[gy + 1][gx]
+        d = self.maze.maze[gy + 1][gx + 1]
+
+        return (
+            not a.right
+            and not a.bot
+            and not b.left
+            and not b.bot
+            and not c.top
+            and not c.right
+            and not d.top
+            and not d.left
+        )
+
+    def _draw_center_joint(self, gx: int, gy: int) -> None:
+        step = self.cell_size + self.gap
+        center_x = (gx + 1) * step
+        center_y = (gy + 1) * step
+
+        radius = max(2, self.gap // 2)
+        thickness = max(1, self.thickness)
+
+        rl.image_draw_circle(
+            self.maze_image,
+            center_x,
+            center_y,
+            max(1, radius - thickness),
+            rl.BLACK
+        )
+
+        self._draw_thick_circle_lines(
+            center_x,
+            center_y,
+            radius,
+            thickness,
+            WALL_COLOR
+        )
+
+    def _put_open_area_joints(self) -> None:
+        for gy in range(self.maze.height - 1):
+            for gx in range(self.maze.width - 1):
+                if self._is_open_2x2(gx, gy):
+                    self._draw_center_joint(gx, gy)
