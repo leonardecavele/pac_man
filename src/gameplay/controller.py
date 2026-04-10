@@ -256,7 +256,7 @@ class GameController:
             if ghost.state == Ghost.State.EATEN:
                 continue
             state.freeze(0.75)
-            return GameAction(type=GameActionType.EAT)
+            return GameAction(type=GameActionType.GAME_OVER)
         return GameAction(type=GameActionType.NONE)
 
     def _retry_level(self, state: GameState) -> None:
