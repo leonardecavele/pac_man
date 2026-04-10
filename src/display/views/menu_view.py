@@ -10,7 +10,6 @@ from src.display.components import Button
 class State(Enum):
     NORMAL = auto()
     BTN_ANIM = auto()
-    CLOSE_ANIM = auto()
 
 
 class MenuView(View):
@@ -30,8 +29,6 @@ class MenuView(View):
         self.anim_size = 0
         self.anim_timer = 0.0
         self.anim_frame = 0
-        self.anim_width = self.width
-        self.anim_offset = 0
         self._position_btns()
 
     def _position_btns(self):
@@ -63,14 +60,12 @@ class MenuView(View):
         font_size = self.font_size * 3
         title = "PAC-MAN"
         x = self.width // 2 - rl.measure_text(title, font_size) // 2
-        if (self.state == State.CLOSE_ANIM and self.anim_pos[0] > 0):
-            x -= int(self.anim_offset / 2)
         y = font_size // 4
         rl.draw_text(title, x, y, font_size, rl.YELLOW)
-        self.classic_btn.draw(int(self.anim_offset))
-        self.random_btn.draw(int(self.anim_offset))
-        self.inst_btn.draw(int(self.anim_offset))
-        self.exit_btn.draw(int(self.anim_offset))
+        self.classic_btn.draw()
+        self.random_btn.draw()
+        self.inst_btn.draw()
+        self.exit_btn.draw()
         if (len(self.leaderboard)):
             tmp = self.font_size // 2
             x = self.width - rl.measure_text(
@@ -81,8 +76,6 @@ class MenuView(View):
                              x, y + tmp * i, tmp, rl.WHITE)
         if self.state == State.BTN_ANIM:
             self._draw_btn_anim()
-        elif self.state == State.CLOSE_ANIM:
-            self._draw_close_anim()
 
     def _draw_btn_anim(self):
         src = rl.Rectangle(0, 0, 32, 32)
@@ -95,31 +88,12 @@ class MenuView(View):
             rl.BLACK)
         rl.draw_texture_pro(texture, src, dst, rl.Vector2(0, 0), 0, rl.WHITE)
 
-    def _draw_close_anim(self):
-        src = rl.Rectangle(0, 0, 32, 32)
-        texture = self.textures["pac_man"]["right"][self.anim_frame // 8 % 2]
-
-        if self.anim_pos[0] < 0:
-            dst = rl.Rectangle(self.anim_pos[0], 0, self.height, self.height)
-            rl.draw_rectangle(0, 0, int(self.anim_pos[0]) + self.height // 2,
-                              self.height, rl.BLACK)
-        else:
-            dst = rl.Rectangle(0, 0, self.height, self.height)
-            new_width = max(1, self.anim_original_width -
-                            int(self.anim_pos[0]))
-            new_x = int(self.anim_start_x + self.anim_pos[0])
-            rl.set_window_position(new_x, int(rl.get_window_position().y))
-            rl.set_window_size(new_width, self.height)
-            rl.draw_rectangle(0, 0, self.height // 2, self.height, rl.BLACK)
-
-        rl.draw_texture_pro(texture, src, dst, rl.Vector2(0, 0), 0, rl.WHITE)
-
     def update(self, dt: float) -> ViewEvent:
         self._get_leaderboard()
         match self.state:
             case State.NORMAL:
                 return (self._update_normal(dt))
-            case State.BTN_ANIM | State.CLOSE_ANIM:
+            case State.BTN_ANIM:
                 return (self._update_anim(dt))
         return (ViewEvent(type=ViewEventType.NONE))
 
@@ -132,8 +106,6 @@ class MenuView(View):
         delta = dt * (self.anim_size +
                       self.font_size) / self.anim_time
         self.anim_pos[0] += delta
-        if (self.anim_pos[0] > 0 and self.state == State.CLOSE_ANIM):
-            self.anim_offset += delta
         return (ViewEvent(type=ViewEventType.NONE))
 
     def _update_normal(self, dt: float) -> ViewEvent:
@@ -222,16 +194,7 @@ class MenuView(View):
                 self.pending_event = ViewEvent(type=ViewEventType.NONE)
                 return (ViewEvent(type=ViewEventType.NONE))
             if (self.exit_btn.contains(mouse.x, mouse.y)):
-                self.anim_width = float(self.width)
-                self.anim_timer = 0
-                self.state = State.CLOSE_ANIM
-                self.anim_pos = [-self.height, 0]
-                self.anim_size = self.width + self.height - self.font_size
-                self.anim_frame = 0
-                self.anim_start_x = rl.get_window_position().x
-                self.anim_original_width = self.width
-                self.pending_event = ViewEvent(type=ViewEventType.QUIT)
-                return (ViewEvent(type=ViewEventType.NONE))
+                return (ViewEvent(type=ViewEventType.QUIT))
 
         return (ViewEvent(type=ViewEventType.NONE))
 
@@ -241,5 +204,4 @@ class MenuView(View):
     def resize(self) -> None:
         self.width = rl.get_screen_width()
         self.height = rl.get_screen_height()
-        if self.state != State.CLOSE_ANIM:
-            self._position_btns()
+        self._position_btns()
