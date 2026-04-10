@@ -8,7 +8,7 @@ from src.gameplay import (
     GameInputReader,
     GameState
 )
-from src.entity import Collectible
+from src.entity import Collectible, Ghost
 from src.display import MazeRenderer
 from src.maze import Maze
 from src.display.components import Button
@@ -67,6 +67,7 @@ class GameView(View):
             Button(0, 0, "QUIT", self.font_size, lambda: None),
         ]
         self._set_pause_btn_positions()
+        self.timer = 1.0
 
     def draw(self) -> None:
         self._draw_running()
@@ -110,8 +111,19 @@ class GameView(View):
         for collectible in self.state.collectibles:
             self._draw_collectible(collectible)
         for ghost in self.state.ghosts:
-            self._draw_entity(ghost, ghost.sprite)
-        self._draw_entity(self.state.pac_man, self.state.pac_man.sprite)
+            if (self.timer > 0.75 or not ghost.state == Ghost.State.EATEN):
+                self._draw_entity(ghost, ghost.sprite)
+        if (self.timer > 0.75):
+            self._draw_entity(self.state.pac_man, self.state.pac_man.sprite)
+        else:
+            x, y = self.geometry.get_draw_pos(self.state.pac_man.screen_pos)
+            x += self.margin[0]
+            y += self.margin[1]
+            rl.draw_text(str(self.state.config.points_per_ghost),
+                         x,
+                         y,
+                         int(self.geometry.cell_size * .75),
+                         rl.WHITE)
         rl.draw_text(
             str(self.state.score),
             self.margin[0] + self.maze_pixel_w // 10,
@@ -169,6 +181,7 @@ class GameView(View):
         return ViewEvent(type=ViewEventType.NONE)
 
     def _update_running(self, dt: float) -> ViewEvent:
+        self.timer += dt
         if (rl.is_key_pressed(rl.KEY_ESCAPE)):
             self.gamestate = State.PAUSE
             return ViewEvent(type=ViewEventType.NONE)
@@ -183,6 +196,8 @@ class GameView(View):
             return ViewEvent(
                 type=ViewEventType.END, message=f"game_over:{action.score}"
             )
+        if (action.type == GameActionType.EAT):
+            self.timer = 0
         return ViewEvent(type=ViewEventType.NONE)
 
     def close(self) -> None:
