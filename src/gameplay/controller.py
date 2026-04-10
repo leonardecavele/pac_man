@@ -252,6 +252,7 @@ class GameController:
             if isinstance(collectible, SuperPacgum):
                 state.freeze(0.05)
             if not state.collectibles:
+                self.sounds.stop_ghost_sound()
                 return self._finish_level(state, GameActionType.VICTORY)
             return GameAction(type=GameActionType.NONE)
         return GameAction(type=GameActionType.NONE)
