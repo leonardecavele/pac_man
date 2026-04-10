@@ -80,9 +80,9 @@ class GameView(View):
             btn.w = rl.measure_text(btn.label, self.font_size)
             btn.h = self.font_size
         self.pause_btns[0].x = self.width // 2 - self.pause_btns[0].w // 2
-        self.pause_btns[0].y = menu_top + menu_height * 55 // 100
+        self.pause_btns[0].y = menu_top + menu_height * 40 // 100
         self.pause_btns[1].x = self.width // 2 - self.pause_btns[1].w // 2
-        self.pause_btns[1].y = menu_top + menu_height * 70 // 100
+        self.pause_btns[1].y = menu_top + menu_height * 60 // 100
 
     def _draw_pause(self) -> None:
         menu_width = self.width // 3
@@ -142,12 +142,24 @@ class GameView(View):
         if (rl.is_key_pressed(rl.KEY_ESCAPE)):
             self.gamestate = State.RUNNING
             return ViewEvent(type=ViewEventType.NONE)
+        mouse = rl.get_mouse_position()
+
+        # click
         if (rl.is_mouse_button_pressed(rl.MOUSE_LEFT_BUTTON)):
-            mouse = rl.get_mouse_position()
             if self.pause_btns[0].contains(mouse.x, mouse.y):
                 self.gamestate = State.RUNNING
             elif self.pause_btns[1].contains(mouse.x, mouse.y):
                 return ViewEvent(type=ViewEventType.CHANGE_VIEW, message="main_menu")
+
+        # hover
+        if self.pause_btns[0].contains(mouse.x, mouse.y):
+            self.pause_btns[0].color = rl.YELLOW
+        else:
+            self.pause_btns[0].color = rl.WHITE
+        if self.pause_btns[1].contains(mouse.x, mouse.y):
+            self.pause_btns[1].color = rl.RED
+        else:
+            self.pause_btns[1].color = rl.WHITE
         return ViewEvent(type=ViewEventType.NONE)
 
     def _update_running(self, dt: float) -> ViewEvent:
@@ -160,10 +172,6 @@ class GameView(View):
         if action.type == GameActionType.VICTORY:
             return ViewEvent(
                 type=ViewEventType.END, message=f"victory:{action.score}"
-            )
-        if action.type == GameActionType.GAME_OVER:
-            return ViewEvent(
-                type=ViewEventType.END, message=f"game_over:{action.score}"
             )
         if action.type == GameActionType.GAME_OVER:
             return ViewEvent(
