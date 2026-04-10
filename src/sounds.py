@@ -10,6 +10,8 @@ class Sounds:
         "credit_sound": "assets/01. Credit Sound.flac",
         "extend_sound": "assets/05. Extend Sound.flac",
         "pac_man_eating_the_fruit": "assets/11. PAC-MAN - Eating The Fruit.flac",
+
+        "dying": "assets/dying.flac",
         "ghost_normal_move": "assets/ghost_move.flac",
         "ghost_spurt_move_1": "assets/ghost_spurt_move_1.flac",
         "ghost_spurt_move_2": "assets/ghost_spurt_move_2.flac",

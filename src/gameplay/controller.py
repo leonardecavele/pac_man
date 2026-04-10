@@ -64,6 +64,8 @@ class GameController:
         ghost_action = self._resolve_ghost_collisions(state)
         if ghost_action.type != GameActionType.NONE:
             state.pac_man.dying = True
+            if not self.sounds.is_playing("dying"):
+                self.sounds.play_sound("dying")
             state.HP -= 1
 
         return GameAction(type=GameActionType.NONE)
