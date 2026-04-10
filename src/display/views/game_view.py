@@ -188,6 +188,7 @@ class GameView(View):
     def _update_running(self, dt: float) -> ViewEvent:
         self.timer += dt
         if (rl.is_key_pressed(rl.KEY_ESCAPE)):
+            self.sounds.stop_ghost_sound()
             self.gamestate = State.PAUSE
             return ViewEvent(type=ViewEventType.NONE)
         action = self.controller.update(
