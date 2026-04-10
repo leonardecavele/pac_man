@@ -2,6 +2,7 @@ import pyray as rl
 from src.maze import Maze
 
 WALL_COLOR = rl.Color(25, 25, 166, 255)
+WALL_COLOR_GHOST_HOUSE = rl.PINK
 
 
 class MazeRenderer:
@@ -67,6 +68,7 @@ class MazeRenderer:
 
     def _put_cell(self, c: Maze.Cell, x: int, y: int) -> None:
         self._put_links(c, x, y)
+        c_top, c_right, c_bot, c_left = self._get_neighbors(c)
 
         if c.top and c.bot and c.left and c.right:
             rl.image_draw_rectangle(
@@ -76,24 +78,47 @@ class MazeRenderer:
             return
 
         if c.top:
+            color = (
+                WALL_COLOR_GHOST_HOUSE
+                if self._both_ghost_house(c, c_top)
+                else WALL_COLOR
+            )
             rl.image_draw_rectangle(
                 self.maze_image, x, y - self.thickness,
-                self.cell_size, self.thickness, WALL_COLOR
+                self.cell_size, self.thickness, color
             )
+
         if c.right:
+            color = (
+                WALL_COLOR_GHOST_HOUSE
+                if self._both_ghost_house(c, c_right)
+                else WALL_COLOR
+            )
             rl.image_draw_rectangle(
                 self.maze_image, x + self.cell_size, y,
-                self.thickness, self.cell_size, WALL_COLOR
+                self.thickness, self.cell_size, color
             )
+
         if c.bot:
+            color = (
+                WALL_COLOR_GHOST_HOUSE
+                if self._both_ghost_house(c, c_bot)
+                else WALL_COLOR
+            )
             rl.image_draw_rectangle(
                 self.maze_image, x, y + self.cell_size,
-                self.cell_size, self.thickness, WALL_COLOR
+                self.cell_size, self.thickness, color
             )
+
         if c.left:
+            color = (
+                WALL_COLOR_GHOST_HOUSE
+                if self._both_ghost_house(c, c_left)
+                else WALL_COLOR
+            )
             rl.image_draw_rectangle(
                 self.maze_image, x - self.thickness, y,
-                self.thickness, self.cell_size, WALL_COLOR
+                self.thickness, self.cell_size, color
             )
 
     def _put_links(self, c: Maze.Cell, x: int, y: int) -> None:
@@ -296,3 +321,9 @@ class MazeRenderer:
                 max(0, radius - i),
                 color
             )
+
+    def _both_ghost_house(self, a: Maze.Cell, b: Maze.Cell) -> bool:
+        return (
+            bool(a.value & Maze.Cell.Walls.GHOST_HOUSE)
+            and bool(b.value & Maze.Cell.Walls.GHOST_HOUSE)
+        )
