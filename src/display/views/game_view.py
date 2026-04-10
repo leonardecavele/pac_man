@@ -117,8 +117,12 @@ class GameView(View):
 
         for collectible in self.state.collectibles:
             self._draw_collectible(collectible)
+
         for ghost in self.state.ghosts:
-            if (self.timer > 0.75 or not ghost.state == Ghost.State.EATEN):
+            if (
+                (self.timer > 0.75 or not ghost.state == Ghost.State.EATEN)
+                and self.state.music_hide <= 0.0
+            ):
                 self._draw_entity(ghost, ghost.sprite)
         if (self.timer > 0.75):
             self._draw_entity(self.state.pac_man, self.state.pac_man.sprite)
@@ -230,7 +234,9 @@ class GameView(View):
                 self.gamestate = State.RUNNING
                 self.sounds.resume_all_sounds()
             elif self.pause_btns[1].contains(mouse.x, mouse.y):
-                return ViewEvent(type=ViewEventType.CHANGE_VIEW, message="main_menu")
+                return ViewEvent(
+                    type=ViewEventType.CHANGE_VIEW, message="main_menu"
+                )
 
         # hover
         if self.pause_btns[0].contains(mouse.x, mouse.y):
@@ -245,6 +251,9 @@ class GameView(View):
 
     def _update_running(self, dt: float) -> ViewEvent:
         self.timer += dt
+
+        if self.state.music_hide > 0.0:
+            self.state.music_hide -= dt
 
         if self.state.game_over:
             self.game_over_timer += dt

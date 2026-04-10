@@ -33,6 +33,7 @@ class GameState:
         self.geometry = geometry
         self.freeze_time: float = 0.0
         self.start_time: float = 0.0
+        self.music_hide: float = 4.0
         self.last_pacgum_eat_time: float = 0.0
         self.fright_duration: float = 6.0
         self.default_velocity_px: int = DEFAULT_VELOCITY_CELLS * \
@@ -70,6 +71,7 @@ class GameState:
         self.HP = self.config.lives
         self.score: int = 0
         self.timer: float = 0.0
+        self.music_hide: float = 4.0
 
         self.collectibles: list[Collectible] = self._gen_collectibles()
         self.initial_collectible_count: int = len(self.collectibles)
