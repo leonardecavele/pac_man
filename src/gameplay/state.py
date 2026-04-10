@@ -106,22 +106,32 @@ class GameState:
             textures=self.textures
         )
 
+        if self.maze.og:
+            blinky_sprite = self.textures["blinky"]["left"][0]
+            inky_sprite = self.textures["inky"]["up"][0]
+            pinky_sprite = self.textures["pinky"]["down"][0]
+            clyde_sprite = self.textures["clyde"]["up"][0]
+        else:
+            blinky_sprite = self.textures["blinky"]["down"][0]
+            inky_sprite = self.textures["inky"]["left"][0]
+            pinky_sprite = self.textures["pinky"]["right"][0]
+            clyde_sprite = self.textures["clyde"]["up"][0]
+
         blinky = Blinky(
             screen_pos=self.geometry.maze_to_screen(blinky_spawn),
             maze_pos=blinky_spawn,
-            sprite=self.textures["blinky"]["left"][0],
+            sprite=blinky_sprite,
             m=self.maze,
             pac_man=self.pac_man,
             textures=self.textures,
             house_pos=blinky_spawn,
             default_velocity_px=self.default_velocity_px
         )
-        blinky.direction = Direction.LEFT.value
 
         inky = Inky(
             screen_pos=self.geometry.maze_to_screen(inky_spawn),
             maze_pos=inky_spawn,
-            sprite=self.textures["inky"]["up"][0],
+            sprite=inky_sprite,
             m=self.maze,
             pac_man=self.pac_man,
             blinky=blinky,
@@ -129,51 +139,63 @@ class GameState:
             house_pos=inky_spawn,
             default_velocity_px=self.default_velocity_px
         )
-        inky.direction = Direction.TOP.value
 
         pinky = Pinky(
             screen_pos=self.geometry.maze_to_screen(pinky_spawn),
             maze_pos=pinky_spawn,
-            sprite=self.textures["pinky"]["down"][0],
+            sprite=pinky_sprite,
             m=self.maze,
             pac_man=self.pac_man,
             textures=self.textures,
             house_pos=pinky_spawn,
             default_velocity_px=self.default_velocity_px
         )
-        pinky.direction = Direction.BOT.value
 
         clyde = Clyde(
             screen_pos=self.geometry.maze_to_screen(clyde_spawn),
             maze_pos=clyde_spawn,
-            sprite=self.textures["clyde"]["up"][0],
+            sprite=clyde_sprite,
             m=self.maze,
             pac_man=self.pac_man,
             textures=self.textures,
             house_pos=clyde_spawn,
             default_velocity_px=self.default_velocity_px
         )
-        clyde.direction = Direction.TOP.value
+
+        if self.maze.og:
+            blinky.direction = Direction.LEFT.value
+            inky.direction = Direction.TOP.value
+            pinky.direction = Direction.BOT.value
+            clyde.direction = Direction.TOP.value
+        else:
+            blinky.direction = Direction.BOT.value
+            inky.direction = Direction.LEFT.value
+            pinky.direction = Direction.RIGHT.value
+            clyde.direction = Direction.TOP.value
 
         self.ghosts: list[Ghost] = [blinky, inky, pinky, clyde]
 
         for ghost in self.ghosts:
             if self.maze.og:
                 ghost.house_exit = house_exit
+                ghost.released = False
+                ghost.exiting_house = False
             else:
                 ghost.house_exit = ghost.house
-            ghost.released = False
-            ghost.exiting_house = False
+                ghost.released = True
+                ghost.exiting_house = False
+
             ghost.change_state(self.current_ghost_mode)
             ghost.flip = False
             ghost.origin_cell = None
             ghost.target_cell = None
 
-        blinky.released = True
-        blinky.exiting_house = False
-        blinky.direction = Direction.LEFT.value
-        blinky.origin_cell = blinky.maze_pos
-        blinky.target_cell = (blinky.maze_pos[0] - 1, blinky.maze_pos[1])
+        if self.maze.og:
+            blinky.released = True
+            blinky.exiting_house = False
+            blinky.direction = Direction.LEFT.value
+            blinky.origin_cell = blinky.maze_pos
+            blinky.target_cell = (blinky.maze_pos[0] - 1, blinky.maze_pos[1])
 
     def _gen_collectibles(self) -> list[Collectible]:
         pacgums: list[Collectible] = []
