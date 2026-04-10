@@ -11,6 +11,7 @@ class GameActionType(Enum):
     NONE = auto()
     VICTORY = auto()
     GAME_OVER = auto()
+    EAT = auto()
 
 
 class GameAction(BaseModel):
@@ -51,6 +52,8 @@ class GameController:
             return collectible_action
 
         ghost_action = self._resolve_ghost_collisions(state)
+        if (ghost_action.type == GameActionType.EAT):
+            return (ghost_action)
         if ghost_action.type != GameActionType.NONE:
             state.pac_man.dying = True
             state.HP -= 1
@@ -249,11 +252,11 @@ class GameController:
                 ghost.update()
                 state.score += state.config.points_per_ghost
                 state.freeze(0.75)
-                return GameAction(type=GameActionType.NONE)
+                return GameAction(type=GameActionType.EAT)
             if ghost.state == Ghost.State.EATEN:
                 continue
             state.freeze(0.75)
-            return GameAction(type=GameActionType.GAME_OVER)
+            return GameAction(type=GameActionType.EAT)
         return GameAction(type=GameActionType.NONE)
 
     def _retry_level(self, state: GameState) -> None:
