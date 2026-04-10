@@ -61,6 +61,7 @@ class App:
                 break
             if (event.type == ViewEventType.CHANGE_VIEW):
                 self.current_view = self.views[event.message]
+                self.current_view.resize()
             if event.type == ViewEventType.START_GAME:
                 if event.message == "random":
                     self.maze = RandomMaze(12, 12, 13)
@@ -75,10 +76,12 @@ class App:
                 )
                 self.views[event.message] = game_view
                 self.current_view = self.views[event.message]
+                self.current_view.resize()
                 continue
             if event.type == ViewEventType.END:
                 action, score = event.message.split(":")
                 self.current_view = self.views["end"]
+                self.current_view.resize()
                 if isinstance(self.current_view, EndView):
                     self.current_view.action = action
                     self.current_view.score = int(score)
