@@ -18,6 +18,9 @@ from src.display.maze_renderer import WALL_COLOR
 from .view import View, ViewEvent, ViewEventType
 
 
+CHEAT_MODE_COMB = [65, 66, 67]
+
+
 class State(Enum):
     RUNNING = auto()
     PAUSE = auto()
@@ -68,6 +71,8 @@ class GameView(View):
         ]
         self._set_pause_btn_positions()
         self.timer = 1.0
+        self.comb_idx = 0
+        self.cheat_mode = False
 
     def draw(self) -> None:
         self._draw_running()
@@ -108,6 +113,8 @@ class GameView(View):
         rl.draw_texture(self.maze_texture, self.margin[0], self.margin[1],
                         rl.WHITE)
 
+        if (self.cheat_mode):
+            rl.draw_text("CHEAT ON", 5, 5, self.font_size, rl.WHITE)
         for collectible in self.state.collectibles:
             self._draw_collectible(collectible)
         for ghost in self.state.ghosts:
@@ -157,6 +164,14 @@ class GameView(View):
         return ViewEvent(type=ViewEventType.NONE)
 
     def _update_pause(self, dt: float) -> ViewEvent:
+        key = rl.get_key_pressed()
+        if (not self.cheat_mode and key == CHEAT_MODE_COMB[self.comb_idx]):
+            self.comb_idx += 1
+        elif (key != 0):
+            self.comb_idx = 0
+        if (self.comb_idx >= len(CHEAT_MODE_COMB)):
+            self.cheat_mode = True
+            self.comb_idx = 0
         if (rl.is_key_pressed(rl.KEY_ESCAPE)):
             self.gamestate = State.RUNNING
             return ViewEvent(type=ViewEventType.NONE)
