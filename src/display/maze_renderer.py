@@ -60,11 +60,9 @@ class MazeRenderer:
     def _get_neighbors(self, c: Maze.Cell):
         x, y = c.pos
         c_top = self.maze.maze[y - 1][x] if y > 0 else None
-        c_bot = self.maze.maze[y +
-                               1][x] if y < len(self.maze.maze) - 1 else None
+        c_bot = self.maze.maze[y + 1][x] if y < len(self.maze.maze) - 1 else None
         c_left = self.maze.maze[y][x - 1] if x > 0 else None
-        c_right = self.maze.maze[y][x +
-                                    1] if x < len(self.maze.maze[0]) - 1 else None
+        c_right = self.maze.maze[y][x + 1] if x < len(self.maze.maze[0]) - 1 else None
         return c_top, c_right, c_bot, c_left
 
     def _put_cell(self, c: Maze.Cell, x: int, y: int) -> None:
@@ -101,8 +99,7 @@ class MazeRenderer:
     def _put_links(self, c: Maze.Cell, x: int, y: int) -> None:
         c_top, c_right, c_bot, c_left = self._get_neighbors(c)
         self._put_gap_lines(c, x, y, c_top, c_right, c_bot, c_left)
-        self._put_hemicircles(c, x, y, c_top, c_right, c_bot, c_left)
-        self._put_corners(c, x, y, c_top, c_right, c_bot, c_left)
+        self._put_arcs(c, x, y, c_top, c_right, c_bot, c_left)
 
     def _put_gap_lines(self, c, x, y, c_top, c_right, c_bot, c_left):
         G = self.gap
@@ -133,7 +130,7 @@ class MazeRenderer:
                 T, G, WALL_COLOR
             )
 
-    def _put_hemicircles(self, c, x, y, c_top, c_right, c_bot, c_left):
+    def _put_arcs(self, c, x, y, c_top, c_right, c_bot, c_left):
         G = self.gap
         G2 = G // 2
         CS = self.cell_size
@@ -190,6 +187,8 @@ class MazeRenderer:
                 G - T, G2 + T,
                 rl.BLACK
             )
+
+        self._put_corners(c, x, y, c_top, c_right, c_bot, c_left)
 
     def _put_corners(self, c, x, y, c_top, c_right, c_bot, c_left):
         G = self.gap
