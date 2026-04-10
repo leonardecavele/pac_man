@@ -73,6 +73,8 @@ class GameView(View):
         ]
         self._set_pause_btn_positions()
         self.timer = 1.0
+        self.game_over_timer = 0.0
+        self.game_over_delay = 2.0
 
     def draw(self) -> None:
         self._draw_running()
@@ -154,6 +156,47 @@ class GameView(View):
                 rl.WHITE
             )
 
+        if self.state.game_over:
+            spawn_x, spawn_y = self.geometry.maze_to_screen(
+                self.state.pac_man_spawn
+            )
+            spawn_x += self.margin[0]
+            spawn_y += self.margin[1]
+
+            text1 = "GAME"
+            text2 = "OVER"
+
+            font_size = int(self.geometry.cell_size * 0.5)
+            text1_w = rl.measure_text(text1, font_size)
+            text2_w = rl.measure_text(text2, font_size)
+
+            center_x = spawn_x + self.geometry.cell_size
+            text_y = int(
+                spawn_y + self.geometry.cell_size / 2 - (font_size * 1.5)
+            )
+
+            game_x = int(center_x - (self.geometry.cell_size * 1.5) - text1_w)
+            over_x = int(center_x + self.geometry.cell_size - text2_w)
+
+            padding_x = 8
+            padding_y = 6
+
+            box_x = game_x - padding_x
+            box_y = text_y - padding_y
+            box_w = (over_x + text2_w) - game_x + padding_x * 2
+            box_h = font_size + padding_y * 2
+
+            rl.draw_rectangle(
+                box_x,
+                box_y,
+                box_w,
+                box_h,
+                rl.BLACK,
+            )
+
+            rl.draw_text(text1, game_x, text_y, font_size, rl.RED)
+            rl.draw_text(text2, over_x, text_y, font_size, rl.RED)
+
     def update(self, dt: float) -> ViewEvent:
         if (self.gamestate == State.RUNNING):
             return (self._update_running(dt))
@@ -189,23 +232,37 @@ class GameView(View):
 
     def _update_running(self, dt: float) -> ViewEvent:
         self.timer += dt
+
+        if self.state.game_over:
+            self.game_over_timer += dt
+            if self.game_over_timer >= self.game_over_delay:
+                score: int = self.state.score
+                self.state.global_reset()
+                return ViewEvent(
+                    type=ViewEventType.END,
+                    message=f"game_over:{score}"
+                )
+            return ViewEvent(type=ViewEventType.NONE)
+
         if (rl.is_key_pressed(rl.KEY_ESCAPE)):
             self.sounds.pause_all_sounds()
             self.gamestate = State.PAUSE
             return ViewEvent(type=ViewEventType.NONE)
-        action = self.controller.update(
-            self.state, dt, self.input_reader.read())
 
+        action = self.controller.update(
+            self.state, dt, self.input_reader.read()
+        )
         if action.type == GameActionType.VICTORY:
             return ViewEvent(
                 type=ViewEventType.END, message=f"victory:{action.score}"
             )
         if action.type == GameActionType.GAME_OVER:
-            return ViewEvent(
-                type=ViewEventType.END, message=f"game_over:{action.score}"
-            )
+            self.state.game_over = True
+            self.game_over_timer = 0.0
+            return ViewEvent(type=ViewEventType.NONE)
         if (action.type == GameActionType.EAT):
             self.timer = 0
+
         return ViewEvent(type=ViewEventType.NONE)
 
     def close(self) -> None:

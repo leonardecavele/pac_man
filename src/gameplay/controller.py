@@ -286,7 +286,6 @@ class GameController:
         self, state: GameState, action_type: GameActionType
     ) -> GameAction:
         final_score = state.score
-        state.global_reset()
         return GameAction(type=action_type, score=final_score)
 
     def _collides(

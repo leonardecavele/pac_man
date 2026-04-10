@@ -28,6 +28,7 @@ class GameState:
         self.maze = maze
         self.config = config
         self.textures = textures
+        self.game_over: bool = False
         self.sounds = sounds
         self.geometry = geometry
         self.freeze_time: float = 0.0
@@ -82,7 +83,7 @@ class GameState:
         center: vec2i = (self.maze.width // 2, self.maze.height // 2)
 
         if self.maze.og:
-            pac_man_spawn: vec2i = (center[0], 7)
+            self.pac_man_spawn: vec2i = (center[0], 7)
             house_exit: vec2i = (center[0], 3)
             blinky_spawn: vec2i = house_exit
             inky_spawn: vec2i = (max(0, center[0] - 1), house_exit[1] + 1)
@@ -91,15 +92,15 @@ class GameState:
             )
             pinky_spawn: vec2i = (center[0], house_exit[1] + 1)
         else:
-            pac_man_spawn = center
+            self.pac_man_spawn = center
             blinky_spawn = (self.maze.width - 1, 0)
             pinky_spawn = (0, 0)
             inky_spawn = (self.maze.width - 1, self.maze.height - 1)
             clyde_spawn = (0, self.maze.height - 1)
 
         self.pac_man = Pac_man(
-            screen_pos=self.geometry.maze_to_screen(pac_man_spawn),
-            maze_pos=pac_man_spawn,
+            screen_pos=self.geometry.maze_to_screen(self.pac_man_spawn),
+            maze_pos=self.pac_man_spawn,
             sprite=self.textures["pac_man"]["dying"][0],
             m=self.maze,
             default_velocity_px=self.default_velocity_px,
