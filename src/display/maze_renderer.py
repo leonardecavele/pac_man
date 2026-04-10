@@ -136,14 +136,14 @@ class MazeRenderer:
     def _put_hemicircles(self, c, x, y, c_top, c_right, c_bot, c_left):
         G = self.gap
         G2 = G // 2
-        CS = self.cell_size - 1
+        CS = self.cell_size
         T = max(1, self.thickness)
 
         # right hemicircle
         if (c.bot and c_bot and c_right and not c.right
                 and not c_right.bot and not c_bot.right):
             self._draw_thick_circle_lines(
-                x + CS, y + CS + G2, G2, T, WALL_COLOR
+                x + CS, y + CS + G2, G2 - 1, T, WALL_COLOR
             )
             rl.image_draw_rectangle(
                 self.maze_image,
@@ -156,7 +156,7 @@ class MazeRenderer:
         if (c.top and c_top and c_left and not c.left
                 and not c_left.top and not c_top.left):
             self._draw_thick_circle_lines(
-                x, y - G2, G2, T, WALL_COLOR
+                x, y - G2, G2 - 1, T, WALL_COLOR
             )
             rl.image_draw_rectangle(
                 self.maze_image,
@@ -169,7 +169,7 @@ class MazeRenderer:
         if (c.left and c_left and c_bot and not c.bot
                 and not c_bot.left and not c_left.bot):
             self._draw_thick_circle_lines(
-                x - G2, y + CS, G2, T, WALL_COLOR
+                x - G2, y + CS, G2 - 1, T, WALL_COLOR
             )
             rl.image_draw_rectangle(
                 self.maze_image,
@@ -182,7 +182,7 @@ class MazeRenderer:
         if (c.right and c_right and c_top and not c.top
                 and not c_top.right and not c_right.top):
             self._draw_thick_circle_lines(
-                x + CS + G2, y, G2, T, WALL_COLOR
+                x + CS + G2, y, G2 - 1, T, WALL_COLOR
             )
             rl.image_draw_rectangle(
                 self.maze_image,
