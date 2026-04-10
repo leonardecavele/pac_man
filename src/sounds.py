@@ -32,6 +32,7 @@ class Sounds:
         self._load_sounds()
         self.munch_counter: int = 0
         self.current_ghost_sound: str | None = None
+        self.paused_sounds: set[str] = set()
 
     def _load_sounds(self) -> None:
         for name, path in self.SOUND_PATHS.items():
@@ -59,6 +60,23 @@ class Sounds:
         if sound is None:
             return False
         return rl.is_sound_playing(sound)
+
+    def pause_all_sounds(self) -> None:
+        self.paused_sounds.clear()
+
+        for name, sound in self.sounds.items():
+            if rl.is_sound_playing(sound):
+                rl.pause_sound(sound)
+                self.paused_sounds.add(name)
+
+    def resume_all_sounds(self) -> None:
+        for name in self.paused_sounds:
+            sound: rl.Sound | None = self.sounds.get(name)
+            if sound is None:
+                continue
+            rl.resume_sound(sound)
+
+        self.paused_sounds.clear()
 
     def play_munch(self, pac_man: Pac_man) -> None:
         # working corner munch implementation but we dislike it

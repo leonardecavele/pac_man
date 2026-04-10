@@ -41,6 +41,8 @@ class GameController:
 
         if state.pac_man.dying:
             state.ghosts = []
+            if not self.sounds.is_playing("dying"):
+                self.sounds.play_sound("dying")
             self._update_pac_man(state, dt)
             if not state.pac_man.dying:
                 state.start = True
@@ -67,8 +69,6 @@ class GameController:
             return (ghost_action)
         if ghost_action.type != GameActionType.NONE:
             state.pac_man.dying = True
-            if not self.sounds.is_playing("dying"):
-                self.sounds.play_sound("dying")
             state.HP -= 1
 
         return GameAction(type=GameActionType.NONE)
