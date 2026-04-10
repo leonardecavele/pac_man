@@ -2,7 +2,7 @@ import pyray as rl
 from src.maze import Maze
 
 WALL_COLOR = rl.Color(25, 25, 166, 255)
-WALL_COLOR_GHOST_HOUSE = rl.PINK
+WALL_COLOR_GHOST_HOUSE = rl.BEIGE
 
 
 class MazeRenderer:
@@ -78,44 +78,42 @@ class MazeRenderer:
             return
 
         if c.top:
-            color = (
-                WALL_COLOR_GHOST_HOUSE
-                if self._both_ghost_house(c, c_top)
-                else WALL_COLOR
-            )
+            if self._both_ghost_house(c, c_top):
+                color = WALL_COLOR_GHOST_HOUSE
+                y -= ((self.gap - self.thickness) // 2) + self.thickness // 2
+            else:
+                color = WALL_COLOR
             rl.image_draw_rectangle(
                 self.maze_image, x, y - self.thickness,
                 self.cell_size, self.thickness, color
             )
 
         if c.right:
-            color = (
-                WALL_COLOR_GHOST_HOUSE
-                if self._both_ghost_house(c, c_right)
-                else WALL_COLOR
-            )
+            if self._both_ghost_house(c, c_right):
+                color = WALL_COLOR_GHOST_HOUSE
+            else:
+                color = WALL_COLOR
             rl.image_draw_rectangle(
                 self.maze_image, x + self.cell_size, y,
                 self.thickness, self.cell_size, color
             )
 
         if c.bot:
-            color = (
-                WALL_COLOR_GHOST_HOUSE
-                if self._both_ghost_house(c, c_bot)
-                else WALL_COLOR
-            )
+            if self._both_ghost_house(c, c_bot):
+                color = WALL_COLOR_GHOST_HOUSE
+                y += ((self.gap - self.thickness) // 2) + self.thickness // 2
+            else:
+                color = WALL_COLOR
             rl.image_draw_rectangle(
                 self.maze_image, x, y + self.cell_size,
                 self.cell_size, self.thickness, color
             )
 
         if c.left:
-            color = (
-                WALL_COLOR_GHOST_HOUSE
-                if self._both_ghost_house(c, c_left)
-                else WALL_COLOR
-            )
+            if self._both_ghost_house(c, c_left):
+                color = WALL_COLOR_GHOST_HOUSE
+            else:
+                color = WALL_COLOR
             rl.image_draw_rectangle(
                 self.maze_image, x - self.thickness, y,
                 self.thickness, self.cell_size, color
