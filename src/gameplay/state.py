@@ -8,6 +8,7 @@ from src.entity import (
 from src.maze import Maze
 from src.parsing import Config
 from src.type import vec2i, Direction
+from src.sounds import Sounds
 
 if TYPE_CHECKING:
     from .helper import GameGeometry
@@ -21,13 +22,16 @@ class GameState:
         maze: Maze,
         config: Config,
         textures: dict[str, dict[str, list[rl.Texture2D]] | list[rl.Texture2D]],
+        sounds: Sounds,
         geometry: "GameGeometry"
     ) -> None:
         self.maze = maze
         self.config = config
         self.textures = textures
+        self.sounds = sounds
         self.geometry = geometry
         self.freeze_time: float = 0.0
+        self.last_pacgum_eat_time: float = 0.0
         self.fright_duration: float = 6.0
         self.default_velocity_px: int = DEFAULT_VELOCITY_CELLS * \
             self.geometry.cell_size
@@ -59,7 +63,7 @@ class GameState:
         self.entity_reset()
 
         self.start: bool = True
-        self.freeze(2)
+        self.sounds.play_sound("start_music")
 
     def global_reset(self) -> None:
         self.HP = self.config.lives

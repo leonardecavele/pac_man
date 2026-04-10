@@ -14,6 +14,7 @@ from src.maze import Maze
 from src.display.components import Button
 from src.parsing import Config
 from src.display.maze_renderer import WALL_COLOR
+from src.sounds import Sounds
 
 from .view import View, ViewEvent, ViewEventType
 
@@ -29,6 +30,7 @@ class GameView(View):
         maze: Maze,
         config: Config,
         textures: dict[str, rl.Texture2D],
+        sounds: Sounds,
         width: int = 720,
         height: int = 720,
     ) -> None:
@@ -36,14 +38,17 @@ class GameView(View):
         self.maze = maze
         self.config = config
         self.textures = textures
+        self.sounds = sounds
         self.width = width
         self.height = height
         self.geometry = GameGeometry(
-            width=width, height=height, maze=maze)
+            width=width, height=height, maze=maze
+        )
         self.state = GameState(
             maze=maze,
             config=config,
             textures=textures,
+            sounds=self.sounds,
             geometry=self.geometry
         )
         self.maze_pixel_w = (self.state.maze.width *
@@ -55,7 +60,7 @@ class GameView(View):
         self.margin = (self.width // 2 - self.maze_pixel_w // 2,
                        self.height // 2 - self.maze_pixel_h // 2)
         self.font_size = self.margin[1] // 2
-        self.controller = GameController()
+        self.controller = GameController(self.sounds)
         self.input_reader = GameInputReader()
         self.maze_image = rl.gen_image_color(
             self.width - 50, self.height - 50, rl.BLACK)
