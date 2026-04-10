@@ -1,5 +1,7 @@
 import pyray as rl
 
+from random import randint
+
 from src.display import Textures
 from src.display.views import EndView, GameView, MenuView, View, ViewEventType
 from src.maze import Maze, ClassicMaze, RandomMaze
@@ -71,7 +73,7 @@ class App:
                 self.current_view.resize()
             if event.type == ViewEventType.START_GAME:
                 if event.message == "random":
-                    self.maze = RandomMaze(12, 12, 13)
+                    self.maze = RandomMaze(12, 12, randint(0, 10**9))
                 elif event.message == "classic":
                     self.maze = ClassicMaze()
                 game_view: View = GameView(
