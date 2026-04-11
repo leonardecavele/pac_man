@@ -382,8 +382,10 @@ class GameView(View):
         source = rl.Rectangle(
             0, 0, collectible.sprite.width, collectible.sprite.height
         )
+        offset = 10
         dest = rl.Rectangle(
-            x, y, self.geometry.cell_size - 20, self.geometry.cell_size - 20
+            x + offset, y + offset,
+            self.geometry.cell_size - 20, self.geometry.cell_size - 20
         )
 
         rl.draw_texture_pro(
