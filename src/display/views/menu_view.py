@@ -48,7 +48,7 @@ class MenuView(View):
     def _get_leaderboard(self) -> None:
         self.leaderboard: list[tuple[str, int]] = []
         try:
-            cache_dir = Path.home() / ".cache" / "pacman"
+            cache_dir = Path.home() / ".local" / "share" / "pacman"
             with open(cache_dir / "leaderboard.pm", "r") as file:
                 for line in file:
                     user, score = line.split(":")

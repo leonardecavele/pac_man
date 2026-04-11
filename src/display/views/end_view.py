@@ -61,7 +61,7 @@ class EndView(View):
         try:
             if (not len(self.text_input.value)):
                 return (False)
-            cache_dir = Path.home() / ".cache" / "pacman"
+            cache_dir = Path.home() / ".local" / "share" / "pacman"
             cache_dir.mkdir(parents=True, exist_ok=True)
             with open(cache_dir / "leaderboard.pm", "a") as file:
                 file.write(f"{self.text_input.value}:{self.score}\n")
