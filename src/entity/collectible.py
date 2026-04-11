@@ -1,15 +1,32 @@
 from typing import TYPE_CHECKING
+import pyray as rl
 
 from .entity import Entity
+
+from src.maze import Maze
+from src.type import vec2i, vec2f
+from typing import cast
 
 if TYPE_CHECKING:
     from src.gameplay import MazeState
 
 
 class Collectible(Entity):
-    def __init__(self, *args, points: int,
-                 **kwargs) -> None:
-        super().__init__(*args, **kwargs)
+    def __init__(
+        self,
+        screen_pos: vec2f,
+        maze_pos: vec2f,
+        sprite: rl.Texture,
+        maze: Maze,
+        points: int,
+        default_velocity_px: int = 0
+    ) -> None:
+        super().__init__(
+            screen_pos,
+            cast(vec2i, (int(maze_pos[0]), int(maze_pos[1]))),
+            sprite, maze, default_velocity_px
+        )
+        self.maze_pos: vec2f = maze_pos  # type: ignore[assignment]
         self.points = points
         self.visible: bool = True
 
@@ -26,8 +43,17 @@ class Pacgum(Collectible):
 
 
 class SuperPacgum(Collectible):
-    def __init__(self, *args, points: int, **kwargs) -> None:
-        super().__init__(*args, points=points, **kwargs)
+    def __init__(
+        self,
+        screen_pos: vec2f,
+        maze_pos: vec2f,
+        sprite: rl.Texture,
+        maze: Maze,
+        points: int,
+        default_velocity_px: int = 0
+    ) -> None:
+        super().__init__(screen_pos, maze_pos, sprite, maze, points,
+                         default_velocity_px)
         self.blink_interval: float = 0.15
         self._elapsed: float = 0.0
 

@@ -1,4 +1,4 @@
-from typing import TYPE_CHECKING
+from typing import TYPE_CHECKING, cast
 
 import pyray as rl
 
@@ -22,8 +22,8 @@ class GameState:
         self,
         maze: Maze,
         config: Config,
-        textures: dict[str, dict[str, list[rl.Texture2D]] |
-                       list[rl.Texture2D]],
+        textures: dict[str, dict[str, list[rl.Texture]] |
+                       list[rl.Texture]],
         sounds: Sounds,
         geometry: "GameGeometry"
     ) -> None:
@@ -73,7 +73,7 @@ class GameState:
         self.HP = self.config.lives
         self.score: int = 0
         self.timer: float = 0.0
-        self.music_hide: float = 4.0
+        self.music_hide = 4.0
 
         self.collectibles: list[Collectible] = self._gen_collectibles()
         self.initial_collectible_count: int = len(self.collectibles)
@@ -102,25 +102,29 @@ class GameState:
             inky_spawn = (self.maze.width - 1, self.maze.height - 1)
             clyde_spawn = (0, self.maze.height - 1)
 
+        _tex = cast(dict[str, list[rl.Texture]], self.textures["pac_man"])
         self.pac_man = Pac_man(
             screen_pos=self.geometry.maze_to_screen(self.pac_man_spawn),
             maze_pos=self.pac_man_spawn,
-            sprite=self.textures["pac_man"]["dying"][0],
+            sprite=_tex["dying"][0],
             m=self.maze,
             default_velocity_px=self.default_velocity_px,
             textures=self.textures
         )
 
+        def _gtex(name: str) -> dict[str, list[rl.Texture]]:
+            return cast(dict[str, list[rl.Texture]], self.textures[name])
+
         if self.maze.og:
-            blinky_sprite = self.textures["blinky"]["left"][0]
-            inky_sprite = self.textures["inky"]["up"][0]
-            pinky_sprite = self.textures["pinky"]["down"][0]
-            clyde_sprite = self.textures["clyde"]["up"][0]
+            blinky_sprite = _gtex("blinky")["left"][0]
+            inky_sprite = _gtex("inky")["up"][0]
+            pinky_sprite = _gtex("pinky")["down"][0]
+            clyde_sprite = _gtex("clyde")["up"][0]
         else:
-            blinky_sprite = self.textures["blinky"]["down"][0]
-            inky_sprite = self.textures["inky"]["left"][0]
-            pinky_sprite = self.textures["pinky"]["right"][0]
-            clyde_sprite = self.textures["clyde"]["up"][0]
+            blinky_sprite = _gtex("blinky")["down"][0]
+            inky_sprite = _gtex("inky")["left"][0]
+            pinky_sprite = _gtex("pinky")["right"][0]
+            clyde_sprite = _gtex("clyde")["up"][0]
 
         blinky = Blinky(
             screen_pos=self.geometry.maze_to_screen(blinky_spawn),
@@ -216,25 +220,30 @@ class GameState:
                     ):
                         continue
 
-                common_args = {
-                    "screen_pos": self.geometry.maze_to_screen((x, y)),
-                    "maze_pos": (x, y),
-                    "maze": self.maze,
-                }
+                scr = self.geometry.maze_to_screen((x, y))
                 if self._is_corner((x, y)):
                     pacgums.append(
                         SuperPacgum(
-                            sprite=self.textures["super_pacgum"][0],
+                            screen_pos=scr,
+                            maze_pos=(float(x), float(y)),
+                            maze=self.maze,
+                            sprite=cast(
+                                list[rl.Texture],
+                                self.textures["super_pacgum"]
+                            )[0],
                             points=self.config.points_per_super_pacgum,
-                            **common_args,
                         )
                     )
                     continue
                 pacgums.append(
                     Pacgum(
-                        sprite=self.textures["pacgum"][0],
+                        screen_pos=scr,
+                        maze_pos=(float(x), float(y)),
+                        maze=self.maze,
+                        sprite=cast(
+                            list[rl.Texture], self.textures["pacgum"]
+                        )[0],
                         points=self.config.points_per_pacgum,
-                        **common_args,
                     )
                 )
                 self._put_mid_pacgums(x, y, pacgums)
@@ -252,7 +261,7 @@ class GameState:
         cell = self.maze.maze[y][x]
         if (not cell.top and self._no_pacgum(x, y - .5, pacgums)):
             pacgums.append(Pacgum(
-                sprite=self.textures["pacgum"][0],
+                sprite=cast(list[rl.Texture], self.textures["pacgum"])[0],
                 points=self.config.points_per_pacgum,
                 maze=self.maze,
                 maze_pos=(x, y - .5),
@@ -260,7 +269,7 @@ class GameState:
             ))
         if (not cell.bot and self._no_pacgum(x, y + .5, pacgums)):
             pacgums.append(Pacgum(
-                sprite=self.textures["pacgum"][0],
+                sprite=cast(list[rl.Texture], self.textures["pacgum"])[0],
                 points=self.config.points_per_pacgum,
                 maze=self.maze,
                 maze_pos=(x, y + .5),
@@ -268,7 +277,7 @@ class GameState:
             ))
         if (not cell.left and self._no_pacgum(x - .5, y, pacgums)):
             pacgums.append(Pacgum(
-                sprite=self.textures["pacgum"][0],
+                sprite=cast(list[rl.Texture], self.textures["pacgum"])[0],
                 points=self.config.points_per_pacgum,
                 maze=self.maze,
                 maze_pos=(x - .5, y),
@@ -276,7 +285,7 @@ class GameState:
             ))
         if (not cell.right and self._no_pacgum(x + .5, y, pacgums)):
             pacgums.append(Pacgum(
-                sprite=self.textures["pacgum"][0],
+                sprite=cast(list[rl.Texture], self.textures["pacgum"])[0],
                 points=self.config.points_per_pacgum,
                 maze=self.maze,
                 maze_pos=(x + .5, y),

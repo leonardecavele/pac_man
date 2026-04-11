@@ -1,6 +1,7 @@
 import pyray as rl
 
 from collections.abc import Callable
+from typing import cast
 
 from .entity import Entity
 
@@ -13,17 +14,19 @@ class Pac_man(Entity):
         self,
         screen_pos: vec2f,
         maze_pos: vec2i,
-        sprite: rl.Texture2D,
+        sprite: rl.Texture,
         m: Maze,
         default_velocity_px: int,
-        textures: dict[str, dict[str, list[rl.Texture2D]] |
-                       list[rl.Texture2D]],
+        textures: dict[str, dict[str, list[rl.Texture]] |
+                       list[rl.Texture]],
     ) -> None:
         super().__init__(screen_pos, maze_pos, sprite, m, default_velocity_px)
         self.input: vec2i | None = None
         self.velocity_px = int(self.default_velocity_px * 0.80)
         self.turn_window: float = 2
-        self.textures = textures
+        self.textures: dict[str, list[rl.Texture]] = cast(
+            dict[str, list[rl.Texture]], textures["pac_man"]
+        )
         self.prev_direction: vec2i = (0, 0)
 
         self.dying: bool = False
@@ -87,7 +90,7 @@ class Pac_man(Entity):
                 else:
                     self.dying = False
 
-            self.sprite = self.textures["pac_man"]["dying"][self.dying_frame]
+            self.sprite = self.textures["dying"][self.dying_frame]
             return
 
         self.tick += 1
@@ -95,15 +98,15 @@ class Pac_man(Entity):
         idx: int = self.tick // 8 % 2
 
         if dx == 0 and dy == 0 and self.tick == 1:
-            self.sprite = self.textures["pac_man"]["dying"][0]
+            self.sprite = self.textures["dying"][0]
         elif dx == 1:
-            self.sprite = self.textures["pac_man"]["right"][idx]
+            self.sprite = self.textures["right"][idx]
         elif dx == -1:
-            self.sprite = self.textures["pac_man"]["left"][idx]
+            self.sprite = self.textures["left"][idx]
         elif dy == 1:
-            self.sprite = self.textures["pac_man"]["down"][idx]
+            self.sprite = self.textures["down"][idx]
         elif dy == -1:
-            self.sprite = self.textures["pac_man"]["up"][idx]
+            self.sprite = self.textures["up"][idx]
 
     def update(self, dt: float = 0.0) -> None:
         self.prev_direction = self.direction

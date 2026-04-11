@@ -13,7 +13,7 @@ class Entity(ABC):
         self,
         screen_pos: vec2f,
         maze_pos: vec2i,
-        sprite: rl.Texture2D,
+        sprite: rl.Texture,
         maze: Maze,
         default_velocity_px: int = 0
     ) -> None:
@@ -28,7 +28,7 @@ class Entity(ABC):
 
         self.maze: Maze = maze
 
-        self.sprite: rl.Texture2D = sprite
+        self.sprite: rl.Texture = sprite
         self.tick = 0
 
     def move_to_target(self, dt: float, target_screen_pos: vec2i) -> bool:

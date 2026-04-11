@@ -14,7 +14,10 @@ class State(Enum):
 
 
 class MenuView(View):
-    def __init__(self, width: int, height: int, textures, sounds: Sounds):
+    def __init__(self, width: int, height: int,
+                 textures: dict[str, dict[str, list[rl.Texture]]
+                                | list[rl.Texture]],
+                 sounds: Sounds) -> None:
         self.textures = textures
         self.sounds = sounds
         self.width = width
@@ -33,7 +36,7 @@ class MenuView(View):
         self.anim_frame = 0
         self._position_btns()
 
-    def _position_btns(self):
+    def _position_btns(self) -> None:
         tmp = [self.classic_btn, self.random_btn, self.inst_btn, self.exit_btn]
         self.col1 = self.width // 20
         self.font_size = self.height // 16
@@ -57,7 +60,7 @@ class MenuView(View):
             return
         self.leaderboard.sort(key=lambda c: c[1], reverse=True)
 
-    def draw(self):
+    def draw(self) -> None:
         rl.clear_background(rl.BLACK)
         font_size = self.font_size * 3
         title = "PAC-MAN"
@@ -80,10 +83,12 @@ class MenuView(View):
         if self.state == State.BTN_ANIM:
             self._draw_btn_anim()
 
-    def _draw_btn_anim(self):
+    def _draw_btn_anim(self) -> None:
         src = rl.Rectangle(0, 0, 32, 32)
         dst = rl.Rectangle(
             self.anim_pos[0], self.anim_pos[1], self.font_size, self.font_size)
+        if not isinstance(self.textures["pac_man"], dict):
+            return
         texture = self.textures["pac_man"]["right"][self.anim_frame // 8 % 2]
         rl.draw_rectangle(
             0, int(self.anim_pos[1]),
@@ -116,6 +121,8 @@ class MenuView(View):
         return ViewEvent(type=ViewEventType.NONE)
 
     def _update_normal(self, dt: float) -> ViewEvent:
+        if not isinstance(self.textures["pac_man"], dict):
+            return ViewEvent(type=ViewEventType.NONE)
         if (rl.is_key_pressed(rl.KEY_C)):
             self.classic_btn.color = rl.BLUE
             self.anim_timer = 0
@@ -142,10 +149,11 @@ class MenuView(View):
             return ViewEvent(type=ViewEventType.QUIT)
 
         mouse = rl.get_mouse_position()
+        mx, my = int(mouse.x), int(mouse.y)
         src = rl.Rectangle(0, 0, 32, 32)
 
         # color
-        if (self.classic_btn.contains(mouse.x, mouse.y)):
+        if (self.classic_btn.contains(mx, my)):
             dst = rl.Rectangle(self.col1 // 4, self.classic_btn.y,
                                self.font_size, self.font_size)
             self.classic_btn.color = rl.BLUE
@@ -154,7 +162,7 @@ class MenuView(View):
         else:
             self.classic_btn.color = rl.WHITE
 
-        if (self.random_btn.contains(mouse.x, mouse.y)):
+        if (self.random_btn.contains(mx, my)):
             dst = rl.Rectangle(self.col1 // 4, self.random_btn.y,
                                self.font_size, self.font_size)
             self.random_btn.color = rl.PINK
@@ -163,7 +171,7 @@ class MenuView(View):
         else:
             self.random_btn.color = rl.WHITE
 
-        if (self.inst_btn.contains(mouse.x, mouse.y)):
+        if (self.inst_btn.contains(mx, my)):
             dst = rl.Rectangle(self.col1 // 4, self.inst_btn.y,
                                self.font_size, self.font_size)
             self.inst_btn.color = rl.ORANGE
@@ -172,7 +180,7 @@ class MenuView(View):
         else:
             self.inst_btn.color = rl.WHITE
 
-        if (self.exit_btn.contains(mouse.x, mouse.y)):
+        if (self.exit_btn.contains(mx, my)):
             dst = rl.Rectangle(self.col1 // 4, self.exit_btn.y,
                                self.font_size, self.font_size)
             self.exit_btn.color = rl.RED
@@ -183,7 +191,7 @@ class MenuView(View):
 
         # button pressed
         if (rl.is_mouse_button_pressed(rl.MOUSE_LEFT_BUTTON)):
-            if (self.classic_btn.contains(mouse.x, mouse.y)):
+            if (self.classic_btn.contains(mx, my)):
                 self.anim_timer = 0
                 self.state = State.BTN_ANIM
                 self.anim_pos = [dst.x, dst.y]
@@ -194,7 +202,7 @@ class MenuView(View):
                     type=ViewEventType.START_GAME, message="classic"
                 )
                 return (ViewEvent(type=ViewEventType.NONE))
-            if (self.random_btn.contains(mouse.x, mouse.y)):
+            if (self.random_btn.contains(mx, my)):
                 self.anim_timer = 0
                 self.state = State.BTN_ANIM
                 self.anim_pos = [dst.x, dst.y]
@@ -205,7 +213,7 @@ class MenuView(View):
                     type=ViewEventType.START_GAME, message="random"
                 )
                 return (ViewEvent(type=ViewEventType.NONE))
-            if (self.inst_btn.contains(mouse.x, mouse.y)):
+            if (self.inst_btn.contains(mx, my)):
                 self.anim_timer = 0
                 self.state = State.BTN_ANIM
                 self.anim_pos = [dst.x, dst.y]
@@ -214,7 +222,7 @@ class MenuView(View):
                 self.anim_frame = 0
                 self.pending_event = ViewEvent(type=ViewEventType.NONE)
                 return (ViewEvent(type=ViewEventType.NONE))
-            if (self.exit_btn.contains(mouse.x, mouse.y)):
+            if (self.exit_btn.contains(mx, my)):
                 return (ViewEvent(type=ViewEventType.QUIT))
 
         return (ViewEvent(type=ViewEventType.NONE))

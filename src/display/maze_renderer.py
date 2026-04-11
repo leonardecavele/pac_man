@@ -6,8 +6,8 @@ WALL_COLOR_GHOST_HOUSE = rl.BEIGE
 
 
 class MazeRenderer:
-    def __init__(self, maze_image, maze: Maze,
-                 cell_size: int, gap: int):
+    def __init__(self, maze_image: rl.Image, maze: Maze,
+                 cell_size: int, gap: int) -> None:
         self.maze_image = maze_image
         self.maze = maze
         self.cell_size = cell_size
@@ -15,7 +15,7 @@ class MazeRenderer:
         self.thickness = self.gap // 4
         self.draw()
 
-    def draw(self):
+    def draw(self) -> None:
         self._put_borders()
 
         x, y = 0, 0
@@ -32,7 +32,7 @@ class MazeRenderer:
 
         self._put_open_area_joints()
 
-    def _put_borders(self):
+    def _put_borders(self) -> None:
         total_width = (self.cell_size + self.gap) * self.maze.width + self.gap
         total_height = (self.cell_size + self.gap) * self.maze.height \
             + self.gap
@@ -57,7 +57,11 @@ class MazeRenderer:
             self.thickness, total_height, WALL_COLOR
         )
 
-    def _get_neighbors(self, c: Maze.Cell):
+    def _get_neighbors(self,
+                       c: Maze.Cell) -> tuple[Maze.Cell | None,
+                                              Maze.Cell | None,
+                                              Maze.Cell | None,
+                                              Maze.Cell | None]:
         x, y = c.pos
         c_top = self.maze.maze[y - 1][x] if y > 0 else None
         c_bot = self.maze.maze[y +
@@ -66,7 +70,7 @@ class MazeRenderer:
         c_right = self.maze.maze[y][x +
                                     1] if x < len(self.maze.maze[0]) \
             - 1 else None
-        return c_top, c_right, c_bot, c_left
+        return (c_top, c_right, c_bot, c_left)
 
     def _put_cell(self, c: Maze.Cell, x: int, y: int) -> None:
         self._put_links(c, x, y)
@@ -147,7 +151,11 @@ class MazeRenderer:
         self._put_gap_lines(c, x, y, c_top, c_right, c_bot, c_left)
         self._put_arcs(c, x, y, c_top, c_right, c_bot, c_left)
 
-    def _put_gap_lines(self, c, x, y, c_top, c_right, c_bot, c_left):
+    def _put_gap_lines(
+        self, c: Maze.Cell, x: int, y: int,
+        c_top: Maze.Cell | None, c_right: Maze.Cell | None,
+        c_bot: Maze.Cell | None, c_left: Maze.Cell | None
+    ) -> None:
         G = self.gap
         CS = self.cell_size
         T = max(1, self.thickness)
@@ -176,7 +184,11 @@ class MazeRenderer:
                 T, G, WALL_COLOR
             )
 
-    def _put_arcs(self, c, x, y, c_top, c_right, c_bot, c_left):
+    def _put_arcs(
+        self, c: Maze.Cell, x: int, y: int,
+        c_top: Maze.Cell | None, c_right: Maze.Cell | None,
+        c_bot: Maze.Cell | None, c_left: Maze.Cell | None
+    ) -> None:
         G = self.gap
         G2 = G // 2
         CS = self.cell_size
@@ -232,7 +244,11 @@ class MazeRenderer:
 
         self._put_corners(c, x, y, c_top, c_right, c_bot, c_left)
 
-    def _put_corners(self, c, x, y, c_top, c_right, c_bot, c_left):
+    def _put_corners(
+        self, c: Maze.Cell, x: int, y: int,
+        c_top: Maze.Cell | None, c_right: Maze.Cell | None,
+        c_bot: Maze.Cell | None, c_left: Maze.Cell | None
+    ) -> None:
         G = self.gap
         CS = self.cell_size - 1
         T = max(1, self.thickness)

@@ -1,5 +1,6 @@
 import pyray as rl
 from enum import Enum, auto
+from typing import cast
 
 from src.gameplay import (
     GameActionType,
@@ -8,7 +9,7 @@ from src.gameplay import (
     GameInputReader,
     GameState
 )
-from src.entity import Collectible, Ghost
+from src.entity import Collectible, Entity, Ghost
 from src.display import MazeRenderer
 from src.maze import Maze
 from src.display.components import Button
@@ -32,7 +33,7 @@ class GameView(View):
         self,
         maze: Maze,
         config: Config,
-        textures: dict[str, rl.Texture2D],
+        textures: dict[str, dict[str, list[rl.Texture]] | list[rl.Texture]],
         sounds: Sounds,
         width: int = 720,
         height: int = 720,
@@ -148,7 +149,7 @@ class GameView(View):
         if (self.cheat_mode):
             self._draw_cheat()
 
-    def _draw_cheat(self):
+    def _draw_cheat(self) -> None:
         menu_width = self.width // 4
         margin = (self.width // 3 - menu_width) // 2
         menu_height = self.height // 10 * 7
@@ -207,8 +208,9 @@ class GameView(View):
                                self.margin[1] + self.maze_pixel_h + 5,
                                self.geometry.cell_size,
                                self.geometry.cell_size)
+            _pac = cast(dict[str, list[rl.Texture]], self.textures["pac_man"])
             rl.draw_texture_pro(
-                self.textures["pac_man"]["left"][1], src, dst,
+                _pac["left"][1], src, dst,
                 rl.Vector2(0, 0), 0.0, rl.WHITE
             )
 
@@ -396,7 +398,7 @@ class GameView(View):
             rl.WHITE,
         )
 
-    def _draw_entity(self, entity, sprite: rl.Texture2D) -> None:
+    def _draw_entity(self, entity: Entity, sprite: rl.Texture) -> None:
         x, y = self.geometry.get_draw_pos(entity.screen_pos)
         x += self.margin[0]
         y += self.margin[1]

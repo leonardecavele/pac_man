@@ -6,7 +6,7 @@ class Button:
     def __init__(
         self, x: int, y: int, label: str, font_size: int, action: Callable,
         color: rl.Color = rl.WHITE
-    ):
+    ) -> None:
         self.x = x
         self.y = y
         self.label = label
@@ -16,7 +16,7 @@ class Button:
         self.font_size = font_size
         self.color = color
 
-    def contains(self, mx: int, my: int) -> bool:
+    def contains(self, mx: float, my: float) -> bool:
         """Check if the coords (mx, my) are in the button
 
         Keyword arguments:
@@ -28,6 +28,6 @@ class Button:
             self.y <= my < self.y + self.h
         )
 
-    def draw(self, offset_x: int = 0):
+    def draw(self, offset_x: int = 0) -> None:
         rl.draw_text(self.label, self.x - offset_x,
                      self.y, self.font_size, self.color)

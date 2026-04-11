@@ -1,6 +1,7 @@
 import pyray as rl
 
 from random import randint
+from typing import cast
 
 from src.display import Textures
 from src.display.views import EndView, GameView, MenuView, View, ViewEventType
@@ -41,7 +42,8 @@ class App:
         rl.set_target_fps(self.fps)
         rl.set_window_state(rl.FLAG_WINDOW_RESIZABLE)
 
-        self.textures: dict[str, rl.Texture2D] = Textures(
+        tex_type = dict[str, dict[str, list[rl.Texture]] | list[rl.Texture]]
+        self.textures: tex_type = Textures(
             18
         )._load_textures()
         self.sounds: Sounds = Sounds()
@@ -138,7 +140,8 @@ class App:
                 rl.set_window_size(new_width, height)
 
             src = rl.Rectangle(0, 0, 32, 32)
-            texture = self.textures["pac_man"]["right"][anim_frame // 8 % 2]
+            _pac = cast(dict[str, list[rl.Texture]], self.textures["pac_man"])
+            texture = _pac["right"][anim_frame // 8 % 2]
 
             rl.begin_drawing()
             rl.clear_background(rl.BLACK)

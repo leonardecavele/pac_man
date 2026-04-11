@@ -27,11 +27,11 @@ class GameGeometry:
                 continue
             break
 
-    def maze_to_screen(self, pos: vec2i) -> vec2i:
+    def maze_to_screen(self, pos: vec2f) -> vec2i:
         x, y = pos
         step: int = self.cell_size + self.gap
-        screen_x: int = self.gap + x * step + self.cell_size // 2
-        screen_y: int = self.gap + y * step + self.cell_size // 2
+        screen_x: int = int(self.gap + x * step + self.cell_size // 2)
+        screen_y: int = int(self.gap + y * step + self.cell_size // 2)
         return (screen_x, screen_y)
 
     def sync_maze_screen_pos(self, entity: Entity) -> None:

@@ -5,6 +5,7 @@ import pyray as rl
 from abc import ABC, abstractmethod
 from enum import IntFlag
 from math import sqrt
+from typing import cast
 
 from .entity import Entity
 from .pac_man import Pac_man
@@ -27,13 +28,13 @@ class Ghost(Entity, ABC):
         self,
         screen_pos: vec2f,
         maze_pos: vec2i,
-        sprite: str,
+        sprite: rl.Texture,
         m: Maze,
         pac_man: Pac_man,
         house_pos: vec2i,
         corner_pos: vec2i,
         default_velocity_px: int,
-        textures: dict[str, dict[str, list[rl.Texture2D]] | list[rl.Texture2D]]
+        textures: dict[str, dict[str, list[rl.Texture]] | list[rl.Texture]]
     ) -> None:
         super().__init__(
             screen_pos, maze_pos, sprite, m, default_velocity_px
@@ -51,28 +52,34 @@ class Ghost(Entity, ABC):
         self.identifier: str = self.__class__.__name__.lower()
         self.textures = textures
 
-    def animate(self):
+    def _ltex(self, key: str) -> list[rl.Texture]:
+        return cast(list[rl.Texture], self.textures[key])
+
+    def _dtex(self, key: str) -> dict[str, list[rl.Texture]]:
+        return cast(dict[str, list[rl.Texture]], self.textures[key])
+
+    def animate(self) -> None:
         self.tick += 1
         dx, dy = self.direction
 
         if (self.state == Ghost.State.FRIGHTENED):
             idx = self.tick // 30 % 2
-            self.sprite = self.textures["fleeing"][idx]
+            self.sprite = self._ltex("fleeing")[idx]
             return
         if (self.state == Ghost.State.BLINK):
             idx = self.tick // 8 % 4
-            self.sprite = self.textures["blink"][idx]
+            self.sprite = self._ltex("blink")[idx]
             return
 
         if (self.state == Ghost.State.EATEN):
             if (dx == 1):
-                self.sprite = self.textures["eaten"]["right"][0]
+                self.sprite = self._dtex("eaten")["right"][0]
             elif (dx == -1):
-                self.sprite = self.textures["eaten"]["left"][0]
+                self.sprite = self._dtex("eaten")["left"][0]
             elif (dy == 1):
-                self.sprite = self.textures["eaten"]["down"][0]
+                self.sprite = self._dtex("eaten")["down"][0]
             elif (dy == -1):
-                self.sprite = self.textures["eaten"]["up"][0]
+                self.sprite = self._dtex("eaten")["up"][0]
             return
 
         if self.maze.og and not self.released:
@@ -80,25 +87,25 @@ class Ghost(Entity, ABC):
 
             if isinstance(self, Pinky):
                 if phase == 0:
-                    self.sprite = self.textures[self.identifier]["down"][0]
+                    self.sprite = self._dtex(self.identifier)["down"][0]
                 elif phase == 1:
-                    self.sprite = self.textures[self.identifier]["up"][1]
+                    self.sprite = self._dtex(self.identifier)["up"][1]
             else:
                 if phase == 0:
-                    self.sprite = self.textures[self.identifier]["up"][0]
+                    self.sprite = self._dtex(self.identifier)["up"][0]
                 elif phase == 1:
-                    self.sprite = self.textures[self.identifier]["down"][1]
+                    self.sprite = self._dtex(self.identifier)["down"][1]
             return
 
         idx = self.tick // 30 % 2
         if (dx == 1):
-            self.sprite = self.textures[self.identifier]["right"][idx]
+            self.sprite = self._dtex(self.identifier)["right"][idx]
         elif (dx == -1):
-            self.sprite = self.textures[self.identifier]["left"][idx]
+            self.sprite = self._dtex(self.identifier)["left"][idx]
         elif (dy == 1):
-            self.sprite = self.textures[self.identifier]["down"][idx]
+            self.sprite = self._dtex(self.identifier)["down"][idx]
         elif (dy == -1):
-            self.sprite = self.textures[self.identifier]["up"][idx]
+            self.sprite = self._dtex(self.identifier)["up"][idx]
 
     def change_state(self, new_state: "Ghost.State") -> None:
         self.flip = (
@@ -115,7 +122,7 @@ class Ghost(Entity, ABC):
 
         self.state = new_state
 
-    def update_velocity(self, new_state):
+    def update_velocity(self, new_state: "Ghost.State") -> None:
         match new_state:
             case self.State.ELROY1:
                 self.velocity_px = int(self.default_velocity_px * 0.80)
@@ -396,12 +403,12 @@ class Blinky(Ghost):
         self,
         screen_pos: vec2f,
         maze_pos: vec2i,
-        sprite: str,
+        sprite: rl.Texture,
         m: Maze,
         pac_man: Pac_man,
         house_pos: vec2i,
         default_velocity_px: int,
-        textures: dict[str, list[rl.Texture2D]]
+        textures: dict[str, dict[str, list[rl.Texture]] | list[rl.Texture]]
     ) -> None:
         super().__init__(
             screen_pos,
@@ -432,13 +439,13 @@ class Inky(Ghost):
         self,
         screen_pos: vec2f,
         maze_pos: vec2i,
-        sprite: str,
+        sprite: rl.Texture,
         m: Maze,
         pac_man: Pac_man,
         blinky: Blinky,
         house_pos: vec2i,
         default_velocity_px: int,
-        textures: dict[str, list[rl.Texture2D]]
+        textures: dict[str, dict[str, list[rl.Texture]] | list[rl.Texture]]
     ) -> None:
         super().__init__(
             screen_pos,
@@ -473,12 +480,12 @@ class Pinky(Ghost):
         self,
         screen_pos: vec2f,
         maze_pos: vec2i,
-        sprite: str,
+        sprite: rl.Texture,
         m: Maze,
         pac_man: Pac_man,
         house_pos: vec2i,
         default_velocity_px: int,
-        textures: dict[str, list[rl.Texture2D]]
+        textures: dict[str, dict[str, list[rl.Texture]] | list[rl.Texture]]
     ) -> None:
         super().__init__(
             screen_pos,
@@ -507,12 +514,12 @@ class Clyde(Ghost):
         self,
         screen_pos: vec2f,
         maze_pos: vec2i,
-        sprite: str,
+        sprite: rl.Texture,
         m: Maze,
         pac_man: Pac_man,
         house_pos: vec2i,
         default_velocity_px: int,
-        textures: dict[str, list[rl.Texture2D]]
+        textures: dict[str, dict[str, list[rl.Texture]] | list[rl.Texture]]
     ) -> None:
         super().__init__(
             screen_pos,
