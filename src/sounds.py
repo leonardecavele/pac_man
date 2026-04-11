@@ -2,30 +2,33 @@ from __future__ import annotations
 
 import pyray as rl
 
+from src.entity import Pac_man
+
 
 class Sounds:
     SOUND_PATHS: dict[str, str] = {
-        "credit_sound": "assets/01. Credit Sound.flac",
-        "start_music": "assets/02. Start Music.flac",
-        "eating": "assets/03. PAC-MAN - Eating The Pac-dots.flac",
-        "eating_corning": "assets/04. PAC-MAN - Turning The Corner While Eating The Pac-dots.flac",
-        "extend_sound": "assets/05. Extend Sound.flac",
-        "ghost_normal_move": "assets/06. Ghost - Normal Move.flac",
-        "ghost_spurt_move_1": "assets/07. Ghost - Spurt Move #1.flac",
-        "ghost_spurt_move_2": "assets/08. Ghost - Spurt Move #2.flac",
-        "ghost_spurt_move_3": "assets/09. Ghost - Spurt Move #3.flac",
-        "ghost_spurt_move_4": "assets/10. Ghost - Spurt Move #4.flac",
-        "pac_man_eating_the_fruit": "assets/11. PAC-MAN - Eating The Fruit.flac",
-        "ghost_turn_to_blue": "assets/12. Ghost - Turn to Blue.flac",
-        "pac_man_eating_the_ghost": "assets/13. PAC-MAN - Eating The Ghost.flac",
-        "ghost_return_to_home": "assets/14. Ghost - Return to Home.flac",
-        "coffee_break_music": "assets/16. Coffee Break Music.flac",
-        "game_play": "assets/17. Game Play.flac",
+        "dying": "assets/sounds/dying.flac",
+        "ghost_normal_move": "assets/sounds/ghost_move.flac",
+        "ghost_spurt_move_1": "assets/sounds/ghost_spurt_move_1.flac",
+        "ghost_spurt_move_2": "assets/sounds/ghost_spurt_move_2.flac",
+        "ghost_spurt_move_3": "assets/sounds/ghost_spurt_move_3.flac",
+        "ghost_spurt_move_4": "assets/sounds/ghost_spurt_move_4.flac",
+        "frightened": "assets/sounds/frightened.flac",
+        "eating_ghost": "assets/sounds/eating_ghost.flac",
+        "start_music": "assets/sounds/start_music.flac",
+        "eaten": "assets/sounds/eaten.flac",
+        "coffee_break_music": "assets/sounds/coffee_break_music.flac",
+        "munch1": "assets/sounds/munch1.flac",
+        "munch2": "assets/sounds/munch2.flac",
+        "munch_corner": "assets/sounds/munch_corner.flac",
     }
 
     def __init__(self) -> None:
         self.sounds: dict[str, rl.Sound] = {}
         self._load_sounds()
+        self.munch_counter: int = 0
+        self.current_ghost_sound: str | None = None
+        self.paused_sounds: set[str] = set()
 
     def _load_sounds(self) -> None:
         for name, path in self.SOUND_PATHS.items():
@@ -47,3 +50,74 @@ class Sounds:
         for sound in self.sounds.values():
             rl.unload_sound(sound)
         self.sounds.clear()
+
+    def is_playing(self, name: str) -> bool:
+        sound: rl.Sound | None = self.sounds.get(name)
+        if sound is None:
+            return False
+        return rl.is_sound_playing(sound)
+
+    def pause_all_sounds(self) -> None:
+        self.paused_sounds.clear()
+
+        for name, sound in self.sounds.items():
+            if rl.is_sound_playing(sound):
+                rl.pause_sound(sound)
+                self.paused_sounds.add(name)
+
+    def resume_all_sounds(self) -> None:
+        for name in self.paused_sounds:
+            sound: rl.Sound | None = self.sounds.get(name)
+            if sound is None:
+                continue
+            rl.resume_sound(sound)
+
+        self.paused_sounds.clear()
+
+    def play_munch(self) -> None:
+        # working corner munch implementation but we dislike it
+
+        # is_turning: bool = (
+        #     pac_man.prev_direction != pac_man.direction
+        #     and pac_man.prev_direction != (0, 0)
+        # )
+        #
+        # if is_turning:
+        #     self.stop_sound("munch1")
+        #     self.stop_sound("munch2")
+        #     if not self.is_playing("munch_corner"):
+        #         self.play_sound("munch_corner")
+        #         self.munch_counter += 1
+        #     return
+
+        if self.munch_counter % 2 == 0:
+            munch: str = "munch1"
+        else:
+            munch = "munch2"
+
+        if (
+            not self.is_playing("munch1")
+            and not self.is_playing("munch2")
+            and not self.is_playing("munch_corner")
+        ):
+            self.play_sound(munch)
+            self.munch_counter += 1
+
+    def play_ghost_sound(self, name: str) -> None:
+        if self.current_ghost_sound == name:
+            if not self.is_playing(name):
+                self.play_sound(name)
+            return
+
+        if self.current_ghost_sound is not None:
+            self.stop_sound(self.current_ghost_sound)
+
+        self.play_sound(name)
+        self.current_ghost_sound = name
+
+    def stop_ghost_sound(self) -> None:
+        if self.current_ghost_sound is None:
+            return
+
+        self.stop_sound(self.current_ghost_sound)
+        self.current_ghost_sound = None

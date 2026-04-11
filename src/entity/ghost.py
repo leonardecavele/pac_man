@@ -60,7 +60,7 @@ class Ghost(Entity, ABC):
             self.sprite = self.textures["fleeing"][idx]
             return
         if (self.state == Ghost.State.BLINK):
-            idx = self.tick // 30 % 4
+            idx = self.tick // 8 % 4
             self.sprite = self.textures["blink"][idx]
             return
 
@@ -76,7 +76,7 @@ class Ghost(Entity, ABC):
             return
 
         if self.maze.og and not self.released:
-            phase = self.tick // 30 % 2
+            phase = self.tick // 9 % 2
 
             if isinstance(self, Pinky):
                 if phase == 0:

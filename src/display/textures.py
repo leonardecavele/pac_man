@@ -144,6 +144,7 @@ class Textures:
             rl.BEIGE,
         )
         texture = rl.load_texture_from_image(image)
+        rl.set_texture_filter(texture, rl.TEXTURE_FILTER_POINT)
         rl.unload_image(image)
         return texture
 
@@ -161,5 +162,6 @@ class Textures:
             rl.BEIGE,
         )
         texture = rl.load_texture_from_image(image)
+        rl.set_texture_filter(texture, rl.TEXTURE_FILTER_POINT)
         rl.unload_image(image)
         return texture

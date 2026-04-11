@@ -1,10 +1,11 @@
 import pyray as rl
-import math
 from enum import Enum, auto
 from pathlib import Path
 
 from .view import View, ViewEvent, ViewEventType
+
 from src.display.components import Button
+from src.sounds import Sounds
 
 
 class State(Enum):
@@ -13,8 +14,9 @@ class State(Enum):
 
 
 class MenuView(View):
-    def __init__(self, width: int, height: int, textures):
+    def __init__(self, width: int, height: int, textures, sounds: Sounds):
         self.textures = textures
+        self.sounds = sounds
         self.width = width
         self.height = height
         self.classic_btn = Button(0, 45, "CLASSIC", 0, lambda: None)
@@ -100,13 +102,17 @@ class MenuView(View):
     def _update_anim(self, dt: float) -> ViewEvent:
         self.anim_frame += 1
         self.anim_timer += dt
-        if (self.anim_timer >= self.anim_time):
+        if self.anim_timer >= self.anim_time:
             self.state = State.NORMAL
-            return (self.pending_event)
-        delta = dt * (self.anim_size +
-                      self.font_size) / self.anim_time
+            return self.pending_event
+
+        delta: float = dt * (self.anim_size + self.font_size) / self.anim_time
+
+        if self.anim_frame % 4 == 0:
+            self.sounds.play_munch()
+
         self.anim_pos[0] += delta
-        return (ViewEvent(type=ViewEventType.NONE))
+        return ViewEvent(type=ViewEventType.NONE)
 
     def _update_normal(self, dt: float) -> ViewEvent:
         if (rl.is_key_pressed(rl.KEY_C)):

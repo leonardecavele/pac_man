@@ -14,6 +14,7 @@ from src.maze import Maze
 from src.display.components import Button
 from src.parsing import Config
 from src.display.maze_renderer import WALL_COLOR
+from src.sounds import Sounds
 
 from .view import View, ViewEvent, ViewEventType
 
@@ -32,6 +33,7 @@ class GameView(View):
         maze: Maze,
         config: Config,
         textures: dict[str, rl.Texture2D],
+        sounds: Sounds,
         width: int = 720,
         height: int = 720,
     ) -> None:
@@ -39,14 +41,17 @@ class GameView(View):
         self.maze = maze
         self.config = config
         self.textures = textures
+        self.sounds = sounds
         self.width = width
         self.height = height
         self.geometry = GameGeometry(
-            width=width, height=height, maze=maze)
+            width=width, height=height, maze=maze
+        )
         self.state = GameState(
             maze=maze,
             config=config,
             textures=textures,
+            sounds=self.sounds,
             geometry=self.geometry
         )
         self.maze_pixel_w = (self.state.maze.width *
@@ -58,7 +63,7 @@ class GameView(View):
         self.margin = (self.width // 2 - self.maze_pixel_w // 2,
                        self.height // 2 - self.maze_pixel_h // 2)
         self.font_size = self.margin[1] // 2
-        self.controller = GameController()
+        self.controller = GameController(self.sounds)
         self.input_reader = GameInputReader()
         self.maze_image = rl.gen_image_color(
             self.width - 50, self.height - 50, rl.BLACK)
@@ -73,6 +78,8 @@ class GameView(View):
         self.timer = 1.0
         self.comb_idx = 0
         self.cheat_mode = False
+        self.game_over_timer = 0.0
+        self.game_over_delay = 2.0
 
     def draw(self) -> None:
         self._draw_running()
@@ -117,8 +124,12 @@ class GameView(View):
             rl.draw_text("CHEAT ON", 5, 5, self.font_size, rl.WHITE)
         for collectible in self.state.collectibles:
             self._draw_collectible(collectible)
+
         for ghost in self.state.ghosts:
-            if (self.timer > 0.75 or not ghost.state == Ghost.State.EATEN):
+            if (
+                (self.timer > 0.75 or not ghost.state == Ghost.State.EATEN)
+                and self.state.music_hide <= 0.0
+            ):
                 self._draw_entity(ghost, ghost.sprite)
         if (self.timer > 0.75):
             self._draw_entity(self.state.pac_man, self.state.pac_man.sprite)
@@ -148,13 +159,67 @@ class GameView(View):
                                self.margin[1] + self.maze_pixel_h + 5,
                                self.geometry.cell_size, self.geometry.cell_size)
             rl.draw_texture_pro(
-                self.textures["pac_man"]["left"][1],
-                src,
-                dst,
-                rl.Vector2(0, 0),
-                0.0,
-                rl.WHITE
+                self.textures["pac_man"]["left"][1], src, dst,
+                rl.Vector2(0, 0), 0.0, rl.WHITE
             )
+
+        if self.state.game_over:
+            spawn_x, spawn_y = self.geometry.maze_to_screen(
+                self.state.pac_man_spawn
+            )
+            spawn_x += self.margin[0]
+            spawn_y += self.margin[1]
+
+            text1 = "GAME"
+            text2 = "OVER"
+
+            font_size = int(self.geometry.cell_size * 0.5)
+            text1_w = rl.measure_text(text1, font_size)
+            text2_w = rl.measure_text(text2, font_size)
+
+            center_x = spawn_x + self.geometry.cell_size
+            text_y = int(
+                spawn_y + self.geometry.cell_size / 2 - (font_size * 1.5)
+            )
+
+            game_x = int(center_x - (self.geometry.cell_size * 1.5) - text1_w)
+            over_x = int(center_x + self.geometry.cell_size - text2_w)
+
+            padding_x = 8
+            padding_y = 6
+
+            box_x = game_x - padding_x
+            box_y = text_y - padding_y
+            box_w = (over_x + text2_w) - game_x + padding_x * 2
+            box_h = font_size + padding_y * 2
+
+            rl.draw_rectangle(box_x, box_y, box_w, box_h, rl.BLACK)
+
+            rl.draw_text(text1, game_x, text_y, font_size, rl.RED)
+            rl.draw_text(text2, over_x, text_y, font_size, rl.RED)
+
+        if self.state.start_time > 0.0 or self.sounds.is_playing("start_music"):
+            spawn_x, spawn_y = self.geometry.maze_to_screen(
+                self.state.pac_man_spawn
+            )
+            spawn_x += self.margin[0]
+
+            text = "READY!"
+            font_size = int(self.geometry.cell_size * 0.5)
+            text_w = rl.measure_text(text, font_size)
+            text_y = int(spawn_y - self.geometry.cell_size * 1)
+            text_x = int(spawn_x - text_w / 2)
+
+            padding_x = 8
+            padding_y = 6
+
+            box_x = text_x - padding_x
+            box_y = text_y - padding_y
+            box_w = text_w + padding_x * 2
+            box_h = font_size + padding_y * 2
+
+            rl.draw_rectangle(box_x, box_y, box_w, box_h, rl.BLACK)
+            rl.draw_text(text, text_x, text_y, font_size, rl.YELLOW)
 
     def update(self, dt: float) -> ViewEvent:
         if (self.gamestate == State.RUNNING):
@@ -174,6 +239,7 @@ class GameView(View):
             self.comb_idx = 0
         if (rl.is_key_pressed(rl.KEY_ESCAPE)):
             self.gamestate = State.RUNNING
+            self.sounds.resume_all_sounds()
             return ViewEvent(type=ViewEventType.NONE)
         mouse = rl.get_mouse_position()
 
@@ -181,8 +247,11 @@ class GameView(View):
         if (rl.is_mouse_button_pressed(rl.MOUSE_LEFT_BUTTON)):
             if self.pause_btns[0].contains(mouse.x, mouse.y):
                 self.gamestate = State.RUNNING
+                self.sounds.resume_all_sounds()
             elif self.pause_btns[1].contains(mouse.x, mouse.y):
-                return ViewEvent(type=ViewEventType.CHANGE_VIEW, message="main_menu")
+                return ViewEvent(
+                    type=ViewEventType.CHANGE_VIEW, message="main_menu"
+                )
 
         # hover
         if self.pause_btns[0].contains(mouse.x, mouse.y):
@@ -197,22 +266,40 @@ class GameView(View):
 
     def _update_running(self, dt: float) -> ViewEvent:
         self.timer += dt
+
+        if self.state.music_hide > 0.0:
+            self.state.music_hide -= dt
+
+        if self.state.game_over:
+            self.game_over_timer += dt
+            if self.game_over_timer >= self.game_over_delay:
+                score: int = self.state.score
+                self.state.global_reset()
+                return ViewEvent(
+                    type=ViewEventType.END,
+                    message=f"game_over:{score}"
+                )
+            return ViewEvent(type=ViewEventType.NONE)
+
         if (rl.is_key_pressed(rl.KEY_ESCAPE)):
+            self.sounds.pause_all_sounds()
             self.gamestate = State.PAUSE
             return ViewEvent(type=ViewEventType.NONE)
-        action = self.controller.update(
-            self.state, dt, self.input_reader.read())
 
+        action = self.controller.update(
+            self.state, dt, self.input_reader.read()
+        )
         if action.type == GameActionType.VICTORY:
             return ViewEvent(
                 type=ViewEventType.END, message=f"victory:{action.score}"
             )
         if action.type == GameActionType.GAME_OVER:
-            return ViewEvent(
-                type=ViewEventType.END, message=f"game_over:{action.score}"
-            )
+            self.state.game_over = True
+            self.game_over_timer = 0.0
+            return ViewEvent(type=ViewEventType.NONE)
         if (action.type == GameActionType.EAT):
             self.timer = 0
+
         return ViewEvent(type=ViewEventType.NONE)
 
     def close(self) -> None:
@@ -222,7 +309,26 @@ class GameView(View):
     def _draw_collectible(self, collectible: Collectible) -> None:
         if not collectible.visible:
             return
-        self._draw_entity(collectible, collectible.sprite)
+
+        x, y = self.geometry.get_draw_pos(collectible.screen_pos)
+        x += self.margin[0]
+        y += self.margin[1]
+
+        source = rl.Rectangle(
+            0, 0, collectible.sprite.width, collectible.sprite.height
+        )
+        dest = rl.Rectangle(
+            x, y, self.geometry.cell_size - 20, self.geometry.cell_size - 20
+        )
+
+        rl.draw_texture_pro(
+            collectible.sprite,
+            source,
+            dest,
+            rl.Vector2(0, 0),
+            0.0,
+            rl.WHITE,
+        )
 
     def _draw_entity(self, entity, sprite: rl.Texture2D) -> None:
         x, y = self.geometry.get_draw_pos(entity.screen_pos)
