@@ -6,7 +6,9 @@ from src.parsing import Parser
 
 
 def main() -> int:
-    parser = Parser("config.json")
+    if (len(sys.argv) != 2):
+        sys.exit(ErrorCode.INVALID_CONFIG)
+    parser = Parser(sys.argv[1])
     config = parser.run()
 
     app: App = App(
