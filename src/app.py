@@ -4,7 +4,8 @@ from random import randint
 from typing import cast
 
 from src.display import Textures
-from src.display.views import EndView, GameView, MenuView, View, ViewEventType
+from src.display.views import (
+    EndView, GameView, MenuView, View, ViewEventType, InstructionView)
 from src.maze import Maze, ClassicMaze, RandomMaze
 from src.parsing import Config
 from src.sounds import Sounds
@@ -55,6 +56,10 @@ class App:
                 sounds=self.sounds
             ),
             "end": EndView(width=self.width, height=self.height),
+            "instruction": InstructionView(
+                width=self.width,
+                height=self.height
+            )
         }
 
         self.current_view: View = self.views["main_menu"]
