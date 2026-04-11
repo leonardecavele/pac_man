@@ -13,10 +13,11 @@ class Pac_man(Entity):
         self,
         screen_pos: vec2f,
         maze_pos: vec2i,
-        sprite: str,
+        sprite: rl.Texture2D,
         m: Maze,
         default_velocity_px: int,
-        textures: dict[str, dict[str, list[rl.Texture2D]] | list[rl.Texture2D]],
+        textures: dict[str, dict[str, list[rl.Texture2D]] |
+                       list[rl.Texture2D]],
     ) -> None:
         super().__init__(screen_pos, maze_pos, sprite, m, default_velocity_px)
         self.input: vec2i | None = None

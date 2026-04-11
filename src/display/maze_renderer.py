@@ -34,7 +34,8 @@ class MazeRenderer:
 
     def _put_borders(self):
         total_width = (self.cell_size + self.gap) * self.maze.width + self.gap
-        total_height = (self.cell_size + self.gap) * self.maze.height + self.gap
+        total_height = (self.cell_size + self.gap) * self.maze.height \
+            + self.gap
 
         rl.image_draw_rectangle(
             self.maze_image, 0, 0,
@@ -59,9 +60,12 @@ class MazeRenderer:
     def _get_neighbors(self, c: Maze.Cell):
         x, y = c.pos
         c_top = self.maze.maze[y - 1][x] if y > 0 else None
-        c_bot = self.maze.maze[y + 1][x] if y < len(self.maze.maze) - 1 else None
+        c_bot = self.maze.maze[y +
+                               1][x] if y < len(self.maze.maze) - 1 else None
         c_left = self.maze.maze[y][x - 1] if x > 0 else None
-        c_right = self.maze.maze[y][x + 1] if x < len(self.maze.maze[0]) - 1 else None
+        c_right = self.maze.maze[y][x +
+                                    1] if x < len(self.maze.maze[0]) \
+            - 1 else None
         return c_top, c_right, c_bot, c_left
 
     def _put_cell(self, c: Maze.Cell, x: int, y: int) -> None:

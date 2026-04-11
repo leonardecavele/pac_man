@@ -7,7 +7,8 @@ if TYPE_CHECKING:
 
 
 class Collectible(Entity):
-    def __init__(self, *args, points: int, **kwargs) -> None:
+    def __init__(self, *args, points: int,
+                 **kwargs) -> None:
         super().__init__(*args, **kwargs)
         self.points = points
         self.visible: bool = True

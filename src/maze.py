@@ -1,4 +1,4 @@
-from enum import Enum, IntFlag
+from enum import IntFlag
 from abc import ABC
 
 from pydantic import BaseModel, Field
@@ -82,7 +82,7 @@ class ClassicMaze(Maze):
         [12, 5, 5, 5, 5, 4, 5, 5, 5, 5, 5, 4, 5, 5, 5, 5, 6],
     ]
 
-    def __init__(self):
+    def __init__(self) -> None:
         height: int = len(self.CLASSIC_MAP)
         width: int = len(self.CLASSIC_MAP[0])
 

@@ -74,8 +74,9 @@ class MenuView(View):
                 "O" * (10 + len(str(self.leaderboard[0][1])) + 1), tmp)
             y = self.height // 2 - (len(self.leaderboard) // 2) * tmp
             for i in range(min(10, len(self.leaderboard))):
-                rl.draw_text(f"{self.leaderboard[i][0]}: {self.leaderboard[i][1]}",
-                             x, y + tmp * i, tmp, rl.WHITE)
+                rl.draw_text(
+                    f"{self.leaderboard[i][0]}: {self.leaderboard[i][1]}",
+                    x, y + tmp * i, tmp, rl.WHITE)
         if self.state == State.BTN_ANIM:
             self._draw_btn_anim()
 

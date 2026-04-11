@@ -3,7 +3,8 @@ from typing import TYPE_CHECKING
 import pyray as rl
 
 from src.entity import (
-    Blinky, Clyde, Collectible, Ghost, Inky, Pac_man, Pacgum, Pinky, SuperPacgum
+    Blinky, Clyde, Collectible, Ghost, Inky,
+    Pac_man, Pacgum, Pinky, SuperPacgum
 )
 from src.maze import Maze
 from src.parsing import Config
@@ -21,7 +22,8 @@ class GameState:
         self,
         maze: Maze,
         config: Config,
-        textures: dict[str, dict[str, list[rl.Texture2D]] | list[rl.Texture2D]],
+        textures: dict[str, dict[str, list[rl.Texture2D]] |
+                       list[rl.Texture2D]],
         sounds: Sounds,
         geometry: "GameGeometry"
     ) -> None:
@@ -222,7 +224,7 @@ class GameState:
                 if self._is_corner((x, y)):
                     pacgums.append(
                         SuperPacgum(
-                            sprite=self.textures["super_pacgum"],
+                            sprite=self.textures["super_pacgum"][0],
                             points=self.config.points_per_super_pacgum,
                             **common_args,
                         )
@@ -230,7 +232,7 @@ class GameState:
                     continue
                 pacgums.append(
                     Pacgum(
-                        sprite=self.textures["pacgum"],
+                        sprite=self.textures["pacgum"][0],
                         points=self.config.points_per_pacgum,
                         **common_args,
                     )
@@ -250,7 +252,7 @@ class GameState:
         cell = self.maze.maze[y][x]
         if (not cell.top and self._no_pacgum(x, y - .5, pacgums)):
             pacgums.append(Pacgum(
-                sprite=self.textures["pacgum"],
+                sprite=self.textures["pacgum"][0],
                 points=self.config.points_per_pacgum,
                 maze=self.maze,
                 maze_pos=(x, y - .5),
@@ -258,7 +260,7 @@ class GameState:
             ))
         if (not cell.bot and self._no_pacgum(x, y + .5, pacgums)):
             pacgums.append(Pacgum(
-                sprite=self.textures["pacgum"],
+                sprite=self.textures["pacgum"][0],
                 points=self.config.points_per_pacgum,
                 maze=self.maze,
                 maze_pos=(x, y + .5),
@@ -266,7 +268,7 @@ class GameState:
             ))
         if (not cell.left and self._no_pacgum(x - .5, y, pacgums)):
             pacgums.append(Pacgum(
-                sprite=self.textures["pacgum"],
+                sprite=self.textures["pacgum"][0],
                 points=self.config.points_per_pacgum,
                 maze=self.maze,
                 maze_pos=(x - .5, y),
@@ -274,7 +276,7 @@ class GameState:
             ))
         if (not cell.right and self._no_pacgum(x + .5, y, pacgums)):
             pacgums.append(Pacgum(
-                sprite=self.textures["pacgum"],
+                sprite=self.textures["pacgum"][0],
                 points=self.config.points_per_pacgum,
                 maze=self.maze,
                 maze_pos=(x + .5, y),

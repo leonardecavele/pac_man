@@ -2,8 +2,6 @@ from __future__ import annotations
 
 import pyray as rl
 
-from src.entity import Pac_man
-
 
 class Sounds:
     SOUND_PATHS: dict[str, str] = {

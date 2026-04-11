@@ -5,19 +5,19 @@ class Textures:
     def __init__(self, cell_size: int):
         self.cell_size = cell_size
         self.tile_size = 32
-        self.sheet: rl.Image | None = None
+        self.sheet = rl.load_image("assets/Sprite_Sheet.png")
 
     def _load_textures(
         self,
-    ) -> dict[str, dict[str, list[rl.Texture2D]] | list[rl.Texture2D]]:
-        self.sheet = rl.load_image("assets/Sprite_Sheet.png")
+    ) -> dict[str, dict[str, list[rl.Texture]] | list[rl.Texture]]:
         rl.image_color_replace(
             self.sheet,
             rl.BLACK,
             rl.Color(0, 0, 0, 0)
         )
 
-        textures = {
+        textures: dict[str, dict[str, list[rl.Texture]]
+                       | list[rl.Texture]] = {
             "pacgum": self._load_pacgum_textures(),
             "super_pacgum": self._load_superpacgum_textures(),
             "pac_man": self._load_pac_man_textures(),
@@ -31,11 +31,10 @@ class Textures:
         }
 
         rl.unload_image(self.sheet)
-        self.sheet = None
         return textures
 
-    def _get_sprite(self, x: int, y: int) -> rl.Texture2D:
-        image = rl.image_from_image(
+    def _get_sprite(self, x: int, y: int) -> rl.Texture:
+        image: rl.Image = rl.image_from_image(
             self.sheet,
             rl.Rectangle(
                 x * self.tile_size,
@@ -45,12 +44,12 @@ class Textures:
             )
         )
         texture = rl.load_texture_from_image(image)
-        rl.set_texture_filter(texture, rl.TEXTURE_FILTER_POINT)
+        # rl.set_texture_filter(texture, rl.TEXTURE_FILTER_POINT)
         rl.unload_image(image)
         return texture
 
-    def _load(self, positions: list[tuple[int, int]]) -> list[rl.Texture2D]:
-        sprites: list[rl.Texture2D] = []
+    def _load(self, positions: list[tuple[int, int]]) -> list[rl.Texture]:
+        sprites: list[rl.Texture] = []
         for x, y in positions:
             sprites.append(self._get_sprite(x, y))
         return sprites
@@ -61,7 +60,7 @@ class Textures:
         left: list[tuple[int, int]],
         up: list[tuple[int, int]],
         down: list[tuple[int, int]],
-    ) -> dict[str, list[rl.Texture2D]]:
+    ) -> dict[str, list[rl.Texture]]:
         return {
             "right": self._load(right),
             "left": self._load(left),
@@ -69,7 +68,7 @@ class Textures:
             "down": self._load(down),
         }
 
-    def _load_pac_man_textures(self) -> dict[str, list[rl.Texture2D]]:
+    def _load_pac_man_textures(self) -> dict[str, list[rl.Texture]]:
         return {
             "right": self._load([(0, 0), (1, 0)]),
             "left": self._load([(0, 1), (1, 1)]),
@@ -84,7 +83,7 @@ class Textures:
             ),
         }
 
-    def _load_blinky_textures(self) -> dict[str, list[rl.Texture2D]]:
+    def _load_blinky_textures(self) -> dict[str, list[rl.Texture]]:
         return self._load_directional_textures(
             right=[(0, 4), (1, 4)],
             left=[(2, 4), (3, 4)],
@@ -92,7 +91,7 @@ class Textures:
             down=[(6, 4), (7, 4)],
         )
 
-    def _load_pinky_textures(self) -> dict[str, list[rl.Texture2D]]:
+    def _load_pinky_textures(self) -> dict[str, list[rl.Texture]]:
         return self._load_directional_textures(
             right=[(0, 5), (1, 5)],
             left=[(2, 5), (3, 5)],
@@ -100,7 +99,7 @@ class Textures:
             down=[(6, 5), (7, 5)],
         )
 
-    def _load_inky_textures(self) -> dict[str, list[rl.Texture2D]]:
+    def _load_inky_textures(self) -> dict[str, list[rl.Texture]]:
         return self._load_directional_textures(
             right=[(0, 6), (1, 6)],
             left=[(2, 6), (3, 6)],
@@ -108,7 +107,7 @@ class Textures:
             down=[(6, 6), (7, 6)],
         )
 
-    def _load_clyde_textures(self) -> dict[str, list[rl.Texture2D]]:
+    def _load_clyde_textures(self) -> dict[str, list[rl.Texture]]:
         return self._load_directional_textures(
             right=[(0, 7), (1, 7)],
             left=[(2, 7), (3, 7)],
@@ -116,13 +115,13 @@ class Textures:
             down=[(6, 7), (7, 7)],
         )
 
-    def _load_fleeing_textures(self) -> list[rl.Texture2D]:
+    def _load_fleeing_textures(self) -> list[rl.Texture]:
         return self._load([(8, 4), (9, 4)])
 
-    def _load_blink_textures(self) -> list[rl.Texture2D]:
+    def _load_blink_textures(self) -> list[rl.Texture]:
         return self._load([(9, 4), (10, 4), (8, 4), (11, 4)])
 
-    def _load_eaten_textures(self) -> dict[str, list[rl.Texture2D]]:
+    def _load_eaten_textures(self) -> dict[str, list[rl.Texture]]:
         return self._load_directional_textures(
             right=[(8, 5)],
             left=[(9, 5)],
@@ -130,7 +129,7 @@ class Textures:
             down=[(11, 5)]
         )
 
-    def _load_pacgum_textures(self) -> rl.Texture2D:
+    def _load_pacgum_textures(self) -> list[rl.Texture]:
         image = rl.gen_image_color(
             128 - 1,
             128 - 1,
@@ -144,11 +143,11 @@ class Textures:
             rl.BEIGE,
         )
         texture = rl.load_texture_from_image(image)
-        rl.set_texture_filter(texture, rl.TEXTURE_FILTER_POINT)
+        # rl.set_texture_filter(texture, rl.TEXTURE_FILTER_POINT)
         rl.unload_image(image)
-        return texture
+        return ([texture])
 
-    def _load_superpacgum_textures(self) -> rl.Texture2D:
+    def _load_superpacgum_textures(self) -> list[rl.Texture]:
         image = rl.gen_image_color(
             128 - 1,
             128 - 1,
@@ -162,6 +161,6 @@ class Textures:
             rl.BEIGE,
         )
         texture = rl.load_texture_from_image(image)
-        rl.set_texture_filter(texture, rl.TEXTURE_FILTER_POINT)
-        rl.unload_image(image)
+        # rl.set_texture_filter(texture, rl.TEXTURE_FILTER_POINT)
+        return ([texture])
         return texture

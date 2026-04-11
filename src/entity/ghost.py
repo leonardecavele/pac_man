@@ -329,13 +329,13 @@ class Ghost(Entity, ABC):
             return [back]
         return directions
 
-    @ staticmethod
+    @staticmethod
     def euclidean(pos1: vec2i, pos2: vec2i) -> int:
         dx: int = pos2[0] - pos1[0]
         dy: int = pos2[1] - pos1[1]
         return int(sqrt(dx * dx + dy * dy))
 
-    @ staticmethod
+    @staticmethod
     def manhattan(pos1: vec2i, pos2: vec2i) -> int:
         return abs(pos1[0] - pos2[0]) + abs(pos1[1] - pos2[1])
 

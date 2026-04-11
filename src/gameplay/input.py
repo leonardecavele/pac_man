@@ -2,7 +2,6 @@ from pydantic import BaseModel, Field
 
 import pyray as rl
 
-from src.maze import Maze
 from src.type import vec2i, Direction
 
 

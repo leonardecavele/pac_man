@@ -205,7 +205,8 @@ class GameView(View):
             dst = rl.Rectangle(self.margin[0] + self.maze_pixel_w // 20
                                + i * self.geometry.cell_size,
                                self.margin[1] + self.maze_pixel_h + 5,
-                               self.geometry.cell_size, self.geometry.cell_size)
+                               self.geometry.cell_size,
+                               self.geometry.cell_size)
             rl.draw_texture_pro(
                 self.textures["pac_man"]["left"][1], src, dst,
                 rl.Vector2(0, 0), 0.0, rl.WHITE
@@ -246,7 +247,8 @@ class GameView(View):
             rl.draw_text(text1, game_x, text_y, font_size, rl.RED)
             rl.draw_text(text2, over_x, text_y, font_size, rl.RED)
 
-        if self.state.start_time > 0.0 or self.sounds.is_playing("start_music"):
+        if (self.state.start_time > 0.0
+                or self.sounds.is_playing("start_music")):
             spawn_x, spawn_y = self.geometry.maze_to_screen(
                 self.state.pac_man_spawn
             )
