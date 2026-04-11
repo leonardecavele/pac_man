@@ -9,4 +9,5 @@ The **Pac-Man** project goal is to recreate a pacman game using another group's
 
 ## Instructions
 
->[!IMPORTANT] A FAIRE APRES AVOIR PUSH SUR ITCH
+>[!IMPORTANT]
+>A FAIRE APRES AVOIR PUSH SUR ITCH
