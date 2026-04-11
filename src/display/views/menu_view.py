@@ -220,7 +220,8 @@ class MenuView(View):
                 self.anim_size = rl.measure_text(
                     self.inst_btn.label, self.inst_btn.font_size)
                 self.anim_frame = 0
-                self.pending_event = ViewEvent(type=ViewEventType.NONE)
+                self.pending_event = ViewEvent(type=ViewEventType.CHANGE_VIEW,
+                                               message="instruction")
                 return (ViewEvent(type=ViewEventType.NONE))
             if (self.exit_btn.contains(mx, my)):
                 return (ViewEvent(type=ViewEventType.QUIT))
