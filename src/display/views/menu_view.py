@@ -116,15 +116,29 @@ class MenuView(View):
 
     def _update_normal(self, dt: float) -> ViewEvent:
         if (rl.is_key_pressed(rl.KEY_C)):
-            return (
-                ViewEvent(type=ViewEventType.START_GAME, message="classic")
-            )
+            self.classic_btn.color = rl.BLUE
+            self.anim_timer = 0
+            self.state = State.BTN_ANIM
+            self.anim_pos = [self.col1 // 4, self.classic_btn.y]
+            self.anim_size = rl.measure_text(
+                self.classic_btn.label, self.classic_btn.font_size)
+            self.anim_frame = 0
+            self.pending_event = ViewEvent(
+                type=ViewEventType.START_GAME, message="classic")
+            return ViewEvent(type=ViewEventType.NONE)
         if (rl.is_key_pressed(rl.KEY_R)):
-            return (
-                ViewEvent(type=ViewEventType.START_GAME, message="random")
-            )
+            self.random_btn.color = rl.PINK
+            self.anim_timer = 0
+            self.state = State.BTN_ANIM
+            self.anim_pos = [self.col1 // 4, self.random_btn.y]
+            self.anim_size = rl.measure_text(
+                self.random_btn.label, self.random_btn.font_size)
+            self.anim_frame = 0
+            self.pending_event = ViewEvent(
+                type=ViewEventType.START_GAME, message="random")
+            return ViewEvent(type=ViewEventType.NONE)
         if (rl.is_key_pressed(rl.KEY_E)):
-            return (ViewEvent(type=ViewEventType.QUIT))
+            return ViewEvent(type=ViewEventType.QUIT)
 
         mouse = rl.get_mouse_position()
         src = rl.Rectangle(0, 0, 32, 32)
