@@ -110,6 +110,8 @@ class App:
         for view in self.views.values():
             view.close()
 
+        if (rl.is_window_maximized() or rl.is_window_fullscreen()):
+            rl.restore_window()
         width = rl.get_screen_width()
         height = rl.get_screen_height()
         anim_pos_x = float(-height)
