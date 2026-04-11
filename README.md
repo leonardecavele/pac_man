@@ -15,8 +15,9 @@ The **Pac-Man** project goal is to recreate a pacman game using another group's
 ## Resources
 
 - [The Pacman Dossier](https://pacman.holenet.info)
-- [Online Pacman game](pacman.live)
-- [Claude](Claude.ai)
+- [Online Pacman game](https://pacman.live)
+- [Claude](https://claude.ai)
+- [Raylib Docs](https://electronstudio.github.io/raylib-python-cffi/pyray.html)
 
 ## Configuration
 
