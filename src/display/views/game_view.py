@@ -19,7 +19,7 @@ from src.sounds import Sounds
 from .view import View, ViewEvent, ViewEventType
 
 
-CHEAT_MODE_COMB = [265, 265, 264, 262, 263]
+CHEAT_MODE_COMB = [263, 262, 263, 262, 265, 265, 265, 257]
 
 
 class State(Enum):
@@ -160,9 +160,6 @@ class GameView(View):
                           self.height // 2 - menu_height // 2,
                           menu_width, menu_height)
         rl.draw_rectangle_rounded_lines(bg, .15, 256, WALL_COLOR)
-        # rl.draw_text("PAUSE", menu_width + menu_width // 2 -
-        #              rl.measure_text("PAUSE", self.font_size) // 2,
-        #              menu_height // 10 * 4, self.font_size, rl.WHITE)
         for btn in self.cheat_btns:
             btn.draw()
 
