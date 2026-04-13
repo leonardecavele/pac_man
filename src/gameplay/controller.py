@@ -27,7 +27,7 @@ class GameController:
     def update(
         self, state: GameState, dt: float, inputs: GameInputState
     ) -> GameAction:
-        if state.timer - state.last_pacgum_eat_time > 0.10:
+        if state.timer - state.last_pacgum_eat_time > 0.30:
             self.sounds.munch_counter = 0
 
         if self.sounds.is_playing("start_music"):
