@@ -31,6 +31,7 @@ class GameState:
         self.config = config
         self.textures = textures
         self.game_over: bool = False
+        self.game_win: bool = False
         self.sounds = sounds
         self.geometry = geometry
         self.freeze_time: float = 0.0

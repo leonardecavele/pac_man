@@ -92,6 +92,8 @@ class GameView(View):
         self.cheat_mode = False
         self.game_over_timer = 0.0
         self.game_over_delay = 2.0
+        self.win_timer = 0.0
+        self.win_delay = 2.0
 
     def draw(self) -> None:
         self._draw_running()
@@ -178,6 +180,7 @@ class GameView(View):
             if (
                 (self.timer > 0.75 or not ghost.state == Ghost.State.EATEN)
                 and self.state.music_hide <= 0.0
+                and not self.state.game_win
             ):
                 self._draw_entity(ghost, ghost.sprite)
         if (self.timer > 0.75):
@@ -273,6 +276,29 @@ class GameView(View):
             rl.draw_rectangle(box_x, box_y, box_w, box_h, rl.BLACK)
             rl.draw_text(text, text_x, text_y, font_size, rl.YELLOW)
 
+        if self.state.game_win:
+            spawn_x, spawn_y = self.geometry.maze_to_screen(
+                self.state.pac_man_spawn
+            )
+            spawn_x += self.margin[0]
+
+            text = "NEXT LEVEL!"
+            font_size = int(self.geometry.cell_size * 0.5)
+            text_w = rl.measure_text(text, font_size)
+            text_y = int(spawn_y - self.geometry.cell_size * 1)
+            text_x = int(spawn_x - text_w / 2)
+
+            padding_x = 8
+            padding_y = 6
+
+            box_x = text_x - padding_x
+            box_y = text_y - padding_y
+            box_w = text_w + padding_x * 2
+            box_h = font_size + padding_y * 2
+
+            rl.draw_rectangle(box_x, box_y, box_w, box_h, rl.BLACK)
+            rl.draw_text(text, text_x, text_y, font_size, rl.YELLOW)
+
     def update(self, dt: float) -> ViewEvent:
         if (self.gamestate == State.RUNNING):
             return (self._update_running(dt))
@@ -347,6 +373,17 @@ class GameView(View):
                 )
             return ViewEvent(type=ViewEventType.NONE)
 
+        if self.state.game_win:
+            self.win_timer += dt
+            if self.win_timer >= self.win_delay:
+                self.state.entity_reset()
+                self.state.collectible_reset()
+                self.state.timer = 0.0
+                self.state.start_time = 2.0
+                self.state.game_win = False
+                self.win_timer = 0.0
+            return ViewEvent(type=ViewEventType.NONE)
+
         if (rl.is_key_pressed(rl.KEY_ESCAPE)):
             self.sounds.pause_all_sounds()
             self.gamestate = State.PAUSE
@@ -356,10 +393,8 @@ class GameView(View):
             self.state, dt, self.input_reader.read()
         )
         if action.type == GameActionType.VICTORY:
-            self.state.entity_reset()
-            self.state.timer = 0.0
-            self.state.collectible_reset()
-            self.state.start_time = 2.0
+            self.state.game_win = True
+            self.win_timer = 0.0
             return ViewEvent(type=ViewEventType.NONE)
         if action.type == GameActionType.GAME_OVER:
             self.state.game_over = True
