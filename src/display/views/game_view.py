@@ -138,12 +138,17 @@ class GameView(View):
             btn.w = rl.measure_text(btn.label, self.font_size)
             btn.h = self.font_size
 
-        gap = self.font_size
+        gap = self.font_size + self.font_size // 3
+
+        buttons_top = menu_top + menu_height * 45 // 100
+        buttons_bottom = menu_top + menu_height * 80 // 100
+        buttons_area_h = buttons_bottom - buttons_top
+
         total_h = len(self.pause_btns) * self.font_size + (
             len(self.pause_btns) - 1
         ) * gap
 
-        start_y = menu_top + menu_height // 2 - total_h // 2
+        start_y = buttons_top + (buttons_area_h - total_h) // 2
 
         for i, btn in enumerate(self.pause_btns):
             btn.x = menu_left + menu_width // 2 - btn.w // 2
@@ -152,27 +157,65 @@ class GameView(View):
     def _draw_pause(self) -> None:
         menu_width = self.width // 3
         menu_height = self.height // 10 * 7
-        bg = rl.Rectangle(self.width // 2 - menu_width // 2 - 1,
-                          self.height // 2 - menu_height // 2 - 1,
-                          menu_width + 2, menu_height + 2)
-        rl.draw_rectangle_rounded(bg, .15, 256, rl.Color(0, 0, 42, 120))
-        bg = rl.Rectangle(self.width // 2 - menu_width // 2,
-                          self.height // 2 - menu_height // 2,
-                          menu_width, menu_height)
+        menu_left = self.width // 2 - menu_width // 2
+        menu_top = self.height // 2 - menu_height // 2
+
+        outer_rect = rl.Rectangle(
+            menu_left - 1,
+            menu_top - 1,
+            menu_width + 2,
+            menu_height + 2
+        )
+        inner_rect = rl.Rectangle(
+            menu_left,
+            menu_top,
+            menu_width,
+            menu_height
+        )
+
+        rl.draw_rectangle_rounded(
+            outer_rect,
+            0.15,
+            256,
+            rl.Color(0, 0, 42, 160)
+        )
+
         for i in range(3):
             border = rl.Rectangle(
-                bg.x + i,
-                bg.y + i,
-                bg.width - i * 2,
-                bg.height - i * 2
+                inner_rect.x + i,
+                inner_rect.y + i,
+                inner_rect.width - i * 2,
+                inner_rect.height - i * 2
             )
-            rl.draw_rectangle_rounded_lines(border, .15, 256, WALL_COLOR)
-        rl.draw_text("PAUSE", menu_width + menu_width // 2 -
-                     rl.measure_text("PAUSE", self.font_size) // 2,
-                     menu_height // 10 * 4, self.font_size, rl.WHITE)
+            rl.draw_rectangle_rounded_lines(border, 0.15, 256, WALL_COLOR)
+
+        title = "PAUSE"
+        title_w = rl.measure_text(title, self.font_size)
+        title_x = self.width // 2 - title_w // 2
+        title_y = menu_top + menu_height // 6
+
+        title_padding_x = 10
+        title_padding_y = 10
+        title_rect_x = title_x - title_padding_x
+        title_rect_y = title_y - title_padding_y
+        title_rect_w = title_w + title_padding_x * 2
+        title_rect_h = self.font_size + title_padding_y * 2
+
+        for i in range(3):
+            rl.draw_rectangle_lines(
+                title_rect_x - i,
+                title_rect_y - i,
+                title_rect_w + i * 2,
+                title_rect_h + i * 2,
+                rl.WHITE
+            )
+
+        rl.draw_text(title, title_x, title_y, self.font_size, rl.WHITE)
+
         for btn in self.pause_btns:
             btn.draw()
-        if (self.cheat_mode):
+
+        if self.cheat_mode:
             self._draw_cheat()
 
     def _draw_cheat(self) -> None:
