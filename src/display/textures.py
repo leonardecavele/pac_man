@@ -133,7 +133,7 @@ class Textures:
         image = rl.gen_image_color(
             128 - 1,
             128 - 1,
-            rl.BLACK,
+            rl.Color(0, 0, 0, 0),
         )
         rl.image_draw_circle(
             image,
@@ -151,7 +151,7 @@ class Textures:
         image = rl.gen_image_color(
             128 - 1,
             128 - 1,
-            rl.BLACK,
+            rl.Color(0, 0, 0, 0),
         )
         rl.image_draw_circle(
             image,
