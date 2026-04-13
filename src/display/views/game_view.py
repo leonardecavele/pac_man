@@ -109,7 +109,9 @@ class GameView(View):
                     not self.state.show_ghost_path
                 )
             ),
-            Button(0, 0, "CHEAT OFF", self.font_size, self._disable_cheat_mode),
+            Button(
+                0, 0, "CHEAT OFF", self.font_size, self._disable_cheat_mode
+            ),
         ]
 
         self.timer = 1.0
