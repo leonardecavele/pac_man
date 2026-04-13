@@ -356,9 +356,11 @@ class GameView(View):
             self.state, dt, self.input_reader.read()
         )
         if action.type == GameActionType.VICTORY:
-            return ViewEvent(
-                type=ViewEventType.END, message=f"victory:{action.score}"
-            )
+            self.state.entity_reset()
+            self.state.timer = 0.0
+            self.state.collectible_reset()
+            self.state.start_time = 2.0
+            return ViewEvent(type=ViewEventType.NONE)
         if action.type == GameActionType.GAME_OVER:
             self.state.game_over = True
             self.game_over_timer = 0.0
