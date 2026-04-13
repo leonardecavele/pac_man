@@ -111,15 +111,23 @@ class EndView(View):
     def update(self, dt: float) -> ViewEvent:
         self.text_input.handle_input()
 
+        should_submit = False
+
         if rl.is_mouse_button_pressed(rl.MOUSE_LEFT_BUTTON):
             mouse = rl.get_mouse_position()
             if self.submit_btn.contains(mouse.x, mouse.y):
-                if not self._save_score():
-                    return ViewEvent(type=ViewEventType.NONE)
-                return ViewEvent(
-                    type=ViewEventType.CHANGE_VIEW,
-                    message="main_menu"
-                )
+                should_submit = True
+
+        if rl.is_key_pressed(rl.KEY_ENTER):
+            should_submit = True
+
+        if should_submit:
+            if not self._save_score():
+                return ViewEvent(type=ViewEventType.NONE)
+            return ViewEvent(
+                type=ViewEventType.CHANGE_VIEW,
+                message="main_menu"
+            )
 
         return ViewEvent(type=ViewEventType.NONE)
 

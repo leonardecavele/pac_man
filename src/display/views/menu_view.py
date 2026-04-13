@@ -37,6 +37,7 @@ class MenuView(View):
             self.inst_btn,
             self.exit_btn
         ]
+        self.selected_index = 0
 
         self.state = State.NORMAL
         self.anim_pos = [0.0, 0.0]
@@ -125,9 +126,9 @@ class MenuView(View):
         visible_scores = self._get_top_scores()
         score_block_h = max(
             buttons_h,
-            len(
-                visible_scores
-            ) * self.score_font_size if visible_scores else buttons_h
+            len(visible_scores) * (
+                self.score_font_size if visible_scores else buttons_h
+            )
         )
 
         content_w = button_col_w + col_gap + score_col_w
@@ -207,12 +208,18 @@ class MenuView(View):
         mouse = rl.get_mouse_position()
         mx, my = int(mouse.x), int(mouse.y)
 
+        for i, btn in enumerate(self.buttons):
+            if btn.contains(mx, my):
+                self.selected_index = i
+                break
+
         src = rl.Rectangle(0, 0, 32, 32)
 
-        for btn in self.buttons:
+        for i, btn in enumerate(self.buttons):
             hovered = btn.contains(mx, my)
+            selected = i == self.selected_index
 
-            if hovered and self.state != State.BTN_ANIM:
+            if (hovered or selected) and self.state != State.BTN_ANIM:
                 if btn is self.classic_btn:
                     btn.color = rl.Color(43, 255, 255, 255)
                 elif btn is self.random_btn:
@@ -330,11 +337,56 @@ class MenuView(View):
         self.anim_frame = 0
         self.pending_event = event
 
+    def _activate_selected_button(self) -> ViewEvent:
+        selected_btn = self.buttons[self.selected_index]
+
+        if selected_btn is self.classic_btn:
+            self._start_anim(
+                self.classic_btn,
+                ViewEvent(type=ViewEventType.START_GAME, message="classic")
+            )
+            return ViewEvent(type=ViewEventType.NONE)
+
+        if selected_btn is self.random_btn:
+            self._start_anim(
+                self.random_btn,
+                ViewEvent(type=ViewEventType.START_GAME, message="random")
+            )
+            return ViewEvent(type=ViewEventType.NONE)
+
+        if selected_btn is self.inst_btn:
+            self._start_anim(
+                self.inst_btn,
+                ViewEvent(
+                    type=ViewEventType.CHANGE_VIEW,
+                    message="instruction"
+                )
+            )
+            return ViewEvent(type=ViewEventType.NONE)
+
+        if selected_btn is self.exit_btn:
+            return ViewEvent(type=ViewEventType.QUIT)
+
+        return ViewEvent(type=ViewEventType.NONE)
+
     def _update_normal(self, dt: float) -> ViewEvent:
         mouse = rl.get_mouse_position()
         mx, my = int(mouse.x), int(mouse.y)
 
+        if rl.is_key_pressed(rl.KEY_UP):
+            self.selected_index = (self.selected_index - 1) % len(self.buttons)
+
+        if rl.is_key_pressed(rl.KEY_DOWN):
+            self.selected_index = (self.selected_index + 1) % len(self.buttons)
+
+        if (
+            rl.is_key_pressed(rl.KEY_ENTER)
+            or rl.is_key_pressed(rl.KEY_KP_ENTER)
+        ):
+            return self._activate_selected_button()
+
         if rl.is_key_pressed(rl.KEY_C):
+            self.selected_index = 0
             self._start_anim(
                 self.classic_btn,
                 ViewEvent(type=ViewEventType.START_GAME, message="classic")
@@ -342,6 +394,7 @@ class MenuView(View):
             return ViewEvent(type=ViewEventType.NONE)
 
         if rl.is_key_pressed(rl.KEY_R):
+            self.selected_index = 1
             self._start_anim(
                 self.random_btn,
                 ViewEvent(type=ViewEventType.START_GAME, message="random")
@@ -349,19 +402,23 @@ class MenuView(View):
             return ViewEvent(type=ViewEventType.NONE)
 
         if rl.is_key_pressed(rl.KEY_I):
+            self.selected_index = 2
             self._start_anim(
                 self.inst_btn,
                 ViewEvent(
-                    type=ViewEventType.CHANGE_VIEW, message="instruction"
+                    type=ViewEventType.CHANGE_VIEW,
+                    message="instruction"
                 )
             )
             return ViewEvent(type=ViewEventType.NONE)
 
         if rl.is_key_pressed(rl.KEY_E):
+            self.selected_index = 3
             return ViewEvent(type=ViewEventType.QUIT)
 
         if rl.is_mouse_button_pressed(rl.MOUSE_LEFT_BUTTON):
             if self.classic_btn.contains(mx, my):
+                self.selected_index = 0
                 self._start_anim(
                     self.classic_btn,
                     ViewEvent(type=ViewEventType.START_GAME, message="classic")
@@ -369,6 +426,7 @@ class MenuView(View):
                 return ViewEvent(type=ViewEventType.NONE)
 
             if self.random_btn.contains(mx, my):
+                self.selected_index = 1
                 self._start_anim(
                     self.random_btn,
                     ViewEvent(type=ViewEventType.START_GAME, message="random")
@@ -376,15 +434,18 @@ class MenuView(View):
                 return ViewEvent(type=ViewEventType.NONE)
 
             if self.inst_btn.contains(mx, my):
+                self.selected_index = 2
                 self._start_anim(
                     self.inst_btn,
                     ViewEvent(
-                        type=ViewEventType.CHANGE_VIEW, message="instruction"
+                        type=ViewEventType.CHANGE_VIEW,
+                        message="instruction"
                     )
                 )
                 return ViewEvent(type=ViewEventType.NONE)
 
             if self.exit_btn.contains(mx, my):
+                self.selected_index = 3
                 return ViewEvent(type=ViewEventType.QUIT)
 
         return ViewEvent(type=ViewEventType.NONE)

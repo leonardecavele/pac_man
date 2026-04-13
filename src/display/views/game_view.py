@@ -20,7 +20,7 @@ from src.sounds import Sounds
 from .view import View, ViewEvent, ViewEventType
 
 
-CHEAT_MODE_COMB = [263, 262, 263, 262, 265, 265, 265, 257]
+CHEAT_MODE_COMB = [263, 262, 263, 262, 265, 265, 265, rl.KEY_SPACE]
 
 
 class State(Enum):
@@ -114,6 +114,10 @@ class GameView(View):
             ),
         ]
 
+        self.pause_selected_index = 0
+        self.cheat_selected_index = 0
+        self.selected_panel = "pause"
+
         self.timer = 1.0
         self.comb_idx = 0
         self.cheat_mode = False
@@ -127,6 +131,7 @@ class GameView(View):
 
     def _disable_cheat_mode(self) -> None:
         self.cheat_mode = False
+        self.selected_panel = "pause"
         self._set_pause_btn_positions()
         self._set_cheat_btn_positions()
 
@@ -295,11 +300,24 @@ class GameView(View):
             "PAUSE"
         )
 
-        for btn in self.pause_btns:
+        for i, btn in enumerate(self.pause_btns):
+            if (
+                self.selected_panel == "pause"
+                and i == self.pause_selected_index
+            ):
+                if btn.label == "RESUME":
+                    btn.color = rl.YELLOW
+                elif btn.label == "QUIT":
+                    btn.color = rl.RED
             btn.draw()
 
         if self.cheat_mode:
-            for btn in self.cheat_btns:
+            for i, btn in enumerate(self.cheat_btns):
+                if (
+                    self.selected_panel == "cheat"
+                    and i == self.cheat_selected_index
+                ):
+                    btn.color = rl.Color(255, 255, 255, 128)
                 btn.draw()
 
     def _draw_texts(self) -> None:
@@ -477,14 +495,37 @@ class GameView(View):
     def _update_cheat(self, dt: float) -> None:
         mouse = rl.get_mouse_position()
         mx, my = mouse.x, mouse.y
-        for btn in self.cheat_btns:
+        for i, btn in enumerate(self.cheat_btns):
             if btn.contains(mx, my):
+                self.selected_panel = "cheat"
+                self.cheat_selected_index = i
                 if rl.is_mouse_button_pressed(rl.MOUSE_LEFT_BUTTON):
                     btn.action()
                 else:
                     btn.color = rl.Color(255, 255, 255, 128)
             else:
                 btn.color = rl.WHITE
+
+    def _activate_pause_selection(self) -> ViewEvent:
+        selected_btn = self.pause_btns[self.pause_selected_index]
+
+        if selected_btn.label == "RESUME":
+            self.gamestate = State.RUNNING
+            self.sounds.resume_all_sounds()
+            return ViewEvent(type=ViewEventType.NONE)
+
+        if selected_btn.label == "QUIT":
+            return ViewEvent(
+                type=ViewEventType.CHANGE_VIEW,
+                message="main_menu"
+            )
+
+        return ViewEvent(type=ViewEventType.NONE)
+
+    def _activate_cheat_selection(self) -> ViewEvent:
+        selected_btn = self.cheat_btns[self.cheat_selected_index]
+        selected_btn.action()
+        return ViewEvent(type=ViewEventType.NONE)
 
     def _update_pause(self, dt: float) -> ViewEvent:
         if self.cheat_mode:
@@ -498,6 +539,7 @@ class GameView(View):
 
         if self.comb_idx >= len(CHEAT_MODE_COMB):
             self.cheat_mode = True
+            self.selected_panel = "pause"
             self.comb_idx = 0
             self._set_pause_btn_positions()
             self._set_cheat_btn_positions()
@@ -507,24 +549,68 @@ class GameView(View):
             self.sounds.resume_all_sounds()
             return ViewEvent(type=ViewEventType.NONE)
 
+        if rl.is_key_pressed(rl.KEY_UP):
+            if self.selected_panel == "pause":
+                self.pause_selected_index = (
+                    self.pause_selected_index - 1
+                ) % len(self.pause_btns)
+            elif self.cheat_mode:
+                self.cheat_selected_index = (
+                    self.cheat_selected_index - 1
+                ) % len(self.cheat_btns)
+
+        if rl.is_key_pressed(rl.KEY_DOWN):
+            if self.selected_panel == "pause":
+                self.pause_selected_index = (
+                    self.pause_selected_index + 1
+                ) % len(self.pause_btns)
+            elif self.cheat_mode:
+                self.cheat_selected_index = (
+                    self.cheat_selected_index + 1
+                ) % len(self.cheat_btns)
+
+        if self.cheat_mode and rl.is_key_pressed(rl.KEY_LEFT):
+            self.selected_panel = "cheat"
+
+        if self.cheat_mode and rl.is_key_pressed(rl.KEY_RIGHT):
+            self.selected_panel = "pause"
+
+        if (
+            rl.is_key_pressed(rl.KEY_ENTER)
+            or rl.is_key_pressed(rl.KEY_KP_ENTER)
+        ):
+            if self.selected_panel == "pause":
+                return self._activate_pause_selection()
+            if self.cheat_mode and self.selected_panel == "cheat":
+                return self._activate_cheat_selection()
+
         mouse = rl.get_mouse_position()
 
         if rl.is_mouse_button_pressed(rl.MOUSE_LEFT_BUTTON):
             if self.pause_btns[0].contains(mouse.x, mouse.y):
+                self.selected_panel = "pause"
+                self.pause_selected_index = 0
                 self.gamestate = State.RUNNING
                 self.sounds.resume_all_sounds()
             elif self.pause_btns[1].contains(mouse.x, mouse.y):
+                self.selected_panel = "pause"
+                self.pause_selected_index = 1
                 return ViewEvent(
                     type=ViewEventType.CHANGE_VIEW,
                     message="main_menu"
                 )
 
-        if self.pause_btns[0].contains(mouse.x, mouse.y):
+        for i, btn in enumerate(self.pause_btns):
+            if btn.contains(mouse.x, mouse.y):
+                self.selected_panel = "pause"
+                self.pause_selected_index = i
+
+        if self.pause_selected_index == 0 and self.selected_panel == "pause":
             self.pause_btns[0].color = rl.YELLOW
         else:
             self.pause_btns[0].color = rl.WHITE
 
-        if self.pause_btns[1].contains(mouse.x, mouse.y):
+        if self.pause_selected_index == 1 and self.selected_panel == "pause":
             self.pause_btns[1].color = rl.RED
         else:
             self.pause_btns[1].color = rl.WHITE
@@ -562,6 +648,8 @@ class GameView(View):
         if rl.is_key_pressed(rl.KEY_ESCAPE):
             self.sounds.pause_all_sounds()
             self.gamestate = State.PAUSE
+            self.selected_panel = "pause"
+            self.pause_selected_index = 0
             return ViewEvent(type=ViewEventType.NONE)
 
         action = self.controller.update(
