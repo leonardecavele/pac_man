@@ -334,6 +334,32 @@ class MenuView(View):
         mouse = rl.get_mouse_position()
         mx, my = int(mouse.x), int(mouse.y)
 
+        if rl.is_key_pressed(rl.KEY_C):
+            self._start_anim(
+                self.classic_btn,
+                ViewEvent(type=ViewEventType.START_GAME, message="classic")
+            )
+            return ViewEvent(type=ViewEventType.NONE)
+
+        if rl.is_key_pressed(rl.KEY_R):
+            self._start_anim(
+                self.random_btn,
+                ViewEvent(type=ViewEventType.START_GAME, message="random")
+            )
+            return ViewEvent(type=ViewEventType.NONE)
+
+        if rl.is_key_pressed(rl.KEY_I):
+            self._start_anim(
+                self.inst_btn,
+                ViewEvent(
+                    type=ViewEventType.CHANGE_VIEW, message="instruction"
+                )
+            )
+            return ViewEvent(type=ViewEventType.NONE)
+
+        if rl.is_key_pressed(rl.KEY_E):
+            return ViewEvent(type=ViewEventType.QUIT)
+
         if rl.is_mouse_button_pressed(rl.MOUSE_LEFT_BUTTON):
             if self.classic_btn.contains(mx, my):
                 self._start_anim(
