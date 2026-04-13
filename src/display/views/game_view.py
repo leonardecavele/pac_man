@@ -67,33 +67,45 @@ class GameView(View):
         self.controller = GameController(self.sounds)
         self.input_reader = GameInputReader()
         self.maze_image = rl.gen_image_color(
-            self.width - 50, self.height - 50, rl.BLACK)
-        MazeRenderer(self.maze_image, self.state.maze,
-                     self.geometry.cell_size, self.geometry.gap)
+            self.width - 50, self.height - 50, rl.BLACK
+        )
+        MazeRenderer(
+            self.maze_image,
+            self.state.maze,
+            self.geometry.cell_size,
+            self.geometry.gap
+        )
         self.maze_texture = rl.load_texture_from_image(self.maze_image)
+
         self.pause_btns = [
             Button(0, 0, "RESUME", self.font_size, lambda: None),
             Button(0, 0, "QUIT", self.font_size, lambda: None),
         ]
-        self._set_pause_btn_positions()
+
         self.cheat_btns = [
-            Button(0, 0, "ADD 1 LIVE", self.font_size,
-                   lambda: setattr(self.state, 'HP', self.state.HP + 1)),
-            Button(0, 0, "REMOVE 1 LIVE", self.font_size,
-                   lambda: setattr(self.state, 'HP', self.state.HP - 1)),
-            Button(0, 0, "RESET TIMER", self.font_size,
-                   lambda: setattr(self.state, 'timer', 0)),
+            Button(
+                0, 0, "ADD 1 LIVE", self.font_size,
+                lambda: setattr(self.state, 'HP', self.state.HP + 1)
+            ),
+            Button(
+                0, 0, "REMOVE 1 LIVE", self.font_size,
+                lambda: setattr(self.state, 'HP', self.state.HP - 1)
+            ),
+            Button(
+                0, 0, "RESET TIMER", self.font_size,
+                lambda: setattr(self.state, 'timer', 0)
+            ),
             Button(
                 0, 0, "SHOW GHOSTS TARGETS", self.font_size,
                 lambda: setattr(
-                    self.state, 'show_ghost_path',
+                    self.state,
+                    'show_ghost_path',
                     not self.state.show_ghost_path
                 )
             ),
-            Button(0, 0, "CHEAT OFF", self.font_size,
-                   lambda: setattr(self, 'cheat_mode', False)),
+            Button(0, 0, "CHEAT OFF", self.font_size, self._disable_cheat_mode),
         ]
-        self._set_cheat_btn_positions()
+
         self.timer = 1.0
         self.comb_idx = 0
         self.cheat_mode = False
@@ -102,36 +114,62 @@ class GameView(View):
         self.win_timer = 0.0
         self.win_delay = 2.0
 
+        self._set_pause_btn_positions()
+        self._set_cheat_btn_positions()
+
+    def _disable_cheat_mode(self) -> None:
+        self.cheat_mode = False
+        self._set_pause_btn_positions()
+        self._set_cheat_btn_positions()
+
+    def _get_pause_panels_layout(self) -> tuple[int, int, int, int, int]:
+        panel_width = self.width // 3
+        panel_height = self.height // 10 * 7
+        gap = self.width // 40
+
+        if self.cheat_mode:
+            total_width = panel_width * 2 + gap
+            left_x = self.width // 2 - total_width // 2
+            cheat_x = left_x
+            pause_x = left_x + panel_width + gap
+        else:
+            pause_x = self.width // 2 - panel_width // 2
+            cheat_x = pause_x - panel_width - gap
+
+        top_y = self.height // 2 - panel_height // 2
+        return cheat_x, pause_x, top_y, panel_width, panel_height
+
     def draw(self) -> None:
         self._draw_running()
-        if (self.gamestate == State.PAUSE):
+        if self.gamestate == State.PAUSE:
             self._draw_pause()
 
     def _set_cheat_btn_positions(self) -> None:
-        menu_width = self.width // 4
-        margin = (self.width // 3 - menu_width) // 2
-        menu_height = self.height // 10 * 7
-        menu_top = self.height // 2 - menu_height // 2
+        cheat_x, _, menu_top, menu_width, menu_height = \
+            self._get_pause_panels_layout()
+
         for btn in self.cheat_btns:
             btn.font_size = self.font_size
             btn.w = rl.measure_text(btn.label, self.font_size)
             btn.h = self.font_size
+
         gap = self.font_size // 2
         main_btns = self.cheat_btns[:-1]
         last_btn = self.cheat_btns[-1]
+
         total_h = len(main_btns) * self.font_size + (len(main_btns) - 1) * gap
         start_y = menu_top + (menu_height - total_h) // 2
+
         for i, btn in enumerate(main_btns):
-            btn.x = margin + menu_width // 2 - btn.w // 2
+            btn.x = cheat_x + menu_width // 2 - btn.w // 2
             btn.y = start_y + i * (self.font_size + gap)
-        last_btn.x = margin + menu_width // 2 - last_btn.w // 2
+
+        last_btn.x = cheat_x + menu_width // 2 - last_btn.w // 2
         last_btn.y = menu_top + menu_height - self.font_size - gap
 
     def _set_pause_btn_positions(self) -> None:
-        menu_width = self.width // 3
-        menu_height = self.height // 10 * 7
-        menu_left = self.width // 2 - menu_width // 2
-        menu_top = self.height // 2 - menu_height // 2
+        _, pause_x, menu_top, menu_width, menu_height = \
+            self._get_pause_panels_layout()
 
         for btn in self.pause_btns:
             btn.font_size = self.font_size
@@ -139,7 +177,6 @@ class GameView(View):
             btn.h = self.font_size
 
         gap = self.font_size + self.font_size // 3
-
         buttons_top = menu_top + menu_height * 45 // 100
         buttons_bottom = menu_top + menu_height * 80 // 100
         buttons_area_h = buttons_bottom - buttons_top
@@ -151,15 +188,17 @@ class GameView(View):
         start_y = buttons_top + (buttons_area_h - total_h) // 2
 
         for i, btn in enumerate(self.pause_btns):
-            btn.x = menu_left + menu_width // 2 - btn.w // 2
+            btn.x = pause_x + menu_width // 2 - btn.w // 2
             btn.y = start_y + i * (self.font_size + gap)
 
-    def _draw_pause(self) -> None:
-        menu_width = self.width // 3
-        menu_height = self.height // 10 * 7
-        menu_left = self.width // 2 - menu_width // 2
-        menu_top = self.height // 2 - menu_height // 2
-
+    def _draw_panel(
+        self,
+        menu_left: int,
+        menu_top: int,
+        menu_width: int,
+        menu_height: int,
+        title: str,
+    ) -> None:
         outer_rect = rl.Rectangle(
             menu_left - 1,
             menu_top - 1,
@@ -189,9 +228,8 @@ class GameView(View):
             )
             rl.draw_rectangle_rounded_lines(border, 0.15, 256, WALL_COLOR)
 
-        title = "PAUSE"
         title_w = rl.measure_text(title, self.font_size)
-        title_x = self.width // 2 - title_w // 2
+        title_x = menu_left + menu_width // 2 - title_w // 2
         title_y = menu_top + menu_height // 6
 
         title_padding_x = 10
@@ -212,26 +250,33 @@ class GameView(View):
 
         rl.draw_text(title, title_x, title_y, self.font_size, rl.WHITE)
 
+    def _draw_pause(self) -> None:
+        cheat_x, pause_x, menu_top, menu_width, menu_height = \
+            self._get_pause_panels_layout()
+
+        if self.cheat_mode:
+            self._draw_panel(
+                cheat_x,
+                menu_top,
+                menu_width,
+                menu_height,
+                "CHEATS"
+            )
+
+        self._draw_panel(
+            pause_x,
+            menu_top,
+            menu_width,
+            menu_height,
+            "PAUSE"
+        )
+
         for btn in self.pause_btns:
             btn.draw()
 
         if self.cheat_mode:
-            self._draw_cheat()
-
-    def _draw_cheat(self) -> None:
-        menu_width = self.width // 4
-        margin = (self.width // 3 - menu_width) // 2
-        menu_height = self.height // 10 * 7
-        bg = rl.Rectangle(margin - 1,
-                          self.height // 2 - menu_height // 2 - 1,
-                          menu_width + 2, menu_height + 2)
-        rl.draw_rectangle_rounded(bg, .15, 256, rl.Color(0, 0, 0, 200))
-        bg = rl.Rectangle(margin,
-                          self.height // 2 - menu_height // 2,
-                          menu_width, menu_height)
-        rl.draw_rectangle_rounded_lines(bg, .15, 256, WALL_COLOR)
-        for btn in self.cheat_btns:
-            btn.draw()
+            for btn in self.cheat_btns:
+                btn.draw()
 
     def _draw_texts(self) -> None:
         if self.state.game_over:
@@ -268,7 +313,7 @@ class GameView(View):
             rl.draw_text(text1, game_x, text_y, font_size, rl.RED)
             rl.draw_text(text2, over_x, text_y, font_size, rl.RED)
 
-        if (self.state.start_time > 0.0):
+        if self.state.start_time > 0.0:
             x, y = self.geometry.get_draw_pos(self.state.pac_man.screen_pos)
             x += self.margin[0]
             y += self.margin[1]
@@ -319,7 +364,7 @@ class GameView(View):
         rl.draw_texture(self.maze_texture, self.margin[0], self.margin[1],
                         rl.WHITE)
 
-        if (self.cheat_mode):
+        if self.cheat_mode:
             hud_bottom_y = self.margin[1] + self.maze_pixel_h + 5
             hud_padding = self.maze_pixel_w // 20
             cheat_text = "CHEAT ON"
@@ -337,6 +382,7 @@ class GameView(View):
                 self.font_size,
                 rl.WHITE
             )
+
         for collectible in self.state.collectibles:
             self._draw_collectible(collectible)
 
@@ -347,34 +393,45 @@ class GameView(View):
                 and not self.state.game_win
             ):
                 self._draw_entity(ghost, ghost.sprite)
-        if (self.timer > 0.75):
+
+        if self.timer > 0.75:
             self._draw_entity(self.state.pac_man, self.state.pac_man.sprite)
         else:
             x, y = self.geometry.get_draw_pos(self.state.pac_man.screen_pos)
             x += self.margin[0]
             y += self.margin[1]
-            rl.draw_text(str(self.state.config.points_per_ghost),
-                         x,
-                         y,
-                         int(self.geometry.cell_size * .75),
-                         rl.WHITE)
+            rl.draw_text(
+                str(self.state.config.points_per_ghost),
+                x,
+                y,
+                int(self.geometry.cell_size * .75),
+                rl.WHITE
+            )
+
         rl.draw_text(
             str(self.state.score),
             self.margin[0] + self.maze_pixel_w // 10,
             self.margin[1] - self.font_size - 5,
-            self.font_size, rl.WHITE)
+            self.font_size,
+            rl.WHITE
+        )
         rl.draw_text(
             str(self.state.config.level_max_time - int(self.state.timer)),
             self.margin[0] + self.maze_pixel_w // 10 * 9,
             self.margin[1] - self.font_size - 5,
-            self.font_size, rl.WHITE)
+            self.font_size,
+            rl.WHITE
+        )
+
         src = rl.Rectangle(0, 0, 32, 32)
         for i in range(self.state.HP):
-            dst = rl.Rectangle(self.margin[0] + self.maze_pixel_w // 20
-                               + i * self.geometry.cell_size,
-                               self.margin[1] + self.maze_pixel_h + 5,
-                               self.geometry.cell_size,
-                               self.geometry.cell_size)
+            dst = rl.Rectangle(
+                self.margin[0] + self.maze_pixel_w // 20
+                + i * self.geometry.cell_size,
+                self.margin[1] + self.maze_pixel_h + 5,
+                self.geometry.cell_size,
+                self.geometry.cell_size
+            )
             _pac = cast(dict[str, list[rl.Texture]], self.textures["pac_man"])
             rl.draw_texture_pro(
                 _pac["left"][1], src, dst,
@@ -384,18 +441,18 @@ class GameView(View):
         self._draw_texts()
 
     def update(self, dt: float) -> ViewEvent:
-        if (self.gamestate == State.RUNNING):
-            return (self._update_running(dt))
-        elif (self.gamestate == State.PAUSE):
-            return (self._update_pause(dt))
+        if self.gamestate == State.RUNNING:
+            return self._update_running(dt)
+        elif self.gamestate == State.PAUSE:
+            return self._update_pause(dt)
         return ViewEvent(type=ViewEventType.NONE)
 
     def _update_cheat(self, dt: float) -> None:
         mouse = rl.get_mouse_position()
         mx, my = mouse.x, mouse.y
         for btn in self.cheat_btns:
-            if (btn.contains(mx, my)):
-                if (rl.is_mouse_button_pressed(rl.MOUSE_LEFT_BUTTON)):
+            if btn.contains(mx, my):
+                if rl.is_mouse_button_pressed(rl.MOUSE_LEFT_BUTTON):
                     btn.action()
                 else:
                     btn.color = rl.Color(255, 255, 255, 128)
@@ -403,41 +460,48 @@ class GameView(View):
                 btn.color = rl.WHITE
 
     def _update_pause(self, dt: float) -> ViewEvent:
-        if (self.cheat_mode):
+        if self.cheat_mode:
             self._update_cheat(dt)
+
         key = rl.get_key_pressed()
         if (not self.cheat_mode and key == CHEAT_MODE_COMB[self.comb_idx]):
             self.comb_idx += 1
-        elif (key != 0):
+        elif key != 0:
             self.comb_idx = 0
-        if (self.comb_idx >= len(CHEAT_MODE_COMB)):
+
+        if self.comb_idx >= len(CHEAT_MODE_COMB):
             self.cheat_mode = True
             self.comb_idx = 0
-        if (rl.is_key_pressed(rl.KEY_ESCAPE)):
+            self._set_pause_btn_positions()
+            self._set_cheat_btn_positions()
+
+        if rl.is_key_pressed(rl.KEY_ESCAPE):
             self.gamestate = State.RUNNING
             self.sounds.resume_all_sounds()
             return ViewEvent(type=ViewEventType.NONE)
+
         mouse = rl.get_mouse_position()
 
-        # click
-        if (rl.is_mouse_button_pressed(rl.MOUSE_LEFT_BUTTON)):
+        if rl.is_mouse_button_pressed(rl.MOUSE_LEFT_BUTTON):
             if self.pause_btns[0].contains(mouse.x, mouse.y):
                 self.gamestate = State.RUNNING
                 self.sounds.resume_all_sounds()
             elif self.pause_btns[1].contains(mouse.x, mouse.y):
                 return ViewEvent(
-                    type=ViewEventType.CHANGE_VIEW, message="main_menu"
+                    type=ViewEventType.CHANGE_VIEW,
+                    message="main_menu"
                 )
 
-        # hover
         if self.pause_btns[0].contains(mouse.x, mouse.y):
             self.pause_btns[0].color = rl.YELLOW
         else:
             self.pause_btns[0].color = rl.WHITE
+
         if self.pause_btns[1].contains(mouse.x, mouse.y):
             self.pause_btns[1].color = rl.RED
         else:
             self.pause_btns[1].color = rl.WHITE
+
         return ViewEvent(type=ViewEventType.NONE)
 
     def _update_running(self, dt: float) -> ViewEvent:
@@ -468,23 +532,28 @@ class GameView(View):
                 self.win_timer = 0.0
             return ViewEvent(type=ViewEventType.NONE)
 
-        if (rl.is_key_pressed(rl.KEY_ESCAPE)):
+        if rl.is_key_pressed(rl.KEY_ESCAPE):
             self.sounds.pause_all_sounds()
             self.gamestate = State.PAUSE
             return ViewEvent(type=ViewEventType.NONE)
 
         action = self.controller.update(
-            self.state, dt, self.input_reader.read()
+            self.state,
+            dt,
+            self.input_reader.read()
         )
+
         if action.type == GameActionType.VICTORY:
             self.state.game_win = True
             self.win_timer = 0.0
             return ViewEvent(type=ViewEventType.NONE)
+
         if action.type == GameActionType.GAME_OVER:
             self.state.game_over = True
             self.game_over_timer = 0.0
             return ViewEvent(type=ViewEventType.NONE)
-        if (action.type == GameActionType.EAT):
+
+        if action.type == GameActionType.EAT:
             self.timer = 0
 
         return ViewEvent(type=ViewEventType.NONE)
@@ -525,8 +594,12 @@ class GameView(View):
         y += self.margin[1]
 
         source = rl.Rectangle(0, 0, sprite.width, sprite.height)
-        dest = rl.Rectangle(x, y, self.geometry.cell_size -
-                            1, self.geometry.cell_size - 1)
+        dest = rl.Rectangle(
+            x,
+            y,
+            self.geometry.cell_size - 1,
+            self.geometry.cell_size - 1
+        )
 
         rl.draw_texture_pro(
             sprite,
@@ -541,21 +614,37 @@ class GameView(View):
         self.width = rl.get_screen_width()
         self.height = rl.get_screen_height()
         self.geometry = GameGeometry(
-            width=self.width, height=self.height, maze=self.maze)
+            width=self.width,
+            height=self.height,
+            maze=self.maze
+        )
         self.state.resize(self.geometry)
-        self.maze_pixel_w = (self.state.maze.width *
-                             (self.geometry.cell_size + self.geometry.gap)
-                             + self.geometry.gap)
-        self.maze_pixel_h = (self.state.maze.height
-                             * (self.geometry.cell_size + self.geometry.gap)
-                             + self.geometry.gap)
-        self.margin = (self.width // 2 - self.maze_pixel_w // 2,
-                       self.height // 2 - self.maze_pixel_h // 2)
+        self.maze_pixel_w = (
+            self.state.maze.width
+            * (self.geometry.cell_size + self.geometry.gap)
+            + self.geometry.gap
+        )
+        self.maze_pixel_h = (
+            self.state.maze.height
+            * (self.geometry.cell_size + self.geometry.gap)
+            + self.geometry.gap
+        )
+        self.margin = (
+            self.width // 2 - self.maze_pixel_w // 2,
+            self.height // 2 - self.maze_pixel_h // 2
+        )
         self.font_size = self.margin[1] // 2
         self.maze_image = rl.gen_image_color(
-            self.width - 50, self.height - 50, rl.BLACK)
-        MazeRenderer(self.maze_image, self.state.maze,
-                     self.geometry.cell_size, self.geometry.gap)
+            self.width - 50,
+            self.height - 50,
+            rl.BLACK
+        )
+        MazeRenderer(
+            self.maze_image,
+            self.state.maze,
+            self.geometry.cell_size,
+            self.geometry.gap
+        )
         self.maze_texture = rl.load_texture_from_image(self.maze_image)
         self._set_pause_btn_positions()
         self._set_cheat_btn_positions()
