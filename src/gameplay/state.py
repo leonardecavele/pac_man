@@ -37,6 +37,7 @@ class GameState:
         self.freeze_time: float = 0.0
         self.start_time: float = 0.0
         self.music_hide: float = 4.0
+        self.show_ghost_path: bool = False
         self.last_pacgum_eat_time: float = 0.0
         self.fright_duration: float = 6.0
         self.default_velocity_px: int = DEFAULT_VELOCITY_CELLS * \

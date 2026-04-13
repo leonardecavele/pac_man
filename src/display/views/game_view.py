@@ -83,6 +83,13 @@ class GameView(View):
                    lambda: setattr(self.state, 'HP', self.state.HP - 1)),
             Button(0, 0, "RESET TIMER", self.font_size,
                    lambda: setattr(self.state, 'timer', 0)),
+            Button(
+                0, 0, "SHOW GHOSTS TARGETS", self.font_size,
+                lambda: setattr(
+                    self.state, 'show_ghost_path',
+                    not self.state.show_ghost_path
+                )
+            ),
             Button(0, 0, "CHEAT OFF", self.font_size,
                    lambda: setattr(self, 'cheat_mode', False)),
         ]
@@ -172,7 +179,23 @@ class GameView(View):
                         rl.WHITE)
 
         if (self.cheat_mode):
-            rl.draw_text("CHEAT ON", 5, 5, self.font_size, rl.WHITE)
+            hud_bottom_y = self.margin[1] + self.maze_pixel_h + 5
+            hud_padding = self.maze_pixel_w // 20
+            cheat_text = "CHEAT ON"
+            cheat_x = (
+                self.margin[0]
+                + self.maze_pixel_w
+                - hud_padding
+                - rl.measure_text(cheat_text, self.font_size)
+            )
+
+            rl.draw_text(
+                cheat_text,
+                cheat_x,
+                hud_bottom_y,
+                self.font_size,
+                rl.WHITE
+            )
         for collectible in self.state.collectibles:
             self._draw_collectible(collectible)
 
