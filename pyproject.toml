@@ -14,6 +14,8 @@ optional = true
 [tool.poetry.group.dev.dependencies]
 mypy = ">=1.19.1"
 flake8 = ">=7.3.0"
+nuitka = "^4.0.8"
+patchelf = "^0.17.2.4"
 
 [build-system]
 requires = ["poetry-core>=2.0.0,<3.0.0"]

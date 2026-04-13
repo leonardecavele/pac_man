@@ -45,6 +45,15 @@ install-dev: $(VENV_STAMP) $(POETRY_LOCK) | $(PYTHON)
 run: install
 	@$(PYTHON) -m $(MAIN) $(ARGS)
 
+build: install-dev
+	rm -drf dist
+	$(POETRY) run python -m nuitka \
+		--standalone \
+		--onefile \
+		--output-filename=pac-man \
+		--output-dir=dist \
+		src/main.py
+
 clean:
 	rm -rf $(PYCACHES) $(MYPYCACHES)
 	rm -rf $(VENV)
