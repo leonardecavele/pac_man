@@ -381,8 +381,9 @@ class MazeRenderer:
 
     def _draw_center_joint(self, gx: int, gy: int) -> None:
         step = self.cell_size + self.gap
-        center_x = (gx + 1) * step
-        center_y = (gy + 1) * step
+
+        center_x = (gx + 1) * step + self.gap // 2
+        center_y = (gy + 1) * step + self.gap // 2
 
         radius = max(2, self.gap // 2)
         thickness = max(1, self.thickness)
