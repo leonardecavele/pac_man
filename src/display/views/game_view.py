@@ -248,7 +248,7 @@ class GameView(View):
             outer_rect,
             0.15,
             256,
-            rl.Color(0, 0, 42, 160)
+            rl.Color(0, 0, 0, 160)
         )
 
         for i in range(3):
@@ -264,23 +264,15 @@ class GameView(View):
         title_x = menu_left + menu_width // 2 - title_w // 2
         title_y = menu_top + menu_height // 6
 
-        title_padding_x = 10
-        title_padding_y = 10
-        title_rect_x = title_x - title_padding_x
-        title_rect_y = title_y - title_padding_y
-        title_rect_w = title_w + title_padding_x * 2
-        title_rect_h = self.font_size + title_padding_y * 2
+        rl.draw_text(title, title_x, title_y, self.font_size, rl.YELLOW)
 
-        for i in range(3):
-            rl.draw_rectangle_lines(
-                title_rect_x - i,
-                title_rect_y - i,
-                title_rect_w + i * 2,
-                title_rect_h + i * 2,
-                rl.WHITE
-            )
-
-        rl.draw_text(title, title_x, title_y, self.font_size, rl.WHITE)
+        rl.draw_rectangle(
+            title_x - self.font_size // 4,
+            title_y + self.font_size - self.font_size // 8,
+            title_w + self.font_size // 2,
+            max(2, self.font_size // 10),
+            rl.WHITE
+        )
 
     def _draw_pause(self) -> None:
         cheat_x, pause_x, menu_top, menu_width, menu_height = \
