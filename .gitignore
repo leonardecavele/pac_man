@@ -3,4 +3,4 @@
 .venv
 mazegenerator.py
 leaderboard.pm
-build
+dist
