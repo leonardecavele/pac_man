@@ -235,7 +235,7 @@ class GameView(View):
             text_w = rl.measure_text(text, font_size)
 
             text_x = int(x + self.geometry.cell_size / 2 - text_w / 2)
-            text_y = int(y - self.geometry.cell_size)
+            text_y = int(y - self.geometry.cell_size * 2)
 
             padding_x = 8
             padding_y = 6
@@ -258,7 +258,7 @@ class GameView(View):
             text_w = rl.measure_text(text, font_size)
 
             text_x = int(x + self.geometry.cell_size / 2 - text_w / 2)
-            text_y = int(y - self.geometry.cell_size)
+            text_y = int(y - self.geometry.cell_size * 2)
 
             padding_x = 8
             padding_y = 6
