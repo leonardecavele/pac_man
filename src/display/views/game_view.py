@@ -697,17 +697,20 @@ class GameView(View):
             y = center_y - self.geometry.cell_size // 2
 
             if isinstance(ghost, Blinky):
-                color = rl.RED
+                color_rgba = (255, 0, 0, 255)
             elif isinstance(ghost, Pinky):
-                color = (255, 105, 180, 255)
+                color_rgba = (255, 105, 180, 255)
             elif isinstance(ghost, Inky):
-                color = (43, 255, 255, 255)
+                color_rgba = (43, 255, 255, 255)
             elif isinstance(ghost, Clyde):
-                color = rl.ORANGE
+                color_rgba = (255, 165, 0, 255)
             else:
-                color = rl.WHITE
+                color_rgba = (255, 255, 255, 255)
 
-            r, g, b, a = color
+            r, g, b, a = color_rgba
+
+            color = rl.Color(r, g, b, a)
+            transparent_color = rl.Color(r, g, b, 60)
 
             rect = rl.Rectangle(
                 x,
@@ -716,5 +719,5 @@ class GameView(View):
                 self.geometry.cell_size
             )
 
-            rl.draw_rectangle_rec(rect, rl.Color(r, g, b, 60))
+            rl.draw_rectangle_rec(rect, transparent_color)
             rl.draw_rectangle_lines_ex(rect, 3.0, color)

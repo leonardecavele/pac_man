@@ -70,7 +70,9 @@ class EndView(View):
         self.text_input.y = self.score_y + self.score_font_size + spacing * 2
 
         self.submit_btn.x = self.width // 2 - self.submit_btn.w // 2
-        self.submit_btn.y = self.text_input.y + self.text_input.h + spacing // 2
+        self.submit_btn.y = (
+            self.text_input.y + self.text_input.h + spacing // 2
+        )
 
     def draw(self) -> None:
         rl.clear_background(rl.BLACK)
