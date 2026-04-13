@@ -101,7 +101,7 @@ class EndView(View):
         has_name = len(self.text_input.value) > 0
 
         if is_hovered and has_name:
-            self.submit_btn.color = rl.Color(200, 200, 200, 255)
+            self.submit_btn.color = rl.Color(255, 255, 255, 128)
         else:
             self.submit_btn.color = rl.WHITE
 
