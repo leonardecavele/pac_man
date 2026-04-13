@@ -58,6 +58,10 @@ class GameController:
                 self._retry_level(state)
             return GameAction(type=GameActionType.NONE)
 
+        if state.HP <= 0:
+            self.sounds.stop_ghost_sound()
+            state.pac_man.dying = True
+
         self._update_timers(state, dt)
         self._apply_input(state, inputs)
         self._update_pac_man(state, dt)
@@ -303,6 +307,8 @@ class GameController:
         )
 
     def _update_ghost_sound(self, state: GameState) -> None:
+        if state.HP <= 0:
+            return
         eaten: bool = False
         frightened: bool = False
 
