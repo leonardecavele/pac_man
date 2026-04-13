@@ -128,16 +128,26 @@ class GameView(View):
         last_btn.y = menu_top + menu_height - self.font_size - gap
 
     def _set_pause_btn_positions(self) -> None:
+        menu_width = self.width // 3
         menu_height = self.height // 10 * 7
+        menu_left = self.width // 2 - menu_width // 2
         menu_top = self.height // 2 - menu_height // 2
+
         for btn in self.pause_btns:
             btn.font_size = self.font_size
             btn.w = rl.measure_text(btn.label, self.font_size)
             btn.h = self.font_size
-        self.pause_btns[0].x = self.width // 2 - self.pause_btns[0].w // 2
-        self.pause_btns[0].y = menu_top + menu_height * 50 // 100
-        self.pause_btns[1].x = self.width // 2 - self.pause_btns[1].w // 2
-        self.pause_btns[1].y = menu_top + menu_height * 65 // 100
+
+        gap = self.font_size
+        total_h = len(self.pause_btns) * self.font_size + (
+            len(self.pause_btns) - 1
+        ) * gap
+
+        start_y = menu_top + menu_height // 2 - total_h // 2
+
+        for i, btn in enumerate(self.pause_btns):
+            btn.x = menu_left + menu_width // 2 - btn.w // 2
+            btn.y = start_y + i * (self.font_size + gap)
 
     def _draw_pause(self) -> None:
         menu_width = self.width // 3
@@ -145,11 +155,18 @@ class GameView(View):
         bg = rl.Rectangle(self.width // 2 - menu_width // 2 - 1,
                           self.height // 2 - menu_height // 2 - 1,
                           menu_width + 2, menu_height + 2)
-        rl.draw_rectangle_rounded(bg, .15, 256, rl.Color(0, 0, 0, 200))
+        rl.draw_rectangle_rounded(bg, .15, 256, rl.Color(0, 0, 42, 120))
         bg = rl.Rectangle(self.width // 2 - menu_width // 2,
                           self.height // 2 - menu_height // 2,
                           menu_width, menu_height)
-        rl.draw_rectangle_rounded_lines(bg, .15, 256, WALL_COLOR)
+        for i in range(3):
+            border = rl.Rectangle(
+                bg.x + i,
+                bg.y + i,
+                bg.width - i * 2,
+                bg.height - i * 2
+            )
+            rl.draw_rectangle_rounded_lines(border, .15, 256, WALL_COLOR)
         rl.draw_text("PAUSE", menu_width + menu_width // 2 -
                      rl.measure_text("PAUSE", self.font_size) // 2,
                      menu_height // 10 * 4, self.font_size, rl.WHITE)
@@ -172,6 +189,88 @@ class GameView(View):
         rl.draw_rectangle_rounded_lines(bg, .15, 256, WALL_COLOR)
         for btn in self.cheat_btns:
             btn.draw()
+
+    def _draw_texts(self) -> None:
+        if self.state.game_over:
+            spawn_x, spawn_y = self.geometry.maze_to_screen(
+                self.state.pac_man_spawn
+            )
+            spawn_x += self.margin[0]
+            spawn_y += self.margin[1]
+
+            text1 = "GAME"
+            text2 = "OVER"
+
+            font_size = int(self.geometry.cell_size * 0.5)
+            text1_w = rl.measure_text(text1, font_size)
+            text2_w = rl.measure_text(text2, font_size)
+
+            center_x = spawn_x + self.geometry.cell_size
+            text_y = int(
+                spawn_y + self.geometry.cell_size / 2 - (font_size * 1.5)
+            )
+
+            game_x = int(center_x - (self.geometry.cell_size * 1.5) - text1_w)
+            over_x = int(center_x + self.geometry.cell_size - text2_w)
+
+            padding_x = 8
+            padding_y = 6
+
+            box_x = game_x - padding_x
+            box_y = text_y - padding_y
+            box_w = (over_x + text2_w) - game_x + padding_x * 2
+            box_h = font_size + padding_y * 2
+
+            rl.draw_rectangle(box_x, box_y, box_w, box_h, rl.BLACK)
+            rl.draw_text(text1, game_x, text_y, font_size, rl.RED)
+            rl.draw_text(text2, over_x, text_y, font_size, rl.RED)
+
+        if (self.state.start_time > 0.0
+                or self.sounds.is_playing("start_music")):
+            x, y = self.geometry.get_draw_pos(self.state.pac_man.screen_pos)
+            x += self.margin[0]
+            y += self.margin[1]
+
+            text = "READY!"
+            font_size = int(self.geometry.cell_size * 0.5)
+            text_w = rl.measure_text(text, font_size)
+
+            text_x = int(x + self.geometry.cell_size / 2 - text_w / 2)
+            text_y = int(y - self.geometry.cell_size)
+
+            padding_x = 8
+            padding_y = 6
+
+            box_x = text_x - padding_x
+            box_y = text_y - padding_y
+            box_w = text_w + padding_x * 2
+            box_h = font_size + padding_y * 2
+
+            rl.draw_rectangle(box_x, box_y, box_w, box_h, rl.BLACK)
+            rl.draw_text(text, text_x, text_y, font_size, rl.YELLOW)
+
+        if self.state.game_win:
+            x, y = self.geometry.get_draw_pos(self.state.pac_man.screen_pos)
+            x += self.margin[0]
+            y += self.margin[1]
+
+            text = "NEXT LEVEL!"
+            font_size = int(self.geometry.cell_size * 0.5)
+            text_w = rl.measure_text(text, font_size)
+
+            text_x = int(x + self.geometry.cell_size / 2 - text_w / 2)
+            text_y = int(y - self.geometry.cell_size)
+
+            padding_x = 8
+            padding_y = 6
+
+            box_x = text_x - padding_x
+            box_y = text_y - padding_y
+            box_w = text_w + padding_x * 2
+            box_h = font_size + padding_y * 2
+
+            rl.draw_rectangle(box_x, box_y, box_w, box_h, rl.BLACK)
+            rl.draw_text(text, text_x, text_y, font_size, rl.YELLOW)
 
     def _draw_running(self) -> None:
         rl.clear_background(rl.BLACK)
@@ -240,87 +339,7 @@ class GameView(View):
                 rl.Vector2(0, 0), 0.0, rl.WHITE
             )
 
-        if self.state.game_over:
-            spawn_x, spawn_y = self.geometry.maze_to_screen(
-                self.state.pac_man_spawn
-            )
-            spawn_x += self.margin[0]
-            spawn_y += self.margin[1]
-
-            text1 = "GAME"
-            text2 = "OVER"
-
-            font_size = int(self.geometry.cell_size * 0.5)
-            text1_w = rl.measure_text(text1, font_size)
-            text2_w = rl.measure_text(text2, font_size)
-
-            center_x = spawn_x + self.geometry.cell_size
-            text_y = int(
-                spawn_y + self.geometry.cell_size / 2 - (font_size * 1.5)
-            )
-
-            game_x = int(center_x - (self.geometry.cell_size * 1.5) - text1_w)
-            over_x = int(center_x + self.geometry.cell_size - text2_w)
-
-            padding_x = 8
-            padding_y = 6
-
-            box_x = game_x - padding_x
-            box_y = text_y - padding_y
-            box_w = (over_x + text2_w) - game_x + padding_x * 2
-            box_h = font_size + padding_y * 2
-
-            rl.draw_rectangle(box_x, box_y, box_w, box_h, rl.BLACK)
-
-            rl.draw_text(text1, game_x, text_y, font_size, rl.RED)
-            rl.draw_text(text2, over_x, text_y, font_size, rl.RED)
-
-        if (self.state.start_time > 0.0
-                or self.sounds.is_playing("start_music")):
-            spawn_x, spawn_y = self.geometry.maze_to_screen(
-                self.state.pac_man_spawn
-            )
-            spawn_x += self.margin[0]
-
-            text = "READY!"
-            font_size = int(self.geometry.cell_size * 0.5)
-            text_w = rl.measure_text(text, font_size)
-            text_y = int(spawn_y - self.geometry.cell_size * 1)
-            text_x = int(spawn_x - text_w / 2)
-
-            padding_x = 8
-            padding_y = 6
-
-            box_x = text_x - padding_x
-            box_y = text_y - padding_y
-            box_w = text_w + padding_x * 2
-            box_h = font_size + padding_y * 2
-
-            rl.draw_rectangle(box_x, box_y, box_w, box_h, rl.BLACK)
-            rl.draw_text(text, text_x, text_y, font_size, rl.YELLOW)
-
-        if self.state.game_win:
-            spawn_x, spawn_y = self.geometry.maze_to_screen(
-                self.state.pac_man_spawn
-            )
-            spawn_x += self.margin[0]
-
-            text = "NEXT LEVEL!"
-            font_size = int(self.geometry.cell_size * 0.5)
-            text_w = rl.measure_text(text, font_size)
-            text_y = int(spawn_y - self.geometry.cell_size * 1)
-            text_x = int(spawn_x - text_w / 2)
-
-            padding_x = 8
-            padding_y = 6
-
-            box_x = text_x - padding_x
-            box_y = text_y - padding_y
-            box_w = text_w + padding_x * 2
-            box_h = font_size + padding_y * 2
-
-            rl.draw_rectangle(box_x, box_y, box_w, box_h, rl.BLACK)
-            rl.draw_text(text, text_x, text_y, font_size, rl.YELLOW)
+        self._draw_texts()
 
     def update(self, dt: float) -> ViewEvent:
         if (self.gamestate == State.RUNNING):
