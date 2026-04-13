@@ -6,7 +6,7 @@ RESET := \e[0m
 FLAKE8_SUCCESS := printf '%b\n' "$(GREEN)Success: flake8$(RESET)"
 
 # structure
-SRC_DIRECTORIES := display parsing logic
+SRC_DIRECTORIES := display parsing gameplay entity
 DIRS := . src $(addprefix src/,$(SRC_DIRECTORIES))
 MAIN := src.main
 ARGS ?= config.json
