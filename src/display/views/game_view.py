@@ -55,14 +55,20 @@ class GameView(View):
             sounds=self.sounds,
             geometry=self.geometry
         )
-        self.maze_pixel_w = (self.state.maze.width *
-                             (self.geometry.cell_size + self.geometry.gap)
-                             + self.geometry.gap)
-        self.maze_pixel_h = (self.state.maze.height
-                             * (self.geometry.cell_size + self.geometry.gap)
-                             + self.geometry.gap)
-        self.margin = (self.width // 2 - self.maze_pixel_w // 2,
-                       self.height // 2 - self.maze_pixel_h // 2)
+        self.maze_pixel_w = (
+            self.state.maze.width
+            * (self.geometry.cell_size + self.geometry.gap)
+            + self.geometry.gap
+        )
+        self.maze_pixel_h = (
+            self.state.maze.height
+            * (self.geometry.cell_size + self.geometry.gap)
+            + self.geometry.gap
+        )
+        self.margin = (
+            self.width // 2 - self.maze_pixel_w // 2,
+            self.height // 2 - self.maze_pixel_h // 2
+        )
         self.font_size = self.margin[1] // 2
         self.controller = GameController(self.sounds)
         self.input_reader = GameInputReader()
@@ -96,7 +102,7 @@ class GameView(View):
                 lambda: setattr(self.state, 'timer', 0)
             ),
             Button(
-                0, 0, "SHOW GHOSTS TARGETS", self.font_size,
+                0, 0, "SHOW TARGETS", self.font_size,
                 lambda: setattr(
                     self.state,
                     'show_ghost_path',
@@ -139,6 +145,45 @@ class GameView(View):
         top_y = self.height // 2 - panel_height // 2
         return cheat_x, pause_x, top_y, panel_width, panel_height
 
+    def _layout_panel_buttons(
+        self,
+        buttons: list[Button],
+        panel_left: int,
+        panel_top: int,
+        panel_width: int,
+        panel_height: int,
+        *,
+        title_height_ratio: float = 0.28,
+        top_gap_ratio: float = 0.08,
+        bottom_gap_ratio: float = 0.12,
+        gap: int | None = None,
+    ) -> None:
+        if gap is None:
+            gap = self.font_size // 2
+
+        for btn in buttons:
+            btn.font_size = self.font_size
+            btn.w = rl.measure_text(btn.label, self.font_size)
+            btn.h = self.font_size
+
+        content_top = panel_top + int(panel_height * title_height_ratio)
+        content_top += int(panel_height * top_gap_ratio)
+        content_bottom = (
+            panel_top
+            + panel_height
+            - int(panel_height * bottom_gap_ratio)
+        )
+
+        total_h = len(buttons) * self.font_size + (
+            len(buttons) - 1
+        ) * gap
+        area_h = content_bottom - content_top
+        start_y = content_top + max(0, (area_h - total_h) // 2)
+
+        for i, btn in enumerate(buttons):
+            btn.x = panel_left + panel_width // 2 - btn.w // 2
+            btn.y = start_y + i * (self.font_size + gap)
+
     def draw(self) -> None:
         self._draw_running()
         if self.gamestate == State.PAUSE:
@@ -148,48 +193,33 @@ class GameView(View):
         cheat_x, _, menu_top, menu_width, menu_height = \
             self._get_pause_panels_layout()
 
-        for btn in self.cheat_btns:
-            btn.font_size = self.font_size
-            btn.w = rl.measure_text(btn.label, self.font_size)
-            btn.h = self.font_size
-
-        gap = self.font_size // 2
-        main_btns = self.cheat_btns[:-1]
-        last_btn = self.cheat_btns[-1]
-
-        total_h = len(main_btns) * self.font_size + (len(main_btns) - 1) * gap
-        start_y = menu_top + (menu_height - total_h) // 2
-
-        for i, btn in enumerate(main_btns):
-            btn.x = cheat_x + menu_width // 2 - btn.w // 2
-            btn.y = start_y + i * (self.font_size + gap)
-
-        last_btn.x = cheat_x + menu_width // 2 - last_btn.w // 2
-        last_btn.y = menu_top + menu_height - self.font_size - gap
+        self._layout_panel_buttons(
+            self.cheat_btns,
+            cheat_x,
+            menu_top,
+            menu_width,
+            menu_height,
+            title_height_ratio=0.28,
+            top_gap_ratio=0.08,
+            bottom_gap_ratio=0.12,
+            gap=self.font_size // 2
+        )
 
     def _set_pause_btn_positions(self) -> None:
         _, pause_x, menu_top, menu_width, menu_height = \
             self._get_pause_panels_layout()
 
-        for btn in self.pause_btns:
-            btn.font_size = self.font_size
-            btn.w = rl.measure_text(btn.label, self.font_size)
-            btn.h = self.font_size
-
-        gap = self.font_size + self.font_size // 3
-        buttons_top = menu_top + menu_height * 45 // 100
-        buttons_bottom = menu_top + menu_height * 80 // 100
-        buttons_area_h = buttons_bottom - buttons_top
-
-        total_h = len(self.pause_btns) * self.font_size + (
-            len(self.pause_btns) - 1
-        ) * gap
-
-        start_y = buttons_top + (buttons_area_h - total_h) // 2
-
-        for i, btn in enumerate(self.pause_btns):
-            btn.x = pause_x + menu_width // 2 - btn.w // 2
-            btn.y = start_y + i * (self.font_size + gap)
+        self._layout_panel_buttons(
+            self.pause_btns,
+            pause_x,
+            menu_top,
+            menu_width,
+            menu_height,
+            title_height_ratio=0.28,
+            top_gap_ratio=0.08,
+            bottom_gap_ratio=0.12,
+            gap=self.font_size // 2
+        )
 
     def _draw_panel(
         self,
