@@ -9,7 +9,7 @@ from src.gameplay import (
     GameInputReader,
     GameState
 )
-from src.entity import Collectible, Entity, Ghost
+from src.entity import Collectible, Entity, Ghost, Blinky, Inky, Pinky, Clyde
 from src.display import MazeRenderer
 from src.maze import Maze
 from src.display.components import Button
@@ -396,6 +396,9 @@ class GameView(View):
         rl.draw_texture(self.maze_texture, self.margin[0], self.margin[1],
                         rl.WHITE)
 
+        if self.state.show_ghost_path and self.cheat_mode:
+            self._draw_ghost_targets()
+
         if self.cheat_mode:
             hud_bottom_y = self.margin[1] + self.maze_pixel_h + 5
             hud_padding = self.maze_pixel_w // 20
@@ -680,3 +683,38 @@ class GameView(View):
         self.maze_texture = rl.load_texture_from_image(self.maze_image)
         self._set_pause_btn_positions()
         self._set_cheat_btn_positions()
+
+    def _draw_ghost_targets(self) -> None:
+        for ghost in self.state.ghosts:
+            if ghost.target is None:
+                continue
+
+            center_x, center_y = self.geometry.maze_to_screen(ghost.target)
+            center_x += self.margin[0]
+            center_y += self.margin[1]
+
+            x = center_x - self.geometry.cell_size // 2
+            y = center_y - self.geometry.cell_size // 2
+
+            if isinstance(ghost, Blinky):
+                color = rl.RED
+            elif isinstance(ghost, Pinky):
+                color = (255, 105, 180, 255)
+            elif isinstance(ghost, Inky):
+                color = (43, 255, 255, 255)
+            elif isinstance(ghost, Clyde):
+                color = rl.ORANGE
+            else:
+                color = rl.WHITE
+
+            r, g, b, a = color
+
+            rect = rl.Rectangle(
+                x,
+                y,
+                self.geometry.cell_size,
+                self.geometry.cell_size
+            )
+
+            rl.draw_rectangle_rec(rect, rl.Color(r, g, b, 60))
+            rl.draw_rectangle_lines_ex(rect, 3.0, color)
