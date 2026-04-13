@@ -225,8 +225,7 @@ class GameView(View):
             rl.draw_text(text1, game_x, text_y, font_size, rl.RED)
             rl.draw_text(text2, over_x, text_y, font_size, rl.RED)
 
-        if (self.state.start_time > 0.0
-                or self.sounds.is_playing("start_music")):
+        if (self.state.start_time > 0.0):
             x, y = self.geometry.get_draw_pos(self.state.pac_man.screen_pos)
             x += self.margin[0]
             y += self.margin[1]

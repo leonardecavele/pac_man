@@ -35,7 +35,7 @@ class GameState:
         self.sounds = sounds
         self.geometry = geometry
         self.freeze_time: float = 0.0
-        self.start_time: float = 0.0
+        self.start_time: float = 0.01
         self.music_hide: float = 4.0
         self.show_ghost_path: bool = False
         self.last_pacgum_eat_time: float = 0.0
