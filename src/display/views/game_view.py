@@ -21,6 +21,14 @@ from .view import View, ViewEvent, ViewEventType
 
 
 CHEAT_MODE_COMB = [263, 262, 263, 262, 265, 265, 265, rl.KEY_SPACE]
+CHEAT_MODE_COMB2 = [
+    rl.KEY_H, rl.KEY_L, rl.KEY_H, rl.KEY_L, rl.KEY_K,
+    rl.KEY_K, rl.KEY_K, rl.KEY_SPACE
+]
+CHEAT_MODE_COMB3 = [
+    rl.KEY_A, rl.KEY_D, rl.KEY_A, rl.KEY_D, rl.KEY_W,
+    rl.KEY_W, rl.KEY_W, rl.KEY_SPACE
+]
 
 
 class State(Enum):
@@ -542,7 +550,14 @@ class GameView(View):
             self._update_cheat(dt)
 
         key = rl.get_key_pressed()
-        if (not self.cheat_mode and key == CHEAT_MODE_COMB[self.comb_idx]):
+        if (
+            not self.cheat_mode
+            and (
+                key == CHEAT_MODE_COMB[self.comb_idx]
+                or key == CHEAT_MODE_COMB2[self.comb_idx]
+                or key == CHEAT_MODE_COMB3[self.comb_idx]
+            )
+        ):
             self.comb_idx += 1
         elif key != 0:
             self.comb_idx = 0
