@@ -559,7 +559,11 @@ class GameView(View):
             self.sounds.resume_all_sounds()
             return ViewEvent(type=ViewEventType.NONE)
 
-        if rl.is_key_pressed(rl.KEY_UP):
+        if (
+            rl.is_key_pressed(rl.KEY_UP)
+            or rl.is_key_pressed(rl.KEY_K)
+            or rl.is_key_pressed(rl.KEY_W)
+        ):
             if self.selected_panel == "pause":
                 self.pause_selected_index = (
                     self.pause_selected_index - 1
@@ -569,7 +573,11 @@ class GameView(View):
                     self.cheat_selected_index - 1
                 ) % len(self.cheat_btns)
 
-        if rl.is_key_pressed(rl.KEY_DOWN):
+        if (
+            rl.is_key_pressed(rl.KEY_DOWN)
+            or rl.is_key_pressed(rl.KEY_J)
+            or rl.is_key_pressed(rl.KEY_S)
+        ):
             if self.selected_panel == "pause":
                 self.pause_selected_index = (
                     self.pause_selected_index + 1
@@ -579,10 +587,18 @@ class GameView(View):
                     self.cheat_selected_index + 1
                 ) % len(self.cheat_btns)
 
-        if self.cheat_mode and rl.is_key_pressed(rl.KEY_LEFT):
+        if (
+            rl.is_key_pressed(rl.KEY_LEFT)
+            or rl.is_key_pressed(rl.KEY_H)
+            or rl.is_key_pressed(rl.KEY_A)
+        ):
             self.selected_panel = "cheat"
 
-        if self.cheat_mode and rl.is_key_pressed(rl.KEY_RIGHT):
+        if (
+            rl.is_key_pressed(rl.KEY_RIGHT)
+            or rl.is_key_pressed(rl.KEY_L)
+            or rl.is_key_pressed(rl.KEY_D)
+        ):
             self.selected_panel = "pause"
 
         if (

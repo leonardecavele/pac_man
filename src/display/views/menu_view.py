@@ -392,10 +392,18 @@ class MenuView(View):
         mouse = rl.get_mouse_position()
         mx, my = int(mouse.x), int(mouse.y)
 
-        if rl.is_key_pressed(rl.KEY_UP):
+        if (
+            rl.is_key_pressed(rl.KEY_UP)
+            or rl.is_key_pressed(rl.KEY_K)
+            or rl.is_key_pressed(rl.KEY_W)
+        ):
             self.selected_index = (self.selected_index - 1) % len(self.buttons)
 
-        if rl.is_key_pressed(rl.KEY_DOWN):
+        if (
+            rl.is_key_pressed(rl.KEY_DOWN)
+            or rl.is_key_pressed(rl.KEY_J)
+            or rl.is_key_pressed(rl.KEY_S)
+        ):
             self.selected_index = (self.selected_index + 1) % len(self.buttons)
 
         if (
