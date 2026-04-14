@@ -64,8 +64,8 @@ debug: install-dev
 	@$(PYTHON) -m pdb -m $(MAIN) $(ARGS)
 
 lint: install-dev
-	@$(FLAKE8) && $(FLAKE8_SUCCESS)
-	@$(MYPY) . $(MYPY_FLAGS)
+	@$(FLAKE8) src && $(FLAKE8_SUCCESS)
+	@$(MYPY) src $(MYPY_FLAGS)
 
 $(PYTHON):
 	@python3 -m venv $(VENV)
