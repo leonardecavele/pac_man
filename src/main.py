@@ -7,6 +7,10 @@ from src.parsing import Parser
 
 def main() -> int:
     if (len(sys.argv) != 2):
+        if (len(sys.argv) < 2):
+            print("The program must have a valid config file")
+        else:
+            print("The program must only have one valid config file")
         sys.exit(ErrorCode.INVALID_CONFIG)
     parser = Parser(sys.argv[1])
     config = parser.run()
