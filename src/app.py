@@ -34,37 +34,46 @@ class App:
         monitor_width: int = rl.get_monitor_width(monitor)
         monitor_height: int = rl.get_monitor_height(monitor)
 
-        self.width = int(monitor_width * screen_ratio * 0.78)
-        self.height = int(monitor_height * screen_ratio)
+        initial_width = int(monitor_width * screen_ratio)
+        initial_height = int(monitor_height * screen_ratio)
 
-        self.aspect_ratio = self.width / self.height
-        self.min_width = 1142
-        self.min_height = int(self.min_width / self.aspect_ratio)
+        self.base_width = initial_width
+        self.base_height = initial_height
+        self.min_width = max(640, self.base_width // 2)
+        self.min_height = max(360, self.base_height // 2)
 
-        rl.set_window_min_size(self.min_width, self.min_height)
-
-        rl.set_window_size(self.width, self.height)
-        rl.set_window_position(monitor_width // 2 - self.width // 2,
-                               monitor_height // 2 - self.height // 2)
+        rl.set_window_size(self.base_width, self.base_height)
+        rl.set_window_position(
+            monitor_width // 2 - self.base_width // 2,
+            monitor_height // 2 - self.base_height // 2
+        )
         rl.set_target_fps(self.fps)
         rl.set_window_state(rl.FLAG_WINDOW_RESIZABLE)
+        rl.set_window_min_size(self.min_width, self.min_height)
+
+        self.render_texture = rl.load_render_texture(
+            self.base_width,
+            self.base_height
+        )
 
         tex_type = dict[str, dict[str, list[rl.Texture]] | list[rl.Texture]]
-        self.textures: tex_type = Textures(
-            18
-        )._load_textures()
+        self.textures: tex_type = Textures(18)._load_textures()
         self.sounds: Sounds = Sounds()
+
         self.views: dict[str, View] = {
             "main_menu": MenuView(
-                width=self.width,
-                height=self.height,
+                width=self.base_width,
+                height=self.base_height,
                 textures=self.textures,
                 sounds=self.sounds
             ),
-            "end": EndView(width=self.width, height=self.height),
+            "end": EndView(
+                width=self.base_width,
+                height=self.base_height
+            ),
             "instruction": InstructionView(
-                width=self.width,
-                height=self.height
+                width=self.base_width,
+                height=self.base_height
             )
         }
 
@@ -72,61 +81,113 @@ class App:
         self.tick_rate: float = tick_rate
         self.tick_interval: float = 1.0 / self.tick_rate
 
+    def _get_display_rect(self) -> rl.Rectangle:
+        window_width = rl.get_screen_width()
+        window_height = rl.get_screen_height()
+
+        scale = min(
+            window_width / self.base_width,
+            window_height / self.base_height
+        )
+
+        dest_width = self.base_width * scale
+        dest_height = self.base_height * scale
+        dest_x = (window_width - dest_width) / 2
+        dest_y = (window_height - dest_height) / 2
+
+        return rl.Rectangle(dest_x, dest_y, dest_width, dest_height)
+
+    def _update_mouse_mapping(self) -> None:
+        dst = self._get_display_rect()
+
+        rl.set_mouse_offset(int(-dst.x), int(-dst.y))
+        rl.set_mouse_scale(
+            self.base_width / dst.width,
+            self.base_height / dst.height
+        )
+
     def run(self) -> None:
         while not rl.window_should_close():
-            if (rl.is_window_resized()):
-                self._enforce_window_constraints()
-                self.current_view.resize()
+            self._update_mouse_mapping()
+
             dt: float = rl.get_frame_time()
             event = self.current_view.update(dt)
 
             if event.type == ViewEventType.QUIT:
                 break
-            if (event.type == ViewEventType.CHANGE_VIEW):
+
+            if event.type == ViewEventType.CHANGE_VIEW:
                 self.current_view = self.views[event.message]
-                self.current_view.resize()
+
             if event.type == ViewEventType.START_GAME:
                 if event.message == "random":
                     self.maze = RandomMaze(12, 12, randint(0, 10**9))
                 elif event.message == "classic":
                     self.maze = ClassicMaze()
+
                 game_view: View = GameView(
                     maze=self.maze,
-                    width=self.width,
-                    height=self.height,
+                    width=self.base_width,
+                    height=self.base_height,
                     config=self.config,
                     textures=self.textures,
                     sounds=self.sounds
                 )
                 self.views[event.message] = game_view
                 self.current_view = self.views[event.message]
-                self.current_view.resize()
                 continue
+
             if event.type == ViewEventType.END:
                 action, score = event.message.split(":")
                 self.current_view = self.views["end"]
-                self.current_view.resize()
                 if isinstance(self.current_view, EndView):
                     self.current_view.action = action
                     self.current_view.score = int(score)
                 continue
 
-            rl.begin_drawing()
+            rl.begin_texture_mode(self.render_texture)
+            rl.clear_background(rl.BLACK)
             self.current_view.draw()
+            rl.end_texture_mode()
+
+            rl.begin_drawing()
+            rl.clear_background(rl.BLACK)
+
+            src = rl.Rectangle(
+                0.0,
+                0.0,
+                float(self.base_width),
+                float(-self.base_height)
+            )
+            dst = self._get_display_rect()
+
+            rl.draw_texture_pro(
+                self.render_texture.texture,
+                src,
+                dst,
+                rl.Vector2(0, 0),
+                0.0,
+                rl.WHITE
+            )
+
             rl.end_drawing()
 
         self._close_view()
+        rl.unload_render_texture(self.render_texture)
         self.sounds.unload_sounds()
         rl.close_audio_device()
         rl.close_window()
 
     def _close_view(self) -> None:
-        rl.set_window_min_size(0, 0)
+        rl.set_mouse_offset(0, 0)
+        rl.set_mouse_scale(1.0, 1.0)
+
         for view in self.views.values():
             view.close()
 
-        if (rl.is_window_maximized() or rl.is_window_fullscreen()):
+        if rl.is_window_maximized() or rl.is_window_fullscreen():
             rl.restore_window()
+
         width = rl.get_screen_width()
         height = rl.get_screen_height()
         anim_pos_x = float(-height)
@@ -162,30 +223,23 @@ class App:
             rl.draw_texture(bg, bg_offset, 0, rl.WHITE)
             if anim_pos_x < 0:
                 dst = rl.Rectangle(anim_pos_x, 0, height, height)
-                rl.draw_rectangle(0, 0, int(anim_pos_x) +
-                                  height // 2, height, rl.BLACK)
+                rl.draw_rectangle(
+                    0,
+                    0,
+                    int(anim_pos_x) + height // 2,
+                    height,
+                    rl.BLACK
+                )
             else:
                 dst = rl.Rectangle(0, 0, height, height)
                 rl.draw_rectangle(0, 0, height // 2, height, rl.BLACK)
-            rl.draw_texture_pro(texture, src, dst,
-                                rl.Vector2(0, 0), 0, rl.WHITE)
+
+            rl.draw_texture_pro(
+                texture,
+                src,
+                dst,
+                rl.Vector2(0, 0),
+                0,
+                rl.WHITE
+            )
             rl.end_drawing()
-
-    def _enforce_window_constraints(self) -> None:
-        width = rl.get_screen_width()
-        height = rl.get_screen_height()
-
-        if width < self.min_width:
-            width = self.min_width
-        if height < self.min_height:
-            height = self.min_height
-
-        expected_height = int(width / self.aspect_ratio)
-        expected_width = int(height * self.aspect_ratio)
-
-        if abs(expected_height - height) < abs(expected_width - width):
-            height = expected_height
-        else:
-            width = expected_width
-
-        rl.set_window_size(width, height)
