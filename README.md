@@ -4,8 +4,8 @@
 
 ## Description
 
-The **Pac-Man** project goal is to recreate a pacman game using another group's
-**A-Maze_Ing** project (or in our case the 42central one).
+The **Pac-Man** project goal is to recreate a pacman game using an extern
+maze generator package from the 42 **A-Maze_Ing** project.
 
 ## Instructions
 
@@ -66,7 +66,7 @@ Example:
 ```JSON
 {
     # This is a comment
-    // This also
+    // This also is a comment
     "lives": 2,
     "points_per_pacgum": 10,
     "points_per_super_pacgum": 50,
@@ -88,7 +88,7 @@ Then on the main menu only the 10 bests score are displayed.
 ## Maze Generation
 
 The **mazegenerator-00001-py3-none-any.whl** is installed and imported to generate
-random maze to play Pac-Man on. It is made by 42 central based on the A_Maze_ing 42
+random maze to play Pac-Man on. It is made by 42 central based on the 42 A_Maze_ing
 project (cf. [relaforg's a_maze_ing](https://github.com/relaforg/a_maze_ing), [ldecavel's a_maze_ing](https://github.com/parad0xe/a-maze-ing)... etc.)
 
 ## Implementation
