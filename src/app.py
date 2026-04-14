@@ -39,8 +39,17 @@ class App:
 
         self.base_width = initial_width
         self.base_height = initial_height
+        self.aspect_ratio = self.base_width / self.base_height
+
         self.min_width = max(640, self.base_width // 2)
-        self.min_height = max(360, self.base_height // 2)
+        self.min_height = max(360, int(self.min_width / self.aspect_ratio))
+
+        if monitor_width / monitor_height > self.aspect_ratio:
+            self.max_height = monitor_height
+            self.max_width = int(self.max_height * self.aspect_ratio)
+        else:
+            self.max_width = monitor_width
+            self.max_height = int(self.max_width / self.aspect_ratio)
 
         rl.set_window_size(self.base_width, self.base_height)
         rl.set_window_position(
@@ -50,6 +59,7 @@ class App:
         rl.set_target_fps(self.fps)
         rl.set_window_state(rl.FLAG_WINDOW_RESIZABLE)
         rl.set_window_min_size(self.min_width, self.min_height)
+        rl.set_window_max_size(self.max_width, self.max_height)
 
         self.render_texture = rl.load_render_texture(
             self.base_width,
