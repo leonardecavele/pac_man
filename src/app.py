@@ -34,8 +34,14 @@ class App:
         monitor_width: int = rl.get_monitor_width(monitor)
         monitor_height: int = rl.get_monitor_height(monitor)
 
-        self.width = int(monitor_width * screen_ratio)
+        self.width = int(monitor_width * screen_ratio * 0.78)
         self.height = int(monitor_height * screen_ratio)
+
+        self.aspect_ratio = self.width / self.height
+        self.min_width = 1142
+        self.min_height = int(self.min_width / self.aspect_ratio)
+
+        rl.set_window_min_size(self.min_width, self.min_height)
 
         rl.set_window_size(self.width, self.height)
         rl.set_window_position(monitor_width // 2 - self.width // 2,
@@ -69,6 +75,7 @@ class App:
     def run(self) -> None:
         while not rl.window_should_close():
             if (rl.is_window_resized()):
+                self._enforce_window_constraints()
                 self.current_view.resize()
             dt: float = rl.get_frame_time()
             event = self.current_view.update(dt)
@@ -114,6 +121,7 @@ class App:
         rl.close_window()
 
     def _close_view(self) -> None:
+        rl.set_window_min_size(0, 0)
         for view in self.views.values():
             view.close()
 
@@ -162,3 +170,22 @@ class App:
             rl.draw_texture_pro(texture, src, dst,
                                 rl.Vector2(0, 0), 0, rl.WHITE)
             rl.end_drawing()
+
+    def _enforce_window_constraints(self) -> None:
+        width = rl.get_screen_width()
+        height = rl.get_screen_height()
+
+        if width < self.min_width:
+            width = self.min_width
+        if height < self.min_height:
+            height = self.min_height
+
+        expected_height = int(width / self.aspect_ratio)
+        expected_width = int(height * self.aspect_ratio)
+
+        if abs(expected_height - height) < abs(expected_width - width):
+            height = expected_height
+        else:
+            width = expected_width
+
+        rl.set_window_size(width, height)
