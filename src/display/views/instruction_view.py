@@ -14,12 +14,12 @@ class InstructionView(View):
             ("HOW TO PLAY", [
                 "Eat all the dots to win.",
                 "Avoid ghosts or eat them!",
-                "Collect Power Pellets to frighten ghosts.",
+                "Collect Super Pacgums to frighten ghosts.",
                 "Beat the clock before time runs out!",
             ]),
             ("CONTROLS", [
                 "Move: Arrow Keys / WASD / HJKL",
-                "Pause: ESC",
+                "Pause / Return: ESC",
             ]),
         ]
 
