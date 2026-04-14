@@ -1,4 +1,4 @@
-kimport pyray as rl
+import pyray as rl
 
 from .view import View, ViewEvent, ViewEventType
 from src.display.components import Button
