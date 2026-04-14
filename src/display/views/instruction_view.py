@@ -1,4 +1,4 @@
-import pyray as rl
+kimport pyray as rl
 
 from .view import View, ViewEvent, ViewEventType
 from src.display.components import Button
@@ -18,7 +18,7 @@ class InstructionView(View):
                 "Beat the clock before time runs out!",
             ]),
             ("CONTROLS", [
-                "Move: Arrow Keys / WASD / ZQSD / HJKL",
+                "Move: Arrow Keys / WASD / HJKL",
                 "Pause: ESC",
             ]),
         ]
