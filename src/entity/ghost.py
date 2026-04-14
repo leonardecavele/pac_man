@@ -162,8 +162,7 @@ class Ghost(Entity, ABC):
             and new_state in (
                 self.State.CHASE,
                 self.State.SCATTER,
-                self.State.FRIGHTENED,
-                self.State.BLINK,
+                self.State.FRIGHTENED
             )
         )
 

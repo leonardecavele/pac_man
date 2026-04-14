@@ -13,7 +13,7 @@ def main() -> int:
 
     app: App = App(
         config=config,
-        screen_ratio=0.80,
+        screen_ratio=0.40,
         title="Pac_Man",
         fps=120,
     )
