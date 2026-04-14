@@ -1,4 +1,5 @@
 import json
+import sys
 from pydantic import ValidationError
 
 from src.error import ErrorCode
@@ -19,18 +20,18 @@ class Parser:
                         tmp += line
         except FileNotFoundError:
             print(f"{self.config_path} does not exists.")
-            exit(ErrorCode.FILE_NOT_FOUND)
+            sys.exit(ErrorCode.FILE_NOT_FOUND)
         except PermissionError:
             print(f"{self.config_path} cannot be read.")
-            exit(ErrorCode.NO_READ_PERMISSION)
+            sys.exit(ErrorCode.NO_READ_PERMISSION)
         try:
             config_dict = json.loads(tmp)
         except ValueError:
             print(f"{self.config_path}"
                   " is not a valid JSON with comments file.")
-            exit(ErrorCode.INVALID_JSON)
+            sys.exit(ErrorCode.INVALID_JSON)
         try:
             return (Config.model_validate(config_dict))
         except ValidationError:
             print(f"{self.config_path} is invalid.")
-            exit(ErrorCode.INVALID_CONFIG)
+            sys.exit(ErrorCode.INVALID_CONFIG)

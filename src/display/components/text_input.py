@@ -23,7 +23,7 @@ class TextInput:
         rl.draw_rectangle_lines(self.x, self.y, self.w, self.h, rl.WHITE)
         input = rl.get_char_pressed()
         if (((input >= self.a and input <= self.z) or
-                (input >= self.A and input <= self.Z) or input == self.SPACE)
+                (input >= self.A and input <= self.Z))
                 and len(self.value) < self.max_char):
             self.value += chr(input).upper()
         if (rl.is_key_pressed(rl.KEY_BACKSPACE) and len(self.value)):

@@ -52,6 +52,7 @@ build: install-dev
 		--onefile \
 		--output-filename=pac-man \
 		--output-dir=dist \
+		--include-data-dir=assets=assets \
 		src/main.py
 
 clean:
