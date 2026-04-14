@@ -91,7 +91,7 @@ class MenuView(View):
 
     def _position_btns(self) -> None:
         self.font_size = max(28, self.height // 18)
-        self.title_size = self.font_size * 3
+        self.title_size = self.font_size * 2
         self.score_font_size = max(18, self.font_size // 2)
 
         self.btn_spacing = max(12, self.font_size // 3)
@@ -140,15 +140,19 @@ class MenuView(View):
         self.panel_x = self.width // 2 - self.panel_w // 2
         self.panel_y = self.height // 2 - self.panel_h // 2
 
-        self.title_x = self.panel_x + self.panel_w // 2 - self.title_w // 2
+        self.left_col_x = self.panel_x + self.panel_padding_x
+        self.right_col_x = self.left_col_x + button_col_w + col_gap
+
+        content_left = self.left_col_x
+        content_right = self.right_col_x + score_col_w
+        content_center = (content_left + content_right) / 2
+
+        self.title_x = int(content_center - self.title_w / 2)
         self.title_y = self.panel_y + self.panel_padding_y
 
         self.content_top_y = self.title_y + self.title_h + max(
             24, self.font_size
         )
-
-        self.left_col_x = self.panel_x + self.panel_padding_x
-        self.right_col_x = self.left_col_x + button_col_w + col_gap
 
         for i, btn in enumerate(self.buttons):
             btn.x = self.left_col_x
