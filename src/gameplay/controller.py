@@ -45,6 +45,9 @@ class GameController:
             self._apply_input(state, inputs)
             return GameAction(type=GameActionType.NONE)
 
+        if (state.timer >= state.config.level_max_time):
+            state.pac_man.dying = True
+
         if state.pac_man.dying:
             state.ghosts = []
             if not self.sounds.is_playing("dying"):
