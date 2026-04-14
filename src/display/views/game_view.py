@@ -773,6 +773,7 @@ class GameView(View):
         self.maze_texture = rl.load_texture_from_image(self.maze_image)
         self._set_pause_btn_positions()
         self._set_cheat_btn_positions()
+        self.state.freeze(0.1)
 
     def _draw_ghost_targets(self) -> None:
         for ghost in self.state.ghosts:
