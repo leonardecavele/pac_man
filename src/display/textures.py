@@ -44,7 +44,6 @@ class Textures:
             )
         )
         texture = rl.load_texture_from_image(image)
-        # rl.set_texture_filter(texture, rl.TEXTURE_FILTER_POINT)
         rl.unload_image(image)
         return texture
 
@@ -139,11 +138,10 @@ class Textures:
             image,
             128 // 2,
             128 // 2,
-            128 // 12,
+            128 // 10,
             rl.BEIGE,
         )
         texture = rl.load_texture_from_image(image)
-        # rl.set_texture_filter(texture, rl.TEXTURE_FILTER_POINT)
         rl.unload_image(image)
         return ([texture])
 
@@ -161,6 +159,5 @@ class Textures:
             rl.BEIGE,
         )
         texture = rl.load_texture_from_image(image)
-        # rl.set_texture_filter(texture, rl.TEXTURE_FILTER_POINT)
         return ([texture])
         return texture
