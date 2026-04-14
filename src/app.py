@@ -179,6 +179,7 @@ class App:
         rl.close_window()
 
     def _close_view(self) -> None:
+        rl.set_window_min_size(0, 0)
         rl.set_mouse_offset(0, 0)
         rl.set_mouse_scale(1.0, 1.0)
 
