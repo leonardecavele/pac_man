@@ -85,6 +85,10 @@ class GameController:
     def _update_timers(self, state: GameState, dt: float) -> None:
         state.timer += dt
 
+        if (state.timer >= state.config.level_max_time):
+            state.pac_man.dying = True
+            state.HP -= 1
+
         if state.fright:
             state.fright_time += dt
             if state.fright_time >= state.fright_duration:
