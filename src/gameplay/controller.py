@@ -45,10 +45,6 @@ class GameController:
             self._apply_input(state, inputs)
             return GameAction(type=GameActionType.NONE)
 
-        if (state.timer >= state.config.level_max_time):
-            state.pac_man.dying = True
-            state.HP -= 1
-
         if state.pac_man.dying:
             state.ghosts = []
             if not self.sounds.is_playing("dying"):
@@ -150,7 +146,7 @@ class GameController:
 
     def _update_ghosts(self, state: GameState, dt: float) -> None:
         for ghost in state.ghosts:
-            ghost.animate()
+            ghost.animate(dt)
 
             if not ghost.released:
                 release_time = state.ghost_release_schedule.get(

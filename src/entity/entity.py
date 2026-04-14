@@ -31,6 +31,9 @@ class Entity(ABC):
         self.sprite: rl.Texture = sprite
         self.tick = 0
 
+        self.anim_timer: float = 0.0
+        self.anim_frame: int = 0
+
     def move_to_target(self, dt: float, target_screen_pos: vec2i) -> bool:
         x, y = self.screen_pos
         tx, ty = target_screen_pos

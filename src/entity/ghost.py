@@ -51,6 +51,11 @@ class Ghost(Entity, ABC):
         self.house_exit: vec2i = (house_pos[0], max(0, house_pos[1] - 1))
         self.identifier: str = self.__class__.__name__.lower()
         self.textures = textures
+        self.anim_mode: str = "normal"
+        self.normal_frame_duration: float = 30 / 60
+        self.frightened_frame_duration: float = 30 / 60
+        self.blink_frame_duration: float = 8 / 60
+        self.house_frame_duration: float = 9 / 60
 
     def _ltex(self, key: str) -> list[rl.Texture]:
         return cast(list[rl.Texture], self.textures[key])
@@ -58,53 +63,97 @@ class Ghost(Entity, ABC):
     def _dtex(self, key: str) -> dict[str, list[rl.Texture]]:
         return cast(dict[str, list[rl.Texture]], self.textures[key])
 
-    def animate(self) -> None:
+    def _set_anim_mode(self, mode: str) -> None:
+        if self.anim_mode == mode:
+            return
+        self.anim_mode = mode
+        self.anim_timer = 0.0
+        self.anim_frame = 0
+
+    def _advance_animation(
+        self,
+        dt: float,
+        frame_duration: float,
+        frame_count: int,
+    ) -> int:
+        self.anim_timer += dt
+
+        while self.anim_timer >= frame_duration:
+            self.anim_timer -= frame_duration
+            self.anim_frame = (self.anim_frame + 1) % frame_count
+
+        return self.anim_frame
+
+    def animate(self, dt: float) -> None:
         self.tick += 1
         dx, dy = self.direction
 
-        if (self.state == Ghost.State.FRIGHTENED):
-            idx = self.tick // 30 % 2
+        if self.state == Ghost.State.FRIGHTENED:
+            self._set_anim_mode("frightened")
+            idx = self._advance_animation(
+                dt,
+                self.frightened_frame_duration,
+                2,
+            )
             self.sprite = self._ltex("fleeing")[idx]
             return
-        if (self.state == Ghost.State.BLINK):
-            idx = self.tick // 8 % 4
+
+        if self.state == Ghost.State.BLINK:
+            self._set_anim_mode("blink")
+            idx = self._advance_animation(
+                dt,
+                self.blink_frame_duration,
+                4,
+            )
             self.sprite = self._ltex("blink")[idx]
             return
 
-        if (self.state == Ghost.State.EATEN):
-            if (dx == 1):
+        if self.state == Ghost.State.EATEN:
+            self._set_anim_mode("eaten")
+            if dx == 1:
                 self.sprite = self._dtex("eaten")["right"][0]
-            elif (dx == -1):
+            elif dx == -1:
                 self.sprite = self._dtex("eaten")["left"][0]
-            elif (dy == 1):
+            elif dy == 1:
                 self.sprite = self._dtex("eaten")["down"][0]
-            elif (dy == -1):
+            elif dy == -1:
                 self.sprite = self._dtex("eaten")["up"][0]
             return
 
         if self.maze.og and not self.released:
-            phase = self.tick // 9 % 2
+            self._set_anim_mode("house")
+            phase = self._advance_animation(
+                dt,
+                self.house_frame_duration,
+                2,
+            )
 
             if isinstance(self, Pinky):
                 if phase == 0:
                     self.sprite = self._dtex(self.identifier)["down"][0]
-                elif phase == 1:
+                else:
                     self.sprite = self._dtex(self.identifier)["up"][1]
             else:
                 if phase == 0:
                     self.sprite = self._dtex(self.identifier)["up"][0]
-                elif phase == 1:
+                else:
                     self.sprite = self._dtex(self.identifier)["down"][1]
             return
 
-        idx = self.tick // 30 % 2
-        if (dx == 1):
+        self._set_anim_mode("normal")
+        idx = self._advance_animation(
+            dt,
+            self.normal_frame_duration,
+            2,
+        )
+
+        if dx == 1:
             self.sprite = self._dtex(self.identifier)["right"][idx]
-        elif (dx == -1):
+        elif dx == -1:
             self.sprite = self._dtex(self.identifier)["left"][idx]
-        elif (dy == 1):
+        elif dy == 1:
             self.sprite = self._dtex(self.identifier)["down"][idx]
-        elif (dy == -1):
+        elif dy == -1:
             self.sprite = self._dtex(self.identifier)["up"][idx]
 
     def change_state(self, new_state: "Ghost.State") -> None:

@@ -33,6 +33,7 @@ class Pac_man(Entity):
         self.dying_frame: int = 0
         self.dying_timer: float = 0.0
         self.dying_frame_duration: float = 0.08
+        self.move_frame_duration: float = 8 / 60
 
     def try_corner(self, maze_to_screen: Callable[[vec2i], vec2i]) -> bool:
         if self.target_cell is None or self.input is None:
@@ -95,11 +96,22 @@ class Pac_man(Entity):
 
         self.tick += 1
         dx, dy = self.direction
-        idx: int = self.tick // 8 % 2
 
-        if dx == 0 and dy == 0 and self.tick == 1:
+        if dx == 0 and dy == 0:
+            self.anim_timer = 0.0
+            self.anim_frame = 0
             self.sprite = self.textures["dying"][0]
-        elif dx == 1:
+            return
+
+        self.anim_timer += dt
+
+        while self.anim_timer >= self.move_frame_duration:
+            self.anim_timer -= self.move_frame_duration
+            self.anim_frame = (self.anim_frame + 1) % 2
+
+        idx = self.anim_frame
+
+        if dx == 1:
             self.sprite = self.textures["right"][idx]
         elif dx == -1:
             self.sprite = self.textures["left"][idx]
