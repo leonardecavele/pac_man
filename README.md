@@ -9,8 +9,40 @@ The **Pac-Man** project goal is to recreate a pacman game using another group's
 
 ## Instructions
 
->[!IMPORTANT]
->A FAIRE APRES AVOIR PUSH SUR ITCH
+### Requirements
+
+- Python 3.12+
+- `make`
+
+### Installation & Run
+
+```sh
+make run
+```
+
+This sets up a virtual environment, installs all dependencies via Poetry, and launches the game with the default `config.json`.
+
+To use a custom config file:
+
+```sh
+make run ARGS=path/to/config.json
+```
+
+### Build (standalone binary)
+
+```sh
+make build
+```
+
+Produces a single `pac-man` executable in `dist/` via Nuitka.
+
+### Other targets
+
+| Command | Description |
+|---------|-------------|
+| `make install` | Install runtime dependencies only |
+| `make lint` | Run flake8 + mypy |
+| `make clean` | Remove venv and caches |
 
 ## Resources
 
