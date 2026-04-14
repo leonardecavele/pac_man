@@ -115,7 +115,7 @@ class MenuView(View):
         )
 
         col_gap = max(60, self.width // 18)
-        self.panel_padding_x = max(30, self.width // 40)
+        self.panel_padding_x = max(self.font_size + 10, self.width // 40)
         self.panel_padding_y = max(24, self.height // 32)
 
         buttons_h = (
@@ -295,7 +295,7 @@ class MenuView(View):
         rl.draw_rectangle(
             self.panel_x + self.font_size // 2,
             int(self.anim_pos[1]),
-            int(self.anim_pos[0] - self.panel_x) + self.font_size // 2,
+            int(self.anim_pos[0] - self.panel_x),
             self.font_size,
             rl.Color(0, 0, 0, 255)
         )

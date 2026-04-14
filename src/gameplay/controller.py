@@ -47,6 +47,7 @@ class GameController:
 
         if (state.timer >= state.config.level_max_time):
             state.pac_man.dying = True
+            state.HP -= 1
 
         if state.pac_man.dying:
             state.ghosts = []
