@@ -7,3 +7,4 @@ class ErrorCode(IntEnum):
     NO_READ_PERMISSION = auto()
     INVALID_JSON = auto()
     INVALID_CONFIG = auto()
+    INVALID_TYPE = auto()

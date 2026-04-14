@@ -18,6 +18,9 @@ class Parser:
                     if (not line.strip().startswith("#")
                             and not line.strip().startswith("//")):
                         tmp += line
+        except UnicodeDecodeError:
+            print(f"{self.config_path} has invalid type")
+            sys.exit(ErrorCode.INVALID_TYPE)
         except FileNotFoundError:
             print(f"{self.config_path} does not exists.")
             sys.exit(ErrorCode.FILE_NOT_FOUND)
