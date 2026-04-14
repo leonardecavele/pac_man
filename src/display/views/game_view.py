@@ -356,16 +356,23 @@ class GameView(View):
             rl.draw_text(text2, over_x, text_y, font_size, rl.RED)
 
         if self.state.start_time > 0.0:
-            x, y = self.geometry.get_draw_pos(self.state.pac_man.screen_pos)
-            x += self.margin[0]
-            y += self.margin[1]
+            x, y = self.state.pac_man_spawn
+            y -= 2
+            spawn_x, spawn_y = self.geometry.maze_to_screen((x, y))
+            spawn_x += self.margin[0]
+            spawn_y += self.margin[1]
 
             text = "READY!"
+
             font_size = int(self.geometry.cell_size * 0.5)
             text_w = rl.measure_text(text, font_size)
 
-            text_x = int(x + self.geometry.cell_size / 2 - text_w / 2)
-            text_y = int(y - self.geometry.cell_size * 2)
+            center_x = spawn_x + self.geometry.cell_size
+            text_y = int(
+                spawn_y - (font_size / 2)
+            )
+
+            text_x = int(center_x - text_w)
 
             padding_x = 8
             padding_y = 6
@@ -379,16 +386,19 @@ class GameView(View):
             rl.draw_text(text, text_x, text_y, font_size, rl.YELLOW)
 
         if self.state.game_win:
-            x, y = self.geometry.get_draw_pos(self.state.pac_man.screen_pos)
-            x += self.margin[0]
-            y += self.margin[1]
+            x, y = self.state.pac_man_spawn
+            y -= 2
+            center_x, center_y = self.geometry.maze_to_screen((x, y))
+            center_x += self.margin[0]
+            center_y += self.margin[1]
 
             text = "NEXT LEVEL!"
+
             font_size = int(self.geometry.cell_size * 0.5)
             text_w = rl.measure_text(text, font_size)
 
-            text_x = int(x + self.geometry.cell_size / 2 - text_w / 2)
-            text_y = int(y - self.geometry.cell_size * 2)
+            text_x = int(center_x - text_w / 2)
+            text_y = int(center_y - font_size / 2)
 
             padding_x = 8
             padding_y = 6
