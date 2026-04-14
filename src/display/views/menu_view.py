@@ -166,8 +166,23 @@ class MenuView(View):
             cache_dir = Path.home() / ".local" / "share" / "pacman"
             with open(cache_dir / "leaderboard.pm", "r") as file:
                 for line in file:
-                    user, score = line.split(":")
-                    self.leaderboard.append((user, int(score)))
+                    line = line.strip()
+                    if not line or ":" not in line:
+                        continue
+
+                    user, score = line.split(":", 1)
+                    user = user.strip()
+                    score = score.strip()
+
+                    if not user:
+                        continue
+
+                    try:
+                        score_value = int(score)
+                    except ValueError:
+                        continue
+
+                    self.leaderboard.append((user, score_value))
         except (FileNotFoundError, PermissionError):
             return
 
