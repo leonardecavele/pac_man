@@ -15,7 +15,7 @@ def main() -> int:
         config=config,
         screen_ratio=0.70,
         title="Pac_Man",
-        fps=120,
+        fps=60,
     )
     app.run()
     return ErrorCode.NO_ERROR
