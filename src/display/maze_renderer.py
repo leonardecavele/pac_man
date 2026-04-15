@@ -6,7 +6,8 @@ WALL_COLOR_GHOST_HOUSE = rl.BEIGE
 
 
 class MazeRenderer:
-    """Render the maze walls onto a raylib Image using cell, gap, and arc drawing primitives."""
+    """Render the maze walls onto a raylib Image using cell, gap, and arc
+    drawing primitives."""
 
     def __init__(self, maze_image: rl.Image, maze: Maze,
                  cell_size: int, gap: int) -> None:
@@ -26,7 +27,8 @@ class MazeRenderer:
         self.draw()
 
     def draw(self) -> None:
-        """Draw the full maze (borders, cells, and open-area joints) onto maze_image."""
+        """Draw the full maze (borders, cells, and open-area joints)
+        onto maze_image."""
         self._put_borders()
 
         x, y = 0, 0
@@ -74,7 +76,8 @@ class MazeRenderer:
                                               Maze.Cell | None,
                                               Maze.Cell | None,
                                               Maze.Cell | None]:
-        """Return the (top, right, bot, left) neighbour cells of c, or None at the maze boundary."""
+        """Return the (top, right, bot, left) neighbour cells of c, or None
+        at the maze boundary."""
         x, y = c.pos
         c_top = self.maze.maze[y - 1][x] if y > 0 else None
         c_bot = self.maze.maze[y +
@@ -86,7 +89,8 @@ class MazeRenderer:
         return (c_top, c_right, c_bot, c_left)
 
     def _put_cell(self, c: Maze.Cell, x: int, y: int) -> None:
-        """Draw the walls and connecting links for cell c at pixel position (x, y)."""
+        """Draw the walls and connecting links for cell c at pixel position
+        (x, y)."""
         self._put_links(c, x, y)
         c_top, c_right, c_bot, c_left = self._get_neighbors(c)
 
@@ -161,7 +165,8 @@ class MazeRenderer:
             )
 
     def _put_links(self, c: Maze.Cell, x: int, y: int) -> None:
-        """Draw gap-filling lines and curved arcs that connect adjacent wall segments."""
+        """Draw gap-filling lines and curved arcs that connect adjacent wall
+        segments."""
         c_top, c_right, c_bot, c_left = self._get_neighbors(c)
         self._put_gap_lines(c, x, y, c_top, c_right, c_bot, c_left)
         self._put_arcs(c, x, y, c_top, c_right, c_bot, c_left)
@@ -171,7 +176,8 @@ class MazeRenderer:
         c_top: Maze.Cell | None, c_right: Maze.Cell | None,
         c_bot: Maze.Cell | None, c_left: Maze.Cell | None
     ) -> None:
-        """Draw small gap-bridging rectangles at shared wall corners between adjacent cells."""
+        """Draw small gap-bridging rectangles at shared wall corners between
+        adjacent cells."""
         G = self.gap
         CS = self.cell_size
         T = max(1, self.thickness)
@@ -205,7 +211,8 @@ class MazeRenderer:
         c_top: Maze.Cell | None, c_right: Maze.Cell | None,
         c_bot: Maze.Cell | None, c_left: Maze.Cell | None
     ) -> None:
-        """Draw rounded arc decorations at concave wall junctions for a smooth look."""
+        """Draw rounded arc decorations at concave wall junctions for a
+        smooth look."""
         G = self.gap
         G2 = G // 2
         CS = self.cell_size
@@ -266,7 +273,8 @@ class MazeRenderer:
         c_top: Maze.Cell | None, c_right: Maze.Cell | None,
         c_bot: Maze.Cell | None, c_left: Maze.Cell | None
     ) -> None:
-        """Draw convex corner arcs where two perpendicular wall segments meet."""
+        """Draw convex corner arcs where two perpendicular wall segments
+        meet."""
         G = self.gap
         CS = self.cell_size - 1
         T = max(1, self.thickness)
@@ -380,7 +388,8 @@ class MazeRenderer:
         )
 
     def _is_open_2x2(self, gx: int, gy: int) -> bool:
-        """Return True if the 2×2 block of cells starting at (gx, gy) is completely open."""
+        """Return True if the 2×2 block of cells starting at (gx, gy) is
+        completely open."""
         if gx + 1 >= self.maze.width or gy + 1 >= self.maze.height:
             return False
 
@@ -401,7 +410,8 @@ class MazeRenderer:
         )
 
     def _draw_center_joint(self, gx: int, gy: int) -> None:
-        """Draw a decorative circular joint at the centre of the open 2×2 block at (gx, gy)."""
+        """Draw a decorative circular joint at the centre of the open 2×2
+        block at (gx, gy)."""
         step = self.cell_size + self.gap
 
         center_x = (gx + 1) * step + self.gap // 2

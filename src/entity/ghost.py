@@ -18,7 +18,8 @@ class Ghost(Entity, ABC):
     """Abstract base class for all ghost enemies."""
 
     class State(IntFlag):
-        """Bitmask flags representing the possible behavioural states of a ghost."""
+        """Bitmask flags representing the possible behavioural states of
+        a ghost."""
         SCATTER = 1 << 0
         EATEN = 1 << 1
         FRIGHTENED = 1 << 2
@@ -74,15 +75,18 @@ class Ghost(Entity, ABC):
         self.house_frame_duration: float = 9 / 60
 
     def _ltex(self, key: str) -> list[rl.Texture]:
-        """Return the texture list stored under key, cast to the correct type."""
+        """Return the texture list stored under key, cast to the correct
+        type."""
         return cast(list[rl.Texture], self.textures[key])
 
     def _dtex(self, key: str) -> dict[str, list[rl.Texture]]:
-        """Return the directional texture dict stored under key, cast to the correct type."""
+        """Return the directional texture dict stored under key, cast to
+        the correct type."""
         return cast(dict[str, list[rl.Texture]], self.textures[key])
 
     def _set_anim_mode(self, mode: str) -> None:
-        """Switch to the given animation mode and reset the frame timer if changed."""
+        """Switch to the given animation mode and reset the frame timer
+        if changed."""
         if self.anim_mode == mode:
             return
         self.anim_mode = mode
@@ -111,7 +115,8 @@ class Ghost(Entity, ABC):
         return self.anim_frame
 
     def animate(self, dt: float) -> None:
-        """Update the ghost's sprite to reflect its current state and direction."""
+        """Update the ghost's sprite to reflect its current state and
+        direction."""
         self.tick += 1
         dx, dy = self.direction
 
@@ -184,7 +189,8 @@ class Ghost(Entity, ABC):
             self.sprite = self._dtex(self.identifier)["up"][idx]
 
     def change_state(self, new_state: "Ghost.State") -> None:
-        """Transition to new_state, scheduling a direction flip when appropriate."""
+        """Transition to new_state, scheduling a direction flip when
+        appropriate."""
         self.flip = (
             self.direction != (0, 0)
             and new_state in (
@@ -199,7 +205,8 @@ class Ghost(Entity, ABC):
         self.state = new_state
 
     def update_velocity(self, new_state: "Ghost.State") -> None:
-        """Adjust velocity_px to the speed multiplier appropriate for new_state."""
+        """Adjust velocity_px to the speed multiplier appropriate for
+        new_state."""
         match new_state:
             case self.State.ELROY1:
                 self.velocity_px = int(self.default_velocity_px * 0.80)
@@ -400,7 +407,8 @@ class Ghost(Entity, ABC):
 
     def legal_directions(self, x: int, y: int) -> list[Direction]:
         """
-        Return all valid directions from cell (x, y), excluding the reverse direction.
+        Return all valid directions from cell (x, y), excluding the
+        reverse direction.
 
         If no forward direction is available, return only the reverse direction
         as a fallback.
@@ -503,7 +511,8 @@ class Ghost(Entity, ABC):
         ...
 
     def save_state(self) -> None:
-        """Save the current state so it can be restored after fright mode ends."""
+        """Save the current state so it can be restored after fright mode
+        ends."""
         self.saved_state = self.state
 
     def load_save(self) -> None:
@@ -512,7 +521,8 @@ class Ghost(Entity, ABC):
 
 
 class Blinky(Ghost):
-    """The red ghost; always targets Pac-Man directly and gains speed via Elroy mode."""
+    """The red ghost; always targets Pac-Man directly and gains speed via
+    Elroy mode."""
 
     def __init__(
         self,
@@ -539,7 +549,8 @@ class Blinky(Ghost):
         self.target = self.corner
 
     def is_chasing(self) -> bool:
-        """Return True if Blinky is chasing, including Elroy speed-boost states."""
+        """Return True if Blinky is chasing, including Elroy speed-boost
+        states."""
         return bool(
             self.state & (
                 self.State.CHASE | self.State.ELROY1 | self.State.ELROY2
@@ -552,7 +563,8 @@ class Blinky(Ghost):
 
 
 class Inky(Ghost):
-    """The cyan ghost; targets a cell calculated from Pac-Man's position and Blinky's position."""
+    """The cyan ghost; targets a cell calculated from Pac-Man's position
+    and Blinky's position."""
 
     def __init__(
         self,
@@ -581,7 +593,8 @@ class Inky(Ghost):
         self.target = self.corner
 
     def compute_chase_target(self) -> vec2i:
-        """Return the target cell computed from Pac-Man's ahead position and Blinky's location."""
+        """Return the target cell computed from Pac-Man's ahead position
+        and Blinky's location."""
         px, py = self.pac_man.maze_pos
         dx, dy = self.pac_man.direction
         bx, by = self.blinky.maze_pos
@@ -596,7 +609,8 @@ class Inky(Ghost):
 
 
 class Pinky(Ghost):
-    """The pink ghost; targets four cells ahead of Pac-Man's current direction."""
+    """The pink ghost; targets four cells ahead of Pac-Man's current
+    direction."""
 
     def __init__(
         self,
@@ -633,7 +647,8 @@ class Pinky(Ghost):
 
 
 class Clyde(Ghost):
-    """The orange ghost; chases Pac-Man from afar but retreats to its corner when close."""
+    """The orange ghost; chases Pac-Man from afar but retreats to its
+    corner when close."""
 
     def __init__(
         self,
@@ -660,7 +675,8 @@ class Clyde(Ghost):
         self.target = self.corner
 
     def compute_chase_target(self) -> vec2i:
-        """Return Pac-Man's cell when far away, or the scatter corner when within 4 cells."""
+        """Return Pac-Man's cell when far away, or the scatter corner when
+        within 4 cells."""
         if self.euclidean(self.maze_pos, self.pac_man.maze_pos) < 4:
             return self.corner
         return self.pac_man.maze_pos

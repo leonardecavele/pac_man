@@ -80,7 +80,8 @@ class MenuView(View):
         return self.leaderboard[:10]
 
     def _get_longest_score_width(self) -> int:
-        """Return the pixel width of the widest leaderboard line at the current font size."""
+        """Return the pixel width of the widest leaderboard line at the
+        current font size."""
         visible_scores = self._get_top_scores()
         if not visible_scores:
             return 0
@@ -94,7 +95,8 @@ class MenuView(View):
         return max_line_width
 
     def _position_btns(self) -> None:
-        """Recompute font sizes, panel dimensions, and button positions for the current viewport."""
+        """Recompute font sizes, panel dimensions, and button positions
+        for the current viewport."""
         self.font_size = max(28, self.height // 18)
         self.title_size = self.font_size * 2
         self.score_font_size = max(18, self.font_size // 2)
@@ -166,7 +168,8 @@ class MenuView(View):
             )
 
     def _get_leaderboard(self) -> None:
-        """Load and sort leaderboard entries from the persistent leaderboard file."""
+        """Load and sort leaderboard entries from the persistent leaderboard
+        file."""
         self.leaderboard = []
         try:
             cache_dir = Path.home() / ".local" / "share" / "pacman"
@@ -304,7 +307,8 @@ class MenuView(View):
             self._draw_btn_anim()
 
     def _draw_btn_anim(self) -> None:
-        """Draw the Pac-Man eating animation that plays when a button is selected."""
+        """Draw the Pac-Man eating animation that plays when a button is
+        selected."""
         if not isinstance(self.textures["pac_man"], dict):
             return
 
@@ -339,7 +343,8 @@ class MenuView(View):
                 return self._update_anim(dt)
 
     def _update_anim(self, dt: float) -> ViewEvent:
-        """Advance the button selection animation; emit the pending event when complete."""
+        """Advance the button selection animation; emit the pending event
+        when complete."""
         self.anim_frame += 1
         self.anim_timer += dt
 
@@ -356,7 +361,8 @@ class MenuView(View):
         return ViewEvent(type=ViewEventType.NONE)
 
     def _start_anim(self, btn: Button, event: ViewEvent) -> None:
-        """Start the button selection animation for btn and queue event for deferred emission."""
+        """Start the button selection animation for btn and queue event
+        for deferred emission."""
         self.anim_timer = 0
         self.sounds.munch_counter = 0
         self.state = State.BTN_ANIM
@@ -366,7 +372,8 @@ class MenuView(View):
         self.pending_event = event
 
     def _activate_selected_button(self) -> ViewEvent:
-        """Trigger the action for the currently selected button and return the resulting event."""
+        """Trigger the action for the currently selected button and return
+        the resulting event."""
         selected_btn = self.buttons[self.selected_index]
 
         if selected_btn is self.classic_btn:

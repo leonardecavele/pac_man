@@ -21,7 +21,8 @@ class ViewEvent(BaseModel):
 
 
 class View(ABC):
-    """Abstract base class for all application screens (menu, game, end, etc.)."""
+    """Abstract base class for all application screens (menu, game, end,
+    etc.)."""
 
     def __init__(self) -> None:
         pass
@@ -33,7 +34,8 @@ class View(ABC):
 
     @abstractmethod
     def update(self, dt: float) -> ViewEvent:
-        """Update view state and return an event describing any state change."""
+        """Update view state and return an event describing any state
+        change."""
         pass
 
     @abstractmethod

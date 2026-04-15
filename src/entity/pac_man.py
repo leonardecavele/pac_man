@@ -100,7 +100,8 @@ class Pac_man(Entity):
         return True
 
     def animate(self, dt: float) -> None:
-        """Advance the animation frame for the current movement or dying state."""
+        """Advance the animation frame for the current movement or dying
+        state."""
         if self.dying:
             self.dying_timer += dt
 

@@ -9,7 +9,8 @@ from src.type import vec2i, vec2f, Direction
 
 
 class Entity(ABC):
-    """Abstract base class for all game entities (Pac-Man, ghosts, collectibles)."""
+    """Abstract base class for all game entities (Pac-Man, ghosts,
+    collectibles)."""
 
     def __init__(
         self,
@@ -71,11 +72,13 @@ class Entity(ABC):
         return False
 
     def valid_direction(self, direction: vec2i) -> bool:
-        """Return True if moving in direction from the current maze cell is unblocked."""
+        """Return True if moving in direction from the current maze cell
+        is unblocked."""
         return self.valid_direction_from(self.maze_pos, direction)
 
     def valid_direction_from(self, pos: vec2i, direction: vec2i) -> bool:
-        """Return True if moving in direction from pos is not blocked by a wall."""
+        """Return True if moving in direction from pos is not blocked by
+        a wall."""
         x, y = pos
 
         if direction == Direction.TOP.value:
@@ -90,7 +93,8 @@ class Entity(ABC):
 
     @property
     def back_direction(self) -> Direction | None:
-        """Return the Direction opposite to the current direction, or None if idle."""
+        """Return the Direction opposite to the current direction, or None
+        if idle."""
         if self.direction == (0, 0):
             return None
         return Direction((-self.direction[0], -self.direction[1]))

@@ -27,7 +27,8 @@ class Collectible(Entity):
         Initialize the collectible.
 
         screen_pos          -- pixel position on screen
-        maze_pos            -- sub-cell position in the maze grid (floats for mid-cell items)
+        maze_pos            -- sub-cell position in the maze grid (floats
+                               for mid-cell items)
         sprite              -- texture to render
         maze                -- reference to the game maze
         points              -- score awarded on collection
@@ -43,7 +44,8 @@ class Collectible(Entity):
         self.visible: bool = True
 
     def update(self, dt: float = 0.0) -> None:
-        """No-op; collectibles are static and do not change state on their own."""
+        """No-op; collectibles are static and do not change state on their
+        own."""
         return
 
     def on_collect(self, state: "MazeState") -> None:
@@ -78,7 +80,8 @@ class SuperPacgum(Collectible):
         self._elapsed: float = 0.0
 
     def update(self, dt: float = 0.0) -> None:
-        """Toggle visibility on each blink interval to create a flashing effect."""
+        """Toggle visibility on each blink interval to create a flashing
+        effect."""
         self._elapsed += dt
         if self._elapsed < self.blink_interval:
             return

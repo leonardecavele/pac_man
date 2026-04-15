@@ -2,7 +2,8 @@ import pyray as rl
 
 
 class TextInput:
-    """A single-line text field that accepts letter input and supports backspace."""
+    """A single-line text field that accepts letter input and supports
+    backspace."""
 
     def __init__(self, x: int, y: int, font_size: int,
                  max_char: int = 10) -> None:
@@ -30,7 +31,8 @@ class TextInput:
         self.animation_tick = 60
 
     def handle_input(self) -> None:
-        """Process keyboard events to append characters or remove the last one."""
+        """Process keyboard events to append characters or remove the
+        last one."""
         rl.draw_rectangle_lines(self.x, self.y, self.w, self.h, rl.WHITE)
         input = rl.get_char_pressed()
         if (((input >= self.a and input <= self.z) or

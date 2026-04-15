@@ -31,7 +31,8 @@ class Textures:
     def _load_textures(
         self,
     ) -> dict[str, dict[str, list[rl.Texture]] | list[rl.Texture]]:
-        """Build and return the complete texture atlas, then unload the source image."""
+        """Build and return the complete texture atlas, then unload the
+        source image."""
         rl.image_color_replace(
             self.sheet,
             rl.BLACK,
@@ -56,7 +57,8 @@ class Textures:
         return textures
 
     def _get_sprite(self, x: int, y: int) -> rl.Texture:
-        """Extract and return a single sprite texture at tile grid position (x, y)."""
+        """Extract and return a single sprite texture at tile grid position
+        (x, y)."""
         image: rl.Image = rl.image_from_image(
             self.sheet,
             rl.Rectangle(
@@ -71,7 +73,8 @@ class Textures:
         return texture
 
     def _load(self, positions: list[tuple[int, int]]) -> list[rl.Texture]:
-        """Return a list of textures extracted from the given tile grid positions."""
+        """Return a list of textures extracted from the given tile grid
+        positions."""
         sprites: list[rl.Texture] = []
         for x, y in positions:
             sprites.append(self._get_sprite(x, y))
@@ -84,7 +87,8 @@ class Textures:
         up: list[tuple[int, int]],
         down: list[tuple[int, int]],
     ) -> dict[str, list[rl.Texture]]:
-        """Build and return a directional texture dict with keys right/left/up/down."""
+        """Build and return a directional texture dict with keys
+        right/left/up/down."""
         return {
             "right": self._load(right),
             "left": self._load(left),
@@ -93,7 +97,8 @@ class Textures:
         }
 
     def _load_pac_man_textures(self) -> dict[str, list[rl.Texture]]:
-        """Return the Pac-Man texture atlas including all directions and the dying animation."""
+        """Return the Pac-Man texture atlas including all directions and the
+        dying animation."""
         return {
             "right": self._load([(0, 0), (1, 0)]),
             "left": self._load([(0, 1), (1, 1)]),
@@ -149,11 +154,13 @@ class Textures:
         return self._load([(8, 4), (9, 4)])
 
     def _load_blink_textures(self) -> list[rl.Texture]:
-        """Return the four-frame blinking ghost textures used when fright is ending."""
+        """Return the four-frame blinking ghost textures used when fright
+        is ending."""
         return self._load([(9, 4), (10, 4), (8, 4), (11, 4)])
 
     def _load_eaten_textures(self) -> dict[str, list[rl.Texture]]:
-        """Return the directional eye textures displayed when a ghost is eaten."""
+        """Return the directional eye textures displayed when a ghost is
+        eaten."""
         return self._load_directional_textures(
             right=[(8, 5)],
             left=[(9, 5)],
@@ -162,7 +169,8 @@ class Textures:
         )
 
     def _load_pacgum_textures(self) -> list[rl.Texture]:
-        """Generate and return the small dot texture used for regular pacgums."""
+        """Generate and return the small dot texture used for regular
+        pacgums."""
         image = rl.gen_image_color(
             256 - 1,
             256 - 1,

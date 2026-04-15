@@ -25,7 +25,8 @@ class Maze(ABC):
         self.og: bool = og
 
     class Cell(BaseModel):
-        """A single maze cell described by its wall bitmask and grid position."""
+        """A single maze cell described by its wall bitmask and grid
+        position."""
 
         class Walls(IntFlag):
             """Bitmask flags for the walls present on a cell's four sides."""

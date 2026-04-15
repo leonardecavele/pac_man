@@ -6,10 +6,12 @@ from src.display.maze_renderer import WALL_COLOR
 
 
 class InstructionView(View):
-    """A read-only view that displays game instructions and control bindings."""
+    """A read-only view that displays game instructions and control
+    bindings."""
 
     def __init__(self, width: int, height: int) -> None:
-        """Initialize the instruction view for the given viewport dimensions."""
+        """Initialize the instruction view for the given viewport
+        dimensions."""
         self.width = width
         self.height = height
 
@@ -29,7 +31,8 @@ class InstructionView(View):
         self._update_layout()
 
     def _update_layout(self) -> None:
-        """Recompute panel dimensions, font sizes, and button position for the current viewport."""
+        """Recompute panel dimensions, font sizes, and button position
+        for the current viewport."""
         self.font_size = min(self.width // 20, self.height // 20)
         self.title_size = self.font_size
         self.text_size = int(self.font_size * 0.8)
@@ -52,7 +55,8 @@ class InstructionView(View):
         self._set_exit_btn_position()
 
     def _set_exit_btn_position(self) -> None:
-        """Position the exit button above the top-left corner of the content panel."""
+        """Position the exit button above the top-left corner of the
+        content panel."""
         self.exit_btn.font_size = self.text_size
         self.exit_btn.w = rl.measure_text(self.exit_btn.label, self.text_size)
         self.exit_btn.h = self.text_size
@@ -69,7 +73,8 @@ class InstructionView(View):
         font_size: int,
         max_width: int
     ) -> list[str]:
-        """Split text into lines that fit within max_width at the given font size."""
+        """Split text into lines that fit within max_width at the given
+        font size."""
         words = text.split()
         if not words:
             return [""]

@@ -12,7 +12,8 @@ from src.sounds import Sounds
 
 
 class App:
-    """Top-level application: owns the window, render texture, assets, and view stack."""
+    """Top-level application: owns the window, render texture, assets,
+    and view stack."""
 
     def __init__(
         self,
@@ -103,7 +104,8 @@ class App:
         self.tick_interval: float = 1.0 / self.tick_rate
 
     def _get_display_rect(self) -> rl.Rectangle:
-        """Return the destination rectangle that centres the render texture in the window."""
+        """Return the destination rectangle that centres the render texture
+        in the window."""
         window_width = rl.get_screen_width()
         window_height = rl.get_screen_height()
 
@@ -130,7 +132,8 @@ class App:
         )
 
     def run(self) -> None:
-        """Enter the main game loop, processing events and rendering until exit."""
+        """Enter the main game loop, processing events and rendering
+        until exit."""
         while not rl.window_should_close():
             self._update_mouse_mapping()
 
@@ -206,7 +209,8 @@ class App:
         rl.close_window()
 
     def _close_view(self) -> None:
-        """Close all views and play the Pac-Man eating window-close animation."""
+        """Close all views and play the Pac-Man eating window-close
+        animation."""
         rl.set_window_min_size(0, 0)
         rl.set_mouse_offset(0, 0)
         rl.set_mouse_scale(1.0, 1.0)

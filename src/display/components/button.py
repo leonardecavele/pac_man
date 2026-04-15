@@ -29,7 +29,8 @@ class Button:
         self.color = color
 
     def contains(self, mx: float, my: float) -> bool:
-        """Return True if the pixel coordinates (mx, my) fall within the button bounds."""
+        """Return True if the pixel coordinates (mx, my) fall within the
+        button bounds."""
         return (
             self.x <= mx < self.x + self.w and
             self.y <= my < self.y + self.h
