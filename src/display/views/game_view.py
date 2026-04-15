@@ -1,5 +1,7 @@
 import pyray as rl
+
 from enum import Enum, auto
+from random import randint
 from typing import cast
 
 from src.gameplay import (
@@ -11,7 +13,7 @@ from src.gameplay import (
 )
 from src.entity import Collectible, Entity, Ghost, Blinky, Inky, Pinky, Clyde
 from src.display import MazeRenderer
-from src.maze import Maze
+from src.maze import Maze, RandomMaze
 from src.display.components import Button
 from src.parsing import Config
 from src.display.maze_renderer import WALL_COLOR
@@ -53,43 +55,23 @@ class GameView(View):
         self.sounds = sounds
         self.width = width
         self.height = height
-        self.geometry = GameGeometry(
-            width=width, height=height, maze=maze
-        )
-        self.state = GameState(
-            maze=maze,
-            config=config,
-            textures=textures,
-            sounds=self.sounds,
-            geometry=self.geometry
-        )
-        self.maze_pixel_w = (
-            self.state.maze.width
-            * (self.geometry.cell_size + self.geometry.gap)
-            + self.geometry.gap
-        )
-        self.maze_pixel_h = (
-            self.state.maze.height
-            * (self.geometry.cell_size + self.geometry.gap)
-            + self.geometry.gap
-        )
-        self.margin = (
-            self.width // 2 - self.maze_pixel_w // 2,
-            self.height // 2 - self.maze_pixel_h // 2
-        )
-        self.font_size = self.margin[1] // 2
-        self.controller = GameController(self.sounds)
-        self.input_reader = GameInputReader()
-        self.maze_image = rl.gen_image_color(
-            self.width - 50, self.height - 50, rl.BLACK
-        )
-        MazeRenderer(
-            self.maze_image,
-            self.state.maze,
-            self.geometry.cell_size,
-            self.geometry.gap
-        )
-        self.maze_texture = rl.load_texture_from_image(self.maze_image)
+
+        self.pause_selected_index = 0
+        self.cheat_selected_index = 0
+        self.selected_panel = "pause"
+
+        self.maze_texture: rl.Texture | None = None
+        self.maze_image: rl.Image | None = None
+
+        self.timer = 1.0
+        self.comb_idx = 0
+        self.cheat_mode = False
+        self.game_over_timer = 0.0
+        self.game_over_delay = 2.0
+        self.win_timer = 0.0
+        self.win_delay = 2.0
+
+        self.font_size = 24
 
         self.pause_btns = [
             Button(0, 0, "RESUME", self.font_size, lambda: None),
@@ -122,17 +104,60 @@ class GameView(View):
             ),
         ]
 
-        self.pause_selected_index = 0
-        self.cheat_selected_index = 0
-        self.selected_panel = "pause"
+        self._load_maze(self.maze)
 
-        self.timer = 1.0
-        self.comb_idx = 0
-        self.cheat_mode = False
-        self.game_over_timer = 0.0
-        self.game_over_delay = 2.0
-        self.win_timer = 0.0
-        self.win_delay = 2.0
+    def _load_maze(self, maze: Maze) -> None:
+        self.maze = maze
+
+        self.geometry = GameGeometry(
+            width=self.width,
+            height=self.height,
+            maze=self.maze
+        )
+
+        self.state = GameState(
+            maze=self.maze,
+            config=self.config,
+            textures=self.textures,
+            sounds=self.sounds,
+            geometry=self.geometry
+        )
+
+        self.maze_pixel_w = (
+            self.state.maze.width
+            * (self.geometry.cell_size + self.geometry.gap)
+            + self.geometry.gap
+        )
+        self.maze_pixel_h = (
+            self.state.maze.height
+            * (self.geometry.cell_size + self.geometry.gap)
+            + self.geometry.gap
+        )
+        self.margin = (
+            self.width // 2 - self.maze_pixel_w // 2,
+            self.height // 2 - self.maze_pixel_h // 2
+        )
+        self.font_size = self.margin[1] // 2
+        self.controller = GameController(self.sounds)
+        self.input_reader = GameInputReader()
+
+        if self.maze_texture is not None:
+            rl.unload_texture(self.maze_texture)
+        if self.maze_image is not None:
+            rl.unload_image(self.maze_image)
+
+        self.maze_image = rl.gen_image_color(
+            self.width - 50,
+            self.height - 50,
+            rl.BLACK
+        )
+        MazeRenderer(
+            self.maze_image,
+            self.state.maze,
+            self.geometry.cell_size,
+            self.geometry.gap
+        )
+        self.maze_texture = rl.load_texture_from_image(self.maze_image)
 
         self._set_pause_btn_positions()
         self._set_cheat_btn_positions()
@@ -421,8 +446,13 @@ class GameView(View):
 
     def _draw_running(self) -> None:
         rl.clear_background(rl.BLACK)
-        rl.draw_texture(self.maze_texture, self.margin[0], self.margin[1],
-                        rl.WHITE)
+        if self.maze_texture is not None:
+            rl.draw_texture(
+                self.maze_texture,
+                self.margin[0],
+                self.margin[1],
+                rl.WHITE
+            )
 
         if self.state.show_ghost_path and self.cheat_mode:
             self._draw_ghost_targets()
@@ -678,11 +708,8 @@ class GameView(View):
         if self.state.game_win:
             self.win_timer += dt
             if self.win_timer >= self.win_delay:
-                self.state.entity_reset()
-                self.state.collectible_reset()
-                self.state.timer = 0.0
+                self._load_maze(RandomMaze(12, 12, randint(0, 10**9)))
                 self.state.start_time = 2.0
-                self.state.game_win = False
                 self.win_timer = 0.0
             return ViewEvent(type=ViewEventType.NONE)
 
@@ -715,8 +742,10 @@ class GameView(View):
         return ViewEvent(type=ViewEventType.NONE)
 
     def close(self) -> None:
-        rl.unload_texture(self.maze_texture)
-        rl.unload_image(self.maze_image)
+        if self.maze_texture is not None:
+            rl.unload_texture(self.maze_texture)
+        if self.maze_image is not None:
+            rl.unload_image(self.maze_image)
 
     def _draw_collectible(self, collectible: Collectible) -> None:
         if not collectible.visible:
@@ -769,43 +798,7 @@ class GameView(View):
     def resize(self) -> None:
         self.width = rl.get_screen_width()
         self.height = rl.get_screen_height()
-        self.geometry = GameGeometry(
-            width=self.width,
-            height=self.height,
-            maze=self.maze
-        )
-        self.state.resize(self.geometry)
-        self.maze_pixel_w = (
-            self.state.maze.width
-            * (self.geometry.cell_size + self.geometry.gap)
-            + self.geometry.gap
-        )
-        self.maze_pixel_h = (
-            self.state.maze.height
-            * (self.geometry.cell_size + self.geometry.gap)
-            + self.geometry.gap
-        )
-        self.margin = (
-            self.width // 2 - self.maze_pixel_w // 2,
-            self.height // 2 - self.maze_pixel_h // 2
-        )
-        self.font_size = self.margin[1] // 2
-        rl.unload_texture(self.maze_texture)
-        rl.unload_image(self.maze_image)
-        self.maze_image = rl.gen_image_color(
-            self.width - 50,
-            self.height - 50,
-            rl.BLACK
-        )
-        MazeRenderer(
-            self.maze_image,
-            self.state.maze,
-            self.geometry.cell_size,
-            self.geometry.gap
-        )
-        self.maze_texture = rl.load_texture_from_image(self.maze_image)
-        self._set_pause_btn_positions()
-        self._set_cheat_btn_positions()
+        self._load_maze(self.maze)
         self.state.freeze(0.1)
 
     def _draw_ghost_targets(self) -> None:
