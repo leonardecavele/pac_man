@@ -12,6 +12,8 @@ from src.sounds import Sounds
 
 
 class App:
+    """Top-level application: owns the window, render texture, assets, and view stack."""
+
     def __init__(
         self,
         config: Config,
@@ -20,6 +22,15 @@ class App:
         fps: int = 60,
         tick_rate: float = 8.0,
     ) -> None:
+        """
+        Initialize the window, audio device, textures, sounds, and views.
+
+        config       -- validated game configuration
+        screen_ratio -- initial window size as a fraction of the monitor size
+        title        -- window title string
+        fps          -- target frames per second
+        tick_rate    -- game logic ticks per second
+        """
         self.maze: Maze
         self.title = title
         self.fps = fps
@@ -92,6 +103,7 @@ class App:
         self.tick_interval: float = 1.0 / self.tick_rate
 
     def _get_display_rect(self) -> rl.Rectangle:
+        """Return the destination rectangle that centres the render texture in the window."""
         window_width = rl.get_screen_width()
         window_height = rl.get_screen_height()
 
@@ -108,6 +120,7 @@ class App:
         return rl.Rectangle(dest_x, dest_y, dest_width, dest_height)
 
     def _update_mouse_mapping(self) -> None:
+        """Remap mouse coordinates to match the scaled render-texture space."""
         dst = self._get_display_rect()
 
         rl.set_mouse_offset(int(-dst.x), int(-dst.y))
@@ -117,6 +130,7 @@ class App:
         )
 
     def run(self) -> None:
+        """Enter the main game loop, processing events and rendering until exit."""
         while not rl.window_should_close():
             self._update_mouse_mapping()
 
@@ -192,6 +206,7 @@ class App:
         rl.close_window()
 
     def _close_view(self) -> None:
+        """Close all views and play the Pac-Man eating window-close animation."""
         rl.set_window_min_size(0, 0)
         rl.set_mouse_offset(0, 0)
         rl.set_mouse_scale(1.0, 1.0)

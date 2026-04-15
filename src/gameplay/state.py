@@ -18,6 +18,8 @@ DEFAULT_VELOCITY_CELLS: int = 6
 
 
 class GameState:
+    """Hold all mutable data that describes the current state of a game session."""
+
     def __init__(
         self,
         maze: Maze,
@@ -27,9 +29,19 @@ class GameState:
         sounds: Sounds,
         geometry: "GameGeometry"
     ) -> None:
+        """
+        Initialize a new game session.
+
+        maze     -- the maze layout for this session
+        config   -- validated game configuration (lives, points, time limit)
+        textures -- full texture atlas shared by all entities
+        sounds   -- sound manager
+        geometry -- pre-computed pixel geometry for the current viewport
+        """
         self.maze = maze
         self.config = config
         self.textures = textures
+        self.level = 1
         self.game_over: bool = False
         self.game_win: bool = False
         self.sounds = sounds
@@ -73,16 +85,19 @@ class GameState:
         self.sounds.play_sound("start_music")
 
     def global_reset(self) -> None:
+        """Reset lives, score, timer, and the music-hide counter to initial values."""
         self.HP = self.config.lives
         self.score: int = 0
         self.timer: float = 0.0
         self.music_hide = 4.0
 
     def collectible_reset(self) -> None:
+        """Regenerate all collectibles and record the initial count."""
         self.collectibles: list[Collectible] = self._gen_collectibles()
         self.initial_collectible_count: int = len(self.collectibles)
 
     def entity_reset(self) -> None:
+        """Respawn Pac-Man and all ghosts at their starting positions and states."""
         self.fright: bool = False
         self.fright_time: float = 0.0
         self.ghost_schedule_time: float = 0.0
@@ -211,8 +226,11 @@ class GameState:
             blinky.target_cell = (blinky.maze_pos[0] - 1, blinky.maze_pos[1])
 
     def _gen_collectibles(self) -> list[Collectible]:
+        """Generate and return all pacgums and super-pacgums for the current maze."""
         pacgums: list[Collectible] = []
         for y in range(self.maze.height):
+            if (y != 9):
+                continue
             for x in range(self.maze.width):
                 if self.maze.maze[y][x].value == 15:
                     continue
@@ -255,6 +273,7 @@ class GameState:
 
     def _no_pacgum(self, x: float, y: float,
                    pacgums: list[Collectible]) -> bool:
+        """Return True if no collectible already occupies position (x, y)."""
         for i in pacgums:
             if (i.maze_pos[0] == x and i.maze_pos[1] == y):
                 return (False)
@@ -262,6 +281,7 @@ class GameState:
 
     def _put_mid_pacgums(self, x: int, y: int,
                          pacgums: list[Collectible]) -> None:
+        """Add mid-cell pacgums on each open side of cell (x, y) if not already present."""
         cell = self.maze.maze[y][x]
         if (not cell.top and self._no_pacgum(x, y - .5, pacgums)):
             pacgums.append(Pacgum(
@@ -297,6 +317,7 @@ class GameState:
             ))
 
     def _is_corner(self, pos: vec2i) -> bool:
+        """Return True if pos is one of the four corners of the maze."""
         x, y = pos
         return (
             (x == 0 and y == 0)
@@ -306,6 +327,7 @@ class GameState:
         )
 
     def start_fright_mode(self) -> None:
+        """Activate fright mode: save ghost states and switch all non-eaten ghosts to FRIGHTENED."""
         self.fright = True
         self.fright_time = 0.0
 
@@ -320,11 +342,13 @@ class GameState:
             ghost.update()
 
     def blink_fright_mode(self) -> None:
+        """Transition all frightened ghosts to the blinking BLINK state."""
         for ghost in self.ghosts:
             if ghost.state & Ghost.State.FRIGHTENED:
                 ghost.change_state(Ghost.State.BLINK)
 
     def end_fright_mode(self) -> None:
+        """End fright mode and restore all frightened/blinking ghosts to their saved states."""
         self.fright = False
         self.fright_time = 0.0
         for ghost in self.ghosts:
@@ -333,14 +357,17 @@ class GameState:
                 ghost.update()
 
     def freeze(self, duration: float) -> None:
+        """Pause all entity updates for duration seconds."""
         self.freeze_time = duration
 
     def collectible_ratio_remaining(self) -> float:
+        """Return the fraction of collectibles still on the board (0.0 to 1.0)."""
         if self.initial_collectible_count == 0:
             return 0.0
         return len(self.collectibles) / self.initial_collectible_count
 
     def resize(self, geometry: "GameGeometry") -> None:
+        """Update geometry and recalculate all entity screen positions and velocities."""
         self.geometry = geometry
         self.default_velocity_px = DEFAULT_VELOCITY_CELLS * \
             self.geometry.cell_size

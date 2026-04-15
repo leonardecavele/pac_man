@@ -6,8 +6,18 @@ WALL_COLOR_GHOST_HOUSE = rl.BEIGE
 
 
 class MazeRenderer:
+    """Render the maze walls onto a raylib Image using cell, gap, and arc drawing primitives."""
+
     def __init__(self, maze_image: rl.Image, maze: Maze,
                  cell_size: int, gap: int) -> None:
+        """
+        Initialize the renderer and immediately draw the maze onto maze_image.
+
+        maze_image -- destination image to draw into
+        maze       -- maze data source
+        cell_size  -- pixel size of each cell
+        gap        -- pixel width of the corridors between cells
+        """
         self.maze_image = maze_image
         self.maze = maze
         self.cell_size = cell_size
@@ -16,6 +26,7 @@ class MazeRenderer:
         self.draw()
 
     def draw(self) -> None:
+        """Draw the full maze (borders, cells, and open-area joints) onto maze_image."""
         self._put_borders()
 
         x, y = 0, 0
@@ -33,6 +44,7 @@ class MazeRenderer:
         self._put_open_area_joints()
 
     def _put_borders(self) -> None:
+        """Draw the four outer border rectangles around the entire maze."""
         total_width = (self.cell_size + self.gap) * self.maze.width + self.gap
         total_height = (self.cell_size + self.gap) * self.maze.height \
             + self.gap
@@ -62,6 +74,7 @@ class MazeRenderer:
                                               Maze.Cell | None,
                                               Maze.Cell | None,
                                               Maze.Cell | None]:
+        """Return the (top, right, bot, left) neighbour cells of c, or None at the maze boundary."""
         x, y = c.pos
         c_top = self.maze.maze[y - 1][x] if y > 0 else None
         c_bot = self.maze.maze[y +
@@ -73,6 +86,7 @@ class MazeRenderer:
         return (c_top, c_right, c_bot, c_left)
 
     def _put_cell(self, c: Maze.Cell, x: int, y: int) -> None:
+        """Draw the walls and connecting links for cell c at pixel position (x, y)."""
         self._put_links(c, x, y)
         c_top, c_right, c_bot, c_left = self._get_neighbors(c)
 
@@ -147,6 +161,7 @@ class MazeRenderer:
             )
 
     def _put_links(self, c: Maze.Cell, x: int, y: int) -> None:
+        """Draw gap-filling lines and curved arcs that connect adjacent wall segments."""
         c_top, c_right, c_bot, c_left = self._get_neighbors(c)
         self._put_gap_lines(c, x, y, c_top, c_right, c_bot, c_left)
         self._put_arcs(c, x, y, c_top, c_right, c_bot, c_left)
@@ -156,6 +171,7 @@ class MazeRenderer:
         c_top: Maze.Cell | None, c_right: Maze.Cell | None,
         c_bot: Maze.Cell | None, c_left: Maze.Cell | None
     ) -> None:
+        """Draw small gap-bridging rectangles at shared wall corners between adjacent cells."""
         G = self.gap
         CS = self.cell_size
         T = max(1, self.thickness)
@@ -189,6 +205,7 @@ class MazeRenderer:
         c_top: Maze.Cell | None, c_right: Maze.Cell | None,
         c_bot: Maze.Cell | None, c_left: Maze.Cell | None
     ) -> None:
+        """Draw rounded arc decorations at concave wall junctions for a smooth look."""
         G = self.gap
         G2 = G // 2
         CS = self.cell_size
@@ -249,6 +266,7 @@ class MazeRenderer:
         c_top: Maze.Cell | None, c_right: Maze.Cell | None,
         c_bot: Maze.Cell | None, c_left: Maze.Cell | None
     ) -> None:
+        """Draw convex corner arcs where two perpendicular wall segments meet."""
         G = self.gap
         CS = self.cell_size - 1
         T = max(1, self.thickness)
@@ -342,6 +360,7 @@ class MazeRenderer:
         self, center_x: int, center_y: int,
         radius: int, thickness: int, color: rl.Color
     ) -> None:
+        """Draw concentric circle outlines to simulate a thick circular arc."""
         for i in range(thickness):
             rl.image_draw_circle_lines(
                 self.maze_image,
@@ -352,6 +371,7 @@ class MazeRenderer:
             )
 
     def _both_ghost_house(self, a: Maze.Cell, b: Maze.Cell | None) -> bool:
+        """Return True if both cells carry the GHOST_HOUSE wall flag."""
         if b is None:
             return False
         return (
@@ -360,6 +380,7 @@ class MazeRenderer:
         )
 
     def _is_open_2x2(self, gx: int, gy: int) -> bool:
+        """Return True if the 2×2 block of cells starting at (gx, gy) is completely open."""
         if gx + 1 >= self.maze.width or gy + 1 >= self.maze.height:
             return False
 
@@ -380,6 +401,7 @@ class MazeRenderer:
         )
 
     def _draw_center_joint(self, gx: int, gy: int) -> None:
+        """Draw a decorative circular joint at the centre of the open 2×2 block at (gx, gy)."""
         step = self.cell_size + self.gap
 
         center_x = (gx + 1) * step + self.gap // 2
@@ -405,6 +427,7 @@ class MazeRenderer:
         )
 
     def _put_open_area_joints(self) -> None:
+        """Draw center joints at all fully-open 2×2 cell blocks in the maze."""
         for gy in range(self.maze.height - 1):
             for gx in range(self.maze.width - 1):
                 if self._is_open_2x2(gx, gy):

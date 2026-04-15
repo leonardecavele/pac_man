@@ -9,6 +9,8 @@ from .state import GameState
 
 
 class GameActionType(Enum):
+    """Categories of outcome that the game controller can signal each frame."""
+
     NONE = auto()
     VICTORY = auto()
     GAME_OVER = auto()
@@ -16,17 +18,28 @@ class GameActionType(Enum):
 
 
 class GameAction(BaseModel):
+    """Outcome produced by the game controller at the end of an update tick."""
+
     type: GameActionType = Field(...)
     score: int = Field(default=0)
 
 
 class GameController:
+    """Drive game logic: timers, movement, collisions, and sound selection."""
+
     def __init__(self, sounds: Sounds) -> None:
+        """Initialize the controller with a reference to the sound manager."""
         self.sounds = sounds
 
     def update(
         self, state: GameState, dt: float, inputs: GameInputState
     ) -> GameAction:
+        """
+        Advance the game by one frame and return the resulting action.
+
+        Processes start/freeze delays, dying animation, entity movement,
+        collectible and ghost collisions, and sound state in that order.
+        """
         if state.timer - state.last_pacgum_eat_time > 0.30:
             self.sounds.munch_counter = 0
 
@@ -83,6 +96,7 @@ class GameController:
         return GameAction(type=GameActionType.NONE)
 
     def _update_timers(self, state: GameState, dt: float) -> None:
+        """Advance game timers and trigger ghost-mode transitions or fright ending."""
         state.timer += dt
 
         if (state.timer >= state.config.level_max_time):
@@ -113,20 +127,24 @@ class GameController:
             ghost.update()
 
     def _ghost_mode_at(self, state: GameState) -> Ghost.State:
+        """Return the ghost mode that should be active at the current schedule time."""
         for time_limit, ghost_state in state.ghost_behavior.items():
             if state.ghost_schedule_time <= time_limit:
                 return ghost_state
         return Ghost.State.CHASE
 
     def _apply_input(self, state: GameState, inputs: GameInputState) -> None:
+        """Forward the player's directional input to Pac-Man."""
         if inputs.direction is not None:
             state.pac_man.input = inputs.direction
 
     def _update_collectibles(self, state: GameState, dt: float) -> None:
+        """Call update on every active collectible (e.g. blink animation)."""
         for collectible in state.collectibles:
             collectible.update(dt)
 
     def _update_pac_man(self, state: GameState, dt: float) -> None:
+        """Animate, move, and snap Pac-Man to his target cell for this frame."""
         pac_man = state.pac_man
         pac_man.animate(dt)
         pac_man.update()
@@ -149,6 +167,7 @@ class GameController:
         pac_man.target_cell = None
 
     def _update_ghosts(self, state: GameState, dt: float) -> None:
+        """Animate and move every ghost, handling house release and eaten return."""
         for ghost in state.ghosts:
             ghost.animate(dt)
 
@@ -195,6 +214,7 @@ class GameController:
     def _update_ghost_house_exit(
         self, state: GameState, ghost: Ghost, dt: float
     ) -> None:
+        """Move a ghost one step along the path from its house cell to the exit."""
         if ghost.target_cell is None:
             next_direction = ghost.a_star_direction(ghost.house_exit)
 
@@ -227,6 +247,7 @@ class GameController:
             ghost.update()
 
     def _update_elroy_state(self, state: GameState) -> None:
+        """Promote or demote Blinky to an Elroy speed tier based on remaining collectibles."""
         if not state.ghosts:
             return
 
@@ -257,6 +278,7 @@ class GameController:
                 blinky.update()
 
     def _resolve_collectible_collisions(self, state: GameState) -> GameAction:
+        """Detect and handle Pac-Man eating a collectible; return a VICTORY action when the last one is consumed."""
         for collectible in state.collectibles[:]:
             if not self._collides(state, collectible, state.pac_man):
                 continue
@@ -274,6 +296,7 @@ class GameController:
         return GameAction(type=GameActionType.NONE)
 
     def _resolve_ghost_collisions(self, state: GameState) -> GameAction:
+        """Detect ghost-Pac-Man collisions and return EAT or GAME_OVER as appropriate."""
         for ghost in state.ghosts:
             if not self._collides(state, ghost, state.pac_man):
                 continue
@@ -293,17 +316,21 @@ class GameController:
         return GameAction(type=GameActionType.NONE)
 
     def _retry_level(self, state: GameState) -> None:
+        """Reset all entities to their spawn positions after losing a life."""
         state.entity_reset()
 
     def _finish_level(
         self, state: GameState, action_type: GameActionType
     ) -> GameAction:
+        """Build and return a final GameAction carrying the current score."""
         final_score = state.score
+        state.level += 1
         return GameAction(type=action_type, score=final_score)
 
     def _collides(
         self, state: GameState, first: Entity, second: Entity
     ) -> bool:
+        """Return True if the bounding boxes of first and second overlap."""
         size: int = state.geometry.cell_size // 2
         return (
             abs(first.screen_pos[0] - second.screen_pos[0]) < size
@@ -311,6 +338,7 @@ class GameController:
         )
 
     def _update_ghost_sound(self, state: GameState) -> None:
+        """Select and play the appropriate ghost ambient sound for the current game state."""
         if state.HP <= 0:
             return
         eaten: bool = False

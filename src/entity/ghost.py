@@ -15,7 +15,10 @@ from src.type import vec2i, vec2f, Direction
 
 
 class Ghost(Entity, ABC):
+    """Abstract base class for all ghost enemies."""
+
     class State(IntFlag):
+        """Bitmask flags representing the possible behavioural states of a ghost."""
         SCATTER = 1 << 0
         EATEN = 1 << 1
         FRIGHTENED = 1 << 2
@@ -36,6 +39,19 @@ class Ghost(Entity, ABC):
         default_velocity_px: int,
         textures: dict[str, dict[str, list[rl.Texture]] | list[rl.Texture]]
     ) -> None:
+        """
+        Initialize the ghost.
+
+        screen_pos          -- initial pixel position on screen
+        maze_pos            -- initial cell position in the maze grid
+        sprite              -- starting texture
+        m                   -- reference to the game maze
+        pac_man             -- reference to the Pac-Man entity
+        house_pos           -- ghost-house cell to return to when eaten
+        corner_pos          -- scatter-mode target corner
+        default_velocity_px -- base movement speed in pixels per second
+        textures            -- full texture atlas used for all animations
+        """
         super().__init__(
             screen_pos, maze_pos, sprite, m, default_velocity_px
         )
@@ -58,12 +74,15 @@ class Ghost(Entity, ABC):
         self.house_frame_duration: float = 9 / 60
 
     def _ltex(self, key: str) -> list[rl.Texture]:
+        """Return the texture list stored under key, cast to the correct type."""
         return cast(list[rl.Texture], self.textures[key])
 
     def _dtex(self, key: str) -> dict[str, list[rl.Texture]]:
+        """Return the directional texture dict stored under key, cast to the correct type."""
         return cast(dict[str, list[rl.Texture]], self.textures[key])
 
     def _set_anim_mode(self, mode: str) -> None:
+        """Switch to the given animation mode and reset the frame timer if changed."""
         if self.anim_mode == mode:
             return
         self.anim_mode = mode
@@ -76,6 +95,13 @@ class Ghost(Entity, ABC):
         frame_duration: float,
         frame_count: int,
     ) -> int:
+        """
+        Advance the animation timer and return the current frame index.
+
+        dt             -- elapsed time since the last frame
+        frame_duration -- duration of each animation frame in seconds
+        frame_count    -- total number of frames in the animation loop
+        """
         self.anim_timer += dt
 
         while self.anim_timer >= frame_duration:
@@ -85,6 +111,7 @@ class Ghost(Entity, ABC):
         return self.anim_frame
 
     def animate(self, dt: float) -> None:
+        """Update the ghost's sprite to reflect its current state and direction."""
         self.tick += 1
         dx, dy = self.direction
 
@@ -157,6 +184,7 @@ class Ghost(Entity, ABC):
             self.sprite = self._dtex(self.identifier)["up"][idx]
 
     def change_state(self, new_state: "Ghost.State") -> None:
+        """Transition to new_state, scheduling a direction flip when appropriate."""
         self.flip = (
             self.direction != (0, 0)
             and new_state in (
@@ -171,6 +199,7 @@ class Ghost(Entity, ABC):
         self.state = new_state
 
     def update_velocity(self, new_state: "Ghost.State") -> None:
+        """Adjust velocity_px to the speed multiplier appropriate for new_state."""
         match new_state:
             case self.State.ELROY1:
                 self.velocity_px = int(self.default_velocity_px * 0.80)
@@ -188,6 +217,12 @@ class Ghost(Entity, ABC):
         current_cell: Maze.Cell,
         next_cell: Maze.Cell,
     ) -> bool:
+        """
+        Return True if the ghost may pass through the wall between two cells.
+
+        Ghosts can only cross ghost-house walls when both cells belong to the
+        house and the ghost is not in a frightened state.
+        """
         current_is_ghost_house: bool = bool(
             current_cell.value & Maze.Cell.Walls.GHOST_HOUSE
         )
@@ -205,6 +240,12 @@ class Ghost(Entity, ABC):
         return False
 
     def a_star_direction(self, target: vec2i) -> vec2i | None:
+        """
+        Find the first step toward target using A* pathfinding.
+
+        Return the (dx, dy) direction tuple for the immediate next move, or
+        None if the target is unreachable or already occupied.
+        """
         counter: int = 0
 
         def push(
@@ -312,6 +353,12 @@ class Ghost(Entity, ABC):
         return None
 
     def target_direction(self) -> None:
+        """
+        Choose and set the next movement direction toward self.target.
+
+        Apply a pending flip first if one is scheduled, then use A* when a
+        target exists, falling back to the shortest Manhattan distance.
+        """
         x, y = self.maze_pos
         directions = self.legal_directions(x, y)
 
@@ -352,6 +399,12 @@ class Ghost(Entity, ABC):
         self.direction = best_direction.value
 
     def legal_directions(self, x: int, y: int) -> list[Direction]:
+        """
+        Return all valid directions from cell (x, y), excluding the reverse direction.
+
+        If no forward direction is available, return only the reverse direction
+        as a fallback.
+        """
         back = self.back_direction
         directions: list[Direction] = []
 
@@ -386,15 +439,18 @@ class Ghost(Entity, ABC):
 
     @staticmethod
     def euclidean(pos1: vec2i, pos2: vec2i) -> int:
+        """Return the integer Euclidean distance between two grid positions."""
         dx: int = pos2[0] - pos1[0]
         dy: int = pos2[1] - pos1[1]
         return int(sqrt(dx * dx + dy * dy))
 
     @staticmethod
     def manhattan(pos1: vec2i, pos2: vec2i) -> int:
+        """Return the Manhattan distance between two grid positions."""
         return abs(pos1[0] - pos2[0]) + abs(pos1[1] - pos2[1])
 
     def update(self, dt: float = 0.0) -> None:
+        """Compute the ghost's next target cell based on its current state."""
         if self.target_cell is not None:
             if self.flip and self.origin_cell is not None:
                 self.flip = False
@@ -417,6 +473,11 @@ class Ghost(Entity, ABC):
         )
 
     def compute_target(self) -> vec2i | None:
+        """
+        Determine the ghost's current navigation target cell.
+
+        Return None when the ghost should move randomly (frightened state).
+        """
         if (
             self.maze.og
             and self.state & self.State.EATEN
@@ -433,20 +494,26 @@ class Ghost(Entity, ABC):
         return self.corner
 
     def is_chasing(self) -> bool:
+        """Return True if the ghost is currently in chase mode."""
         return bool(self.state & self.State.CHASE)
 
     @abstractmethod
     def compute_chase_target(self) -> vec2i:
+        """Return the target cell for this ghost's unique chase behaviour."""
         ...
 
     def save_state(self) -> None:
+        """Save the current state so it can be restored after fright mode ends."""
         self.saved_state = self.state
 
     def load_save(self) -> None:
+        """Restore the previously saved state."""
         self.change_state(self.saved_state)
 
 
 class Blinky(Ghost):
+    """The red ghost; always targets Pac-Man directly and gains speed via Elroy mode."""
+
     def __init__(
         self,
         screen_pos: vec2f,
@@ -472,6 +539,7 @@ class Blinky(Ghost):
         self.target = self.corner
 
     def is_chasing(self) -> bool:
+        """Return True if Blinky is chasing, including Elroy speed-boost states."""
         return bool(
             self.state & (
                 self.State.CHASE | self.State.ELROY1 | self.State.ELROY2
@@ -479,10 +547,13 @@ class Blinky(Ghost):
         )
 
     def compute_chase_target(self) -> vec2i:
+        """Return Pac-Man's current cell as the chase target."""
         return self.pac_man.maze_pos
 
 
 class Inky(Ghost):
+    """The cyan ghost; targets a cell calculated from Pac-Man's position and Blinky's position."""
+
     def __init__(
         self,
         screen_pos: vec2f,
@@ -510,6 +581,7 @@ class Inky(Ghost):
         self.target = self.corner
 
     def compute_chase_target(self) -> vec2i:
+        """Return the target cell computed from Pac-Man's ahead position and Blinky's location."""
         px, py = self.pac_man.maze_pos
         dx, dy = self.pac_man.direction
         bx, by = self.blinky.maze_pos
@@ -524,6 +596,8 @@ class Inky(Ghost):
 
 
 class Pinky(Ghost):
+    """The pink ghost; targets four cells ahead of Pac-Man's current direction."""
+
     def __init__(
         self,
         screen_pos: vec2f,
@@ -549,6 +623,7 @@ class Pinky(Ghost):
         self.target = self.corner
 
     def compute_chase_target(self) -> vec2i:
+        """Return the cell four steps ahead of Pac-Man as the chase target."""
         px, py = self.pac_man.maze_pos
         dx, dy = self.pac_man.direction
 
@@ -558,6 +633,8 @@ class Pinky(Ghost):
 
 
 class Clyde(Ghost):
+    """The orange ghost; chases Pac-Man from afar but retreats to its corner when close."""
+
     def __init__(
         self,
         screen_pos: vec2f,
@@ -583,6 +660,7 @@ class Clyde(Ghost):
         self.target = self.corner
 
     def compute_chase_target(self) -> vec2i:
+        """Return Pac-Man's cell when far away, or the scatter corner when within 4 cells."""
         if self.euclidean(self.maze_pos, self.pac_man.maze_pos) < 4:
             return self.corner
         return self.pac_man.maze_pos

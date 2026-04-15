@@ -37,6 +37,8 @@ class State(Enum):
 
 
 class GameView(View):
+    """The in-game view: renders the maze, entities, HUD, and manages pause/cheat menus."""
+
     def __init__(
         self,
         maze: Maze,
@@ -138,12 +140,14 @@ class GameView(View):
         self._set_cheat_btn_positions()
 
     def _disable_cheat_mode(self) -> None:
+        """Deactivate cheat mode and restore the default pause panel layout."""
         self.cheat_mode = False
         self.selected_panel = "pause"
         self._set_pause_btn_positions()
         self._set_cheat_btn_positions()
 
     def _get_pause_panels_layout(self) -> tuple[int, int, int, int, int]:
+        """Return (cheat_x, pause_x, top_y, panel_width, panel_height) for the pause overlay."""
         panel_width = self.width // 3
         panel_height = self.height // 10 * 7
         gap = self.width // 40
@@ -173,6 +177,7 @@ class GameView(View):
         bottom_gap_ratio: float = 0.12,
         gap: int | None = None,
     ) -> None:
+        """Distribute buttons evenly within the content area of a panel."""
         if gap is None:
             gap = self.font_size // 2
 
@@ -205,6 +210,7 @@ class GameView(View):
             self._draw_pause()
 
     def _set_cheat_btn_positions(self) -> None:
+        """Recompute and apply button positions for the cheat panel."""
         cheat_x, _, menu_top, menu_width, menu_height = \
             self._get_pause_panels_layout()
 
@@ -221,6 +227,7 @@ class GameView(View):
         )
 
     def _set_pause_btn_positions(self) -> None:
+        """Recompute and apply button positions for the pause panel."""
         _, pause_x, menu_top, menu_width, menu_height = \
             self._get_pause_panels_layout()
 
@@ -244,6 +251,7 @@ class GameView(View):
         menu_height: int,
         title: str,
     ) -> None:
+        """Draw a rounded semi-transparent panel with a coloured border and centred title."""
         outer_rect = rl.Rectangle(
             menu_left - 1,
             menu_top - 1,
@@ -329,6 +337,7 @@ class GameView(View):
                 btn.draw()
 
     def _draw_texts(self) -> None:
+        """Draw contextual HUD text overlays (GAME OVER, READY!, NEXT LEVEL!)."""
         if self.state.game_over:
             spawn_x, spawn_y = self.geometry.maze_to_screen(
                 self.state.pac_man_spawn
@@ -420,6 +429,7 @@ class GameView(View):
             rl.draw_text(text, text_x, text_y, font_size, rl.YELLOW)
 
     def _draw_running(self) -> None:
+        """Render the maze, collectibles, ghosts, Pac-Man, score, timer, and HP indicators."""
         rl.clear_background(rl.BLACK)
         rl.draw_texture(self.maze_texture, self.margin[0], self.margin[1],
                         rl.WHITE)
@@ -472,7 +482,7 @@ class GameView(View):
             )
 
         rl.draw_text(
-            str(self.state.score),
+            str(self.state.level) + " - " + str(self.state.score),
             self.margin[0] + self.maze_pixel_w // 10,
             self.margin[1] - self.font_size - 5,
             self.font_size,
@@ -511,6 +521,7 @@ class GameView(View):
         return ViewEvent(type=ViewEventType.NONE)
 
     def _update_cheat(self, dt: float) -> None:
+        """Handle mouse hover and click events for the cheat panel buttons."""
         mouse = rl.get_mouse_position()
         mx, my = mouse.x, mouse.y
         for i, btn in enumerate(self.cheat_btns):
@@ -525,6 +536,7 @@ class GameView(View):
                 btn.color = rl.WHITE
 
     def _activate_pause_selection(self) -> ViewEvent:
+        """Execute the selected pause-menu action and return the resulting event."""
         selected_btn = self.pause_btns[self.pause_selected_index]
 
         if selected_btn.label == "RESUME":
@@ -541,6 +553,7 @@ class GameView(View):
         return ViewEvent(type=ViewEventType.NONE)
 
     def _activate_cheat_selection(self) -> ViewEvent:
+        """Execute the selected cheat action and return a NONE event."""
         selected_btn = self.cheat_btns[self.cheat_selected_index]
         selected_btn.action()
         return ViewEvent(type=ViewEventType.NONE)
@@ -659,6 +672,7 @@ class GameView(View):
         return ViewEvent(type=ViewEventType.NONE)
 
     def _update_running(self, dt: float) -> ViewEvent:
+        """Advance gameplay for one frame; handle win/loss transitions and pause entry."""
         self.timer += dt
 
         if self.state.music_hide > 0.0:
@@ -719,6 +733,7 @@ class GameView(View):
         rl.unload_image(self.maze_image)
 
     def _draw_collectible(self, collectible: Collectible) -> None:
+        """Draw a single collectible sprite at its current screen position."""
         if not collectible.visible:
             return
 
@@ -745,6 +760,7 @@ class GameView(View):
         )
 
     def _draw_entity(self, entity: Entity, sprite: rl.Texture) -> None:
+        """Draw an entity's sprite at its current screen position within the maze margin."""
         x, y = self.geometry.get_draw_pos(entity.screen_pos)
         x += self.margin[0]
         y += self.margin[1]
@@ -809,6 +825,7 @@ class GameView(View):
         self.state.freeze(0.1)
 
     def _draw_ghost_targets(self) -> None:
+        """Draw each ghost's current target cell as a coloured overlay rectangle."""
         for ghost in self.state.ghosts:
             if ghost.target is None:
                 continue

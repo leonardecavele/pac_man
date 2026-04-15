@@ -8,14 +8,27 @@ from src.type import vec2i, brd, Direction
 
 
 class Maze(ABC):
+    """Abstract base class for a grid-based maze used in gameplay."""
+
     def __init__(self, height: int, width: int, maze: brd, og: bool) -> None:
+        """
+        Initialize the maze.
+
+        height -- number of rows in the grid
+        width  -- number of columns in the grid
+        maze   -- 2-D list of Cell objects
+        og     -- True for the classic layout, False for a generated maze
+        """
         self.height: int = height
         self.width: int = width
         self.maze: brd = maze
         self.og: bool = og
 
     class Cell(BaseModel):
+        """A single maze cell described by its wall bitmask and grid position."""
+
         class Walls(IntFlag):
+            """Bitmask flags for the walls present on a cell's four sides."""
             TOP = 1 << 0
             RIGHT = 1 << 1
             BOT = 1 << 2
@@ -27,22 +40,27 @@ class Maze(ABC):
 
         @property
         def top(self) -> bool:
+            """Return True if the cell has a wall on its top side."""
             return bool(self.value & Maze.Cell.Walls.TOP)
 
         @property
         def right(self) -> bool:
+            """Return True if the cell has a wall on its right side."""
             return bool(self.value & Maze.Cell.Walls.RIGHT)
 
         @property
         def bot(self) -> bool:
+            """Return True if the cell has a wall on its bottom side."""
             return bool(self.value & Maze.Cell.Walls.BOT)
 
         @property
         def left(self) -> bool:
+            """Return True if the cell has a wall on its left side."""
             return bool(self.value & Maze.Cell.Walls.LEFT)
 
     @staticmethod
     def direction_to_wall(direction: "Direction") -> "Maze.Cell.Walls":
+        """Return the Walls flag that corresponds to the given Direction."""
         match direction:
             case Direction.TOP:
                 return Maze.Cell.Walls.TOP
@@ -55,6 +73,7 @@ class Maze(ABC):
 
     @staticmethod
     def wall_to_direction(wall: "Maze.Cell.Walls") -> "Direction":
+        """Return the Direction that corresponds to the given Walls flag."""
         match wall:
             case Maze.Cell.Walls.TOP:
                 return Direction.TOP
@@ -69,6 +88,8 @@ class Maze(ABC):
 
 
 class ClassicMaze(Maze):
+    """Pre-defined classic Pac-Man maze layout (10 × 17 grid)."""
+
     CLASSIC_MAP: list[list[int]] = [
         [9, 5, 5, 1, 5, 3, 15, 9, 5, 3, 15, 9, 5, 1, 5, 5, 3],
         [8, 5, 5, 2, 15, 12, 5, 2, 15, 8, 5, 6, 15, 8, 5, 5, 2],
@@ -83,6 +104,7 @@ class ClassicMaze(Maze):
     ]
 
     def __init__(self) -> None:
+        """Build the classic maze from the CLASSIC_MAP constant."""
         height: int = len(self.CLASSIC_MAP)
         width: int = len(self.CLASSIC_MAP[0])
 
@@ -98,7 +120,16 @@ class ClassicMaze(Maze):
 
 
 class RandomMaze(Maze):
+    """Procedurally generated maze using MazeGenerator."""
+
     def __init__(self, height: int, width: int, seed: int) -> None:
+        """
+        Generate a random maze.
+
+        height -- number of rows
+        width  -- number of columns
+        seed   -- seed passed to the maze generator for reproducibility
+        """
         maze_generator = MazeGenerator((height, width), seed=seed)
 
         maze: brd = []

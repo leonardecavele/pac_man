@@ -33,11 +33,16 @@ LEFT_KEYS: list[int] = [
 
 
 class GameInputState(BaseModel):
+    """Snapshot of player input for a single frame."""
+
     direction: vec2i | None = Field(default=None)
 
 
 class GameInputReader:
+    """Read and translate raw keyboard input into a GameInputState."""
+
     def read(self) -> GameInputState:
+        """Poll keyboard state and return the current movement direction, if any."""
         if any(rl.is_key_down(key) for key in UP_KEYS):
             return GameInputState(direction=Direction.TOP.value)
         if any(rl.is_key_down(key) for key in RIGHT_KEYS):
