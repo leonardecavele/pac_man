@@ -60,6 +60,9 @@ class GameView(View):
         self.cheat_selected_index = 0
         self.selected_panel = "pause"
 
+        self.maze_texture: rl.Texture | None = None
+        self.maze_image: rl.Image | None = None
+
         self.timer = 1.0
         self.comb_idx = 0
         self.cheat_mode = False
@@ -138,9 +141,9 @@ class GameView(View):
         self.controller = GameController(self.sounds)
         self.input_reader = GameInputReader()
 
-        if hasattr(self, "maze_texture"):
+        if self.maze_texture is not None:
             rl.unload_texture(self.maze_texture)
-        if hasattr(self, "maze_image"):
+        if self.maze_image is not None:
             rl.unload_image(self.maze_image)
 
         self.maze_image = rl.gen_image_color(
@@ -443,12 +446,13 @@ class GameView(View):
 
     def _draw_running(self) -> None:
         rl.clear_background(rl.BLACK)
-        rl.draw_texture(
-            self.maze_texture,
-            self.margin[0],
-            self.margin[1],
-            rl.WHITE
-        )
+        if self.maze_texture is not None:
+            rl.draw_texture(
+                self.maze_texture,
+                self.margin[0],
+                self.margin[1],
+                rl.WHITE
+            )
 
         if self.state.show_ghost_path and self.cheat_mode:
             self._draw_ghost_targets()
@@ -738,8 +742,10 @@ class GameView(View):
         return ViewEvent(type=ViewEventType.NONE)
 
     def close(self) -> None:
-        rl.unload_texture(self.maze_texture)
-        rl.unload_image(self.maze_image)
+        if self.maze_texture is not None:
+            rl.unload_texture(self.maze_texture)
+        if self.maze_image is not None:
+            rl.unload_image(self.maze_image)
 
     def _draw_collectible(self, collectible: Collectible) -> None:
         if not collectible.visible:
