@@ -143,15 +143,15 @@ class Textures:
 
     def _load_pacgum_textures(self) -> list[rl.Texture]:
         image = rl.gen_image_color(
-            128 - 1,
-            128 - 1,
+            256 - 1,
+            256 - 1,
             rl.Color(0, 0, 0, 0),
         )
         rl.image_draw_circle(
             image,
-            128 // 2,
-            128 // 2,
-            128 // 10,
+            256 // 2,
+            256 // 2,
+            256 // 8,
             rl.BEIGE,
         )
         texture = rl.load_texture_from_image(image)
@@ -160,15 +160,15 @@ class Textures:
 
     def _load_superpacgum_textures(self) -> list[rl.Texture]:
         image = rl.gen_image_color(
-            128 - 1,
-            128 - 1,
+            256 - 1,
+            256 - 1,
             rl.Color(0, 0, 0, 0),
         )
         rl.image_draw_circle(
             image,
-            128 // 2,
-            128 // 2,
-            128 // 5,
+            256 // 2,
+            256 // 2,
+            256 // 5,
             rl.BEIGE,
         )
         texture = rl.load_texture_from_image(image)
