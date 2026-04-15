@@ -2,8 +2,19 @@ import pyray as rl
 
 
 class TextInput:
+    """A single-line text field that accepts letter input and supports
+    backspace."""
+
     def __init__(self, x: int, y: int, font_size: int,
                  max_char: int = 10) -> None:
+        """
+        Initialize the text input widget.
+
+        x         -- left edge position in pixels
+        y         -- top edge position in pixels
+        font_size -- text size in pixels
+        max_char  -- maximum number of characters allowed
+        """
         self.x = x
         self.y = y
         self.w = rl.measure_text("O", font_size) * (max_char + 2)
@@ -20,6 +31,8 @@ class TextInput:
         self.animation_tick = 60
 
     def handle_input(self) -> None:
+        """Process keyboard events to append characters or remove the
+        last one."""
         rl.draw_rectangle_lines(self.x, self.y, self.w, self.h, rl.WHITE)
         input = rl.get_char_pressed()
         if (((input >= self.a and input <= self.z) or
@@ -30,6 +43,7 @@ class TextInput:
             self.value = self.value[:-1]
 
     def draw(self) -> None:
+        """Render the current value with a blinking cursor animation."""
         self.tick_acumulator += 1
         if (self.tick_acumulator < self.animation_tick
                 and len(self.value) < self.max_char):

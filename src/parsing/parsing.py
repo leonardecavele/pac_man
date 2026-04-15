@@ -7,10 +7,18 @@ from src.parsing import Config
 
 
 class Parser:
+    """Parse and validate a JSON (with comments) game configuration file."""
+
     def __init__(self, config_path: str):
+        """Initialize the parser with the absolute path to the config file."""
         self.config_path = config_path
 
     def run(self) -> Config:
+        """Read, parse, and validate the configuration file.
+
+        Return a validated Config instance on success.
+        Exit the process with an appropriate ErrorCode on any failure.
+        """
         tmp = ""
         try:
             with open(self.config_path, "r") as config:

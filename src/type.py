@@ -10,6 +10,8 @@ brd: TypeAlias = list[list["Maze.Cell"]]
 
 
 class Direction(Enum):
+    """Cardinal movement directions with associated (dx, dy) pixel deltas."""
+
     TOP = (0, -1)
     RIGHT = (1, 0)
     BOT = (0, 1)

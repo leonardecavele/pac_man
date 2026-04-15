@@ -10,6 +10,8 @@ from src.type import vec2i, vec2f, Direction
 
 
 class Pac_man(Entity):
+    """Player-controlled Pac-Man entity."""
+
     def __init__(
         self,
         screen_pos: vec2f,
@@ -20,6 +22,16 @@ class Pac_man(Entity):
         textures: dict[str, dict[str, list[rl.Texture]] |
                        list[rl.Texture]],
     ) -> None:
+        """
+        Initialize Pac-Man.
+
+        screen_pos          -- initial pixel position on screen
+        maze_pos            -- initial cell position in the maze grid
+        sprite              -- starting texture
+        m                   -- reference to the game maze
+        default_velocity_px -- base movement speed in pixels per second
+        textures            -- full texture atlas used for all animations
+        """
         super().__init__(screen_pos, maze_pos, sprite, m, default_velocity_px)
         self.input: vec2i | None = None
         self.velocity_px = int(self.default_velocity_px * 0.80)
@@ -36,6 +48,13 @@ class Pac_man(Entity):
         self.move_frame_duration: float = 8 / 60
 
     def try_corner(self, maze_to_screen: Callable[[vec2i], vec2i]) -> bool:
+        """
+        Attempt a smooth corner turn while Pac-Man is in motion.
+
+        Return True and commit the turn if Pac-Man is close enough to the
+        center of his target cell and the requested perpendicular direction is
+        valid; return False otherwise.
+        """
         if self.target_cell is None or self.input is None:
             return False
 
@@ -81,6 +100,8 @@ class Pac_man(Entity):
         return True
 
     def animate(self, dt: float) -> None:
+        """Advance the animation frame for the current movement or dying
+        state."""
         if self.dying:
             self.dying_timer += dt
 
@@ -121,6 +142,12 @@ class Pac_man(Entity):
             self.sprite = self.textures["up"][idx]
 
     def update(self, dt: float = 0.0) -> None:
+        """
+        Update Pac-Man's movement intent and target cell.
+
+        Apply the buffered input direction when valid, handle reverse-direction
+        requests mid-cell, and set origin/target cells for the movement system.
+        """
         self.prev_direction = self.direction
 
         if self.dying:

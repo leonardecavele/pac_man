@@ -7,6 +7,7 @@ from src.parsing import Parser
 
 
 def main() -> int:
+    """Run the Pac-Man application and return an exit code."""
     config_path = os.path.abspath(sys.argv[1]) if len(sys.argv) == 2 else None
 
     if '__compiled__' in globals():

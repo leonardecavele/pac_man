@@ -4,6 +4,8 @@ import pyray as rl
 
 
 class Sounds:
+    """Manage loading, playing, pausing, and unloading all game sounds."""
+
     SOUND_PATHS: dict[str, str] = {
         "dying": "assets/sounds/dying.flac",
         "ghost_normal_move": "assets/sounds/ghost_move.flac",
@@ -22,6 +24,7 @@ class Sounds:
     }
 
     def __init__(self) -> None:
+        """Load all sounds from SOUND_PATHS and initialize playback state."""
         self.sounds: dict[str, rl.Sound] = {}
         self._load_sounds()
         self.munch_counter: int = 0
@@ -29,33 +32,43 @@ class Sounds:
         self.paused_sounds: set[str] = set()
 
     def _load_sounds(self) -> None:
+        """Load every sound declared in SOUND_PATHS into self.sounds."""
         for name, path in self.SOUND_PATHS.items():
             self.sounds[name] = rl.load_sound(path)
 
     def play_sound(self, name: str) -> None:
+        """Play the sound identified by name, or do nothing if it does
+        not exist."""
         sound: rl.Sound | None = self.sounds.get(name)
         if sound is None:
             return
         rl.play_sound(sound)
 
     def stop_sound(self, name: str) -> None:
+        """Stop the sound identified by name, or do nothing if it does
+        not exist."""
         sound: rl.Sound | None = self.sounds.get(name)
         if sound is None:
             return
         rl.stop_sound(sound)
 
     def unload_sounds(self) -> None:
+        """Unload all sounds from GPU memory and clear the internal
+        dictionary."""
         for sound in self.sounds.values():
             rl.unload_sound(sound)
         self.sounds.clear()
 
     def is_playing(self, name: str) -> bool:
+        """Return True if the sound identified by name is currently playing."""
         sound: rl.Sound | None = self.sounds.get(name)
         if sound is None:
             return False
         return rl.is_sound_playing(sound)
 
     def pause_all_sounds(self) -> None:
+        """Pause every currently playing sound and record them for later
+        resume."""
         self.paused_sounds.clear()
 
         for name, sound in self.sounds.items():
@@ -64,6 +77,8 @@ class Sounds:
                 self.paused_sounds.add(name)
 
     def resume_all_sounds(self) -> None:
+        """Resume all sounds that were previously paused by
+        pause_all_sounds."""
         for name in self.paused_sounds:
             sound: rl.Sound | None = self.sounds.get(name)
             if sound is None:
@@ -73,6 +88,8 @@ class Sounds:
         self.paused_sounds.clear()
 
     def play_munch(self) -> None:
+        """Play the next munch sound (alternating munch1/munch2) if none
+        is active."""
         # working corner munch implementation but we dislike it
 
         # is_turning: bool = (
@@ -102,6 +119,8 @@ class Sounds:
             self.munch_counter += 1
 
     def play_ghost_sound(self, name: str) -> None:
+        """Switch the active ghost ambient sound to name, stopping the
+        previous one."""
         if self.current_ghost_sound == name:
             if not self.is_playing(name):
                 self.play_sound(name)
@@ -114,6 +133,7 @@ class Sounds:
         self.current_ghost_sound = name
 
     def stop_ghost_sound(self) -> None:
+        """Stop the currently playing ghost ambient sound, if any."""
         if self.current_ghost_sound is None:
             return
 

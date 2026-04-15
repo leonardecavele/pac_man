@@ -6,7 +6,11 @@ from src.display.components import TextInput, Button
 
 
 class EndView(View):
+    """Screen shown after a game ends; lets the player enter a name and save
+    their score."""
+
     def __init__(self, width: int, height: int) -> None:
+        """Initialize the end view for the given viewport dimensions."""
         self.score = -1
         self.width = width
         self.height = height
@@ -25,6 +29,8 @@ class EndView(View):
         self._set_positions()
 
     def _set_positions(self) -> None:
+        """Recompute font sizes and widget positions based on the current
+        viewport size."""
         self.font_size = max(28, self.height // 14)
         self.score_font_size = max(22, self.font_size // 2)
 
@@ -140,6 +146,11 @@ class EndView(View):
         self._set_positions()
 
     def _save_score(self) -> bool:
+        """Append the player name and score to the leaderboard file.
+
+        Return True on success, False if the input is empty or the file
+        cannot be written.
+        """
         try:
             if not len(self.text_input.value):
                 return False
