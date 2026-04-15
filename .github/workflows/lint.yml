@@ -25,12 +25,14 @@ jobs:
         with:
           python-version: "3.12"
 
+      - name: Install Poetry
+        run: pip install poetry
+
       - name: Install dependencies
-        run: |
-          pip install flake8 mypy
+        run: poetry install --with dev --no-root
 
       - name: Run flake8
-        run: flake8 .
+        run: poetry run flake8 .
 
       - name: Run mypy
-        run: mypy src --warn-return-any --warn-unused-ignores --ignore-missing-imports --disallow-untyped-defs --check-untyped-defs
+        run: poetry run mypy . --warn-return-any --warn-unused-ignores --ignore-missing-imports --disallow-untyped-defs --check-untyped-defs

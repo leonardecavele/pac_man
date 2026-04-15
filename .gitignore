@@ -1,0 +1,6 @@
+*.pdf
+*cache*
+.venv
+mazegenerator.py
+leaderboard.pm
+dist
