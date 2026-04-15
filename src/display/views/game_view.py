@@ -110,6 +110,11 @@ class GameView(View):
         self._load_maze(self.maze)
 
     def _load_maze(self, maze: Maze) -> None:
+        """ Load a new maze
+
+        Args:
+            maze: Maze
+        """
         self.maze = maze
 
         self.geometry = GameGeometry(
