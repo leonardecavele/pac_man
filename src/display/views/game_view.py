@@ -790,6 +790,8 @@ class GameView(View):
             self.height // 2 - self.maze_pixel_h // 2
         )
         self.font_size = self.margin[1] // 2
+        rl.unload_texture(self.maze_texture)
+        rl.unload_image(self.maze_image)
         self.maze_image = rl.gen_image_color(
             self.width - 50,
             self.height - 50,

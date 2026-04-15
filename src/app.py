@@ -3,7 +3,7 @@ import pyray as rl
 from random import randint
 from typing import cast
 
-from src.display import Textures
+from src.display import Textures, unload_textures
 from src.display.views import (
     EndView, GameView, MenuView, View, ViewEventType, InstructionView)
 from src.maze import Maze, ClassicMaze, RandomMaze
@@ -143,6 +143,8 @@ class App:
                     textures=self.textures,
                     sounds=self.sounds
                 )
+                if event.message in self.views:
+                    self.views[event.message].close()
                 self.views[event.message] = game_view
                 self.current_view = self.views[event.message]
                 continue
@@ -184,6 +186,7 @@ class App:
 
         self._close_view()
         rl.unload_render_texture(self.render_texture)
+        unload_textures(self.textures)
         self.sounds.unload_sounds()
         rl.close_audio_device()
         rl.close_window()
@@ -254,3 +257,4 @@ class App:
                 rl.WHITE
             )
             rl.end_drawing()
+        rl.unload_texture(bg)

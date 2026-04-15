@@ -1,6 +1,19 @@
 import pyray as rl
 
 
+def unload_textures(
+    textures: dict[str, dict[str, list[rl.Texture]] | list[rl.Texture]]
+) -> None:
+    for value in textures.values():
+        if isinstance(value, list):
+            for texture in value:
+                rl.unload_texture(texture)
+        else:
+            for tex_list in value.values():
+                for texture in tex_list:
+                    rl.unload_texture(texture)
+
+
 class Textures:
     def __init__(self, cell_size: int):
         self.cell_size = cell_size
@@ -159,5 +172,5 @@ class Textures:
             rl.BEIGE,
         )
         texture = rl.load_texture_from_image(image)
-        return ([texture])
-        return texture
+        rl.unload_image(image)
+        return [texture]
