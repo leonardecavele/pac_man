@@ -233,8 +233,6 @@ class GameState:
         current maze."""
         pacgums: list[Collectible] = []
         for y in range(self.maze.height):
-            if (y != 9):
-                continue
             for x in range(self.maze.width):
                 if self.maze.maze[y][x].value == 15:
                     continue
